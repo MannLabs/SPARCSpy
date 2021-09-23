@@ -1,4 +1,4 @@
-from numba import jit
+from numba import jit, njit
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
