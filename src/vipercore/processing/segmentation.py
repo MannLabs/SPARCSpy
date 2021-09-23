@@ -18,12 +18,8 @@ from skimage.morphology import binary_erosion, disk
 from vipercore.processing.utils import plot_image
 
 import skimage as sk
-import psutil
-import numba
 import numpy as np
 import skfmm
-from copy import copy, deepcopy
-import h5py
 
 def segment_global_thresh(image, min_distance=8, min_size=20, dilation=0, threshold=3,peak_threshold=3, return_markers=False):
     """This function takes a preprocessed image with low background noise and extracts and segments the foreground.
