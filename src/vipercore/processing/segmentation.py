@@ -15,7 +15,7 @@ from skimage.morphology import dilation as sk_dilation
 
 from skimage.morphology import binary_erosion, disk
 
-from vipercore.processing.preprocessing import plot_image
+from vipercore.processing.utils import plot_image
 
 import skimage as sk
 import psutil
