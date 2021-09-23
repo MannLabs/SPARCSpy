@@ -16,7 +16,7 @@ from skimage.segmentation import watershed
 from skimage.color import label2rgb
 
 from vipercore.processing.segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, shift_labels
-from vipercore.processing.preprocessing import plot_image
+from vipercore.processing.utils import plot_image
 
 from vipercore.pipeline.base import Logable
 
