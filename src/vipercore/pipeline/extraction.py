@@ -1,22 +1,18 @@
 from datetime import datetime
 import os
 import numpy as np
-import matplotlib.pyplot as plt
-import skfmm
 import csv
 from functools import partial
 from multiprocessing import Pool
 import h5py
 
-from skimage.filters import gaussian, median
-from skimage.morphology import binary_erosion, disk, dilation
-from skimage.segmentation import watershed
-from skimage.color import label2rgb
+from skimage.filters import gaussian
+from skimage.morphology import disk, dilation
 
 from scipy.ndimage import binary_fill_holes
 
 
-from vipercore.processing.segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, numba_mask_centroid
+from vipercore.processing.segmentation import numba_mask_centroid
 from vipercore.processing.utils import plot_image
 from vipercore.processing.deprecated import normalize, MinMax
 import uuid

@@ -59,7 +59,7 @@ def segment_global_thresh(image, min_distance=8, min_size=20, dilation=0, thresh
     local_maxi[tuple(peak_idx.T)] = True
     markers = ndimage.label(local_maxi)[0]
     
-    kernel = create_kernel(dilation)
+    kernel = disk(dilation)
     
     mask = np.where(image > threshold * std, 1,0)
 
