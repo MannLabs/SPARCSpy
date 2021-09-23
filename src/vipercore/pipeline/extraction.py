@@ -17,7 +17,7 @@ from scipy.ndimage import binary_fill_holes
 
 
 from vipercore.processing.segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, numba_mask_centroid
-from vipercore.processing.preprocessing import plot_image
+from vipercore.processing.utils import plot_image
 from vipercore.processing.deprecated import normalize, MinMax
 import uuid
 import shutil
