@@ -15,10 +15,10 @@ from skimage.morphology import binary_erosion, disk, dilation
 from skimage.segmentation import watershed
 from skimage.color import label2rgb
 
-from image_processing.Segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, shift_labels
-from image_processing.Preprocessing import plot_image
+from vipercore.processing.segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, shift_labels
+from vipercore.processing.preprocessing import plot_image
 
-from pipeline.Base import Logable
+from vipercore.pipeline.base import Logable
 
 class Shard(Logable):
     DEFAULT_LOG_NAME = "processing.log" 

@@ -16,15 +16,13 @@ from skimage.color import label2rgb
 
 from scipy.ndimage import binary_fill_holes
 
-from image_processing.Segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, numba_mask_centroid
-from image_processing.Preprocessing import plot_image
-from image_processing.ML_Preprocessing import normalize, MinMax
+from vipercore.processing.utils import plot_image
+
+from vipercore.ml.datasets import NPYSingleCellDataset, HDF5SingleCellDataset
+from vipercore.ml.transforms import RandomRotation, GaussianNoise, ChannelReducer, ChannelSelector
+from vipercore.ml.plmodels import GeneralModel, MultilabelSupervisedModel
 
 from torchvision import transforms, utils
-
-from machine_learning.Datasets import GolgiNetDataset, HDF5SingleCellDataset
-from machine_learning.Transforms import RandomRotation, GaussianNoise, ChannelReducer, ChannelSelector
-from machine_learning.PLModels import GeneralModel, MultilabelSupervisedModel
 
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
