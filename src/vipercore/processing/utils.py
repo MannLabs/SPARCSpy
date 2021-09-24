@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 def plot_image(array, size = (10,10), save_name="", cmap="magma", **kwargs):
     fig = plt.figure(frameon=False)
     fig.set_size_inches(size)
