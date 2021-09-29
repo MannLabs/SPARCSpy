@@ -519,7 +519,7 @@ class ShardedWGASegmentation(Logable):
 
             sharding_plan.append((slice(0,self.image_size[0]),slice(0,self.image_size[1])))
         else:
-            self.log("target size is equal or larger to input image. Sharding will not be used.")
+            self.log("target size is smaller than input image. Sharding will be used.")
             sharding_plan = self.calculate_sharding_plan(self.image_size)
             
         shard_list = self.initialize_shard_list(sharding_plan)
@@ -531,6 +531,9 @@ class ShardedWGASegmentation(Logable):
         self.log("Finished parallel segmentation")
         
         self.resolve_sharding(sharding_plan)
+        
+        self.log("============= Finished Segmentation ============= ")
+        
         
     def resolve_sharding(self, sharding_plan):
         """
