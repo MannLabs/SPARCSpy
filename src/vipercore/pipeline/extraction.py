@@ -403,14 +403,21 @@ class HDF5CellExtraction:
         current_level_files = [ name for name in os.listdir(self.extraction_cache) if os.path.isfile(os.path.join(self.extraction_cache, name))]
         num_classes = len(current_level_files)
         
+        compression_type = "lzf" if self.config["compression"] else None
+        
         output_path = os.path.join(self.extraction_data_directory, self.DEFAULT_DATA_FILE)
         hf = h5py.File(output_path, 'w')
         
         hf.create_dataset('single_cell_index', (num_classes,2) ,dtype="uint32")
         hf.create_dataset('single_cell_data', (num_classes,
-                                               num_channels,
-                                               self.config["image_size"],
-                                               self.config["image_size"]),
+                                                   num_channels,
+                                                   self.config["image_size"],
+                                                   self.config["image_size"]),
+                                               chunks=(1,
+                                                       1,
+                                                       self.config["image_size"],
+                                                       self.config["image_size"]),
+                                               compression=compression_type,
                                                dtype="float16")
         output_index = hf.get('single_cell_index')
         output_data = hf.get('single_cell_data')

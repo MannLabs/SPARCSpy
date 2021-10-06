@@ -473,7 +473,7 @@ class ShardedWGASegmentation(Logable):
         self.intermediate_output = intermediate_output
         
     def __call__(self, input_image, debug_images=False):
-        
+    
         # Create segmentation directory
         if self.overwrite:
             if os.path.isdir(self.shard_directory):
@@ -493,7 +493,7 @@ class ShardedWGASegmentation(Logable):
                 os.remove(self.log_path)
                 
         
-                
+        self.log("Started shardedd Segmentation")        
                 
         self.maps = {"normalized": None,
                      "median": None,
@@ -540,6 +540,8 @@ class ShardedWGASegmentation(Logable):
         The function iterates over a sharding plan and generates a new stitched hdf5 based segmentation.
         """
         
+        self.log("resolve sharding plan")
+        
         output = os.path.join(self.segmentation_directory,self.DEFAULT_OUTPUT_FILE)
         
         label_size = (2,self.image_size[0],self.image_size[1])
@@ -564,6 +566,9 @@ class ShardedWGASegmentation(Logable):
         filtered_classes_combined = []
         edge_classes_combined = []
         for i, window in enumerate(sharding_plan):
+            
+            self.log(f"Stitching tile {i}")
+            
             local_shard_directory = os.path.join(self.shard_directory,str(i))
             local_output = os.path.join(local_shard_directory,self.DEFAULT_OUTPUT_FILE)
             local_classes = os.path.join(local_shard_directory,"classes.csv")
@@ -585,6 +590,8 @@ class ShardedWGASegmentation(Logable):
             edge_classes_combined += edge_labels
             class_id_shift += np.max(local_hdf_labels[0])
             
+            local_hf.close()
+            self.log(f"Finished stitching tile {i}")
         
         classes_after_edges = [item for item in filtered_classes_combined if item not in edge_classes_combined]
 
@@ -624,6 +631,7 @@ class ShardedWGASegmentation(Logable):
         
         hf.close()      
         
+        self.log("resolved sharding plan")
         
         
     def initialize_shard_list(self, sharding_plan):
