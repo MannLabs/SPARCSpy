@@ -8,18 +8,17 @@ import numpy as np
 
 
 
-class Dataset:
+class Project:
     # default name for the config file. Name is changed when config file is copied. Name needs to used when config is created manually in dataset folder
     DEFAULT_CONFIG_NAME = "config.yml"
     DEFAULT_SEGMENTATION_DIR_NAME = "segmentation"
     DEFAULT_EXTRACTION_DIR_NAME = "extraction"
     DEFAULT_CLASSIFICATION_DIR_NAME = "classification"
     
+    # Project object is initialized, nothing is written to disk
     def __init__(self, 
                  location_path, 
                  config_path =  "", 
-                 debug = False, 
-                 overwrite = False,
                  intermediate_output = True,
                  segmentation_f = None,
                  extraction_f = None,
@@ -29,20 +28,21 @@ class Dataset:
         
         self.input_image = None
         self.config = None
-        self.debug = debug
-        self.overwrite = overwrite
-        self.intermediate_output = intermediate_output
         
         # handle location
             
         self.dataset_location = location_path
+        
+    def create(self, 
+               debug = False,
+               overwrite = False):
         
         if not os.path.isdir(self.dataset_location):
                 os.makedirs(self.dataset_location)
         else:
             warnings.warn("Theres already a directory in the location path")
                 
-        # handle configuration
+        # handle configuration file
         new_config_path = os.path.join(self.dataset_location,self.DEFAULT_CONFIG_NAME)
         if config_path == "":
             
@@ -52,7 +52,7 @@ class Dataset:
                 self.load_config_from_file(new_config_path)
             
             else:
-                warnings.warn("You will need to add a {} file manually to the dataset".format(DEFAULT_CONFIG_NAME))
+                warnings.warn(f"You will need to add a config named {self.DEFAULT_CONFIG_NAME} file manually to the dataset")
         
         else:
             if not os.path.isfile(config_path):
