@@ -109,21 +109,24 @@ def scan_directory(levels_left, path):
             extraction_data = "extraction/data"
             extraction_dir = os.path.join(path,extraction_data)
             
-            current_level_files = [ name for name in os.listdir(extraction_dir) if os.path.isfile(os.path.join(extraction_dir, name))]
-                
             extractions = []
-            for i, file in enumerate(current_level_files):
-                filetype = file.split(".")[-1]
-                filename = file.split(".")[0]
-    
-                if filetype in HDF_FILETYPES:
-                    
-                    file_path = os.path.join(extraction_dir,file)
-                    
-                    size = sizeof_fmt(os.stat(os.path.join(extraction_dir,file)).st_size)
-                    length = get_dataset_length(os.path.join(extraction_dir,file))
-                    
-                    extractions.append((file, length, size))
+            if os.path.isdir(extraction_dir):
+            
+                current_level_files = [ name for name in os.listdir(extraction_dir) if os.path.isfile(os.path.join(extraction_dir, name))]
+
+
+                for i, file in enumerate(current_level_files):
+                    filetype = file.split(".")[-1]
+                    filename = file.split(".")[0]
+
+                    if filetype in HDF_FILETYPES:
+
+                        file_path = os.path.join(extraction_dir,file)
+
+                        size = sizeof_fmt(os.stat(os.path.join(extraction_dir,file)).st_size)
+                        length = get_dataset_length(os.path.join(extraction_dir,file))
+
+                        extractions.append((file, length, size))
 
             
 
