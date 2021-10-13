@@ -17,13 +17,15 @@ class Dataset:
     
     def __init__(self, 
                  location_path, 
-                 config_path =  "", 
-                 debug = False, 
-                 overwrite = False,
+                 config_path =  "",
                  intermediate_output = True,
                  segmentation_f = None,
                  extraction_f = None,
-                 classification_f = None):
+                 classification_f = None,
+                 debug = False,
+                 overwrite = False):
+        
+        
         
         PIL.Image.MAX_IMAGE_PIXELS = 10000000000
         
@@ -59,12 +61,23 @@ class Dataset:
                 raise ValueError("Your config path is invalid")
                 
             else:
-                # The blueprint config file is copied to the dataset folder and renamed to the default name
-                shutil.copyfile(config_path, new_config_path)
+                
+                # check if there is an old config file
+                if os.path.isfile(new_config_path):               
+                    if overwrite:   
+                        # The blueprint config file is copied to the dataset folder and renamed to the default name
+                        shutil.copyfile(config_path, new_config_path)
+                        
+                    else:
+                        warnings.warn(f"You specified a new config file but didnt specify overwrite. The existing file will be loaded. Did you mean create(overwrite=True)?")
+                else:
+                    # The blueprint config file is copied to the dataset folder and renamed to the default name
+                    shutil.copyfile(config_path, new_config_path)
+                    
                 self.load_config_from_file(new_config_path)
-        
+        """
         # === setup segmentation ===
-        if segmentation_f is not None:
+        if self.segmentation_f is not None:
             seg_directory = os.path.join(self.dataset_location, self.DEFAULT_SEGMENTATION_DIR_NAME)
             self.segmentation_f = segmentation_f(self.config[segmentation_f.__name__], 
                                                  seg_directory,
@@ -95,6 +108,7 @@ class Dataset:
                                                  intermediate_output = self.intermediate_output)
         else:
             self.classification_f = None
+        """
                 
     def load_config_from_file(self, file_path):
         
