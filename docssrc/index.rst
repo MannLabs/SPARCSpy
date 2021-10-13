@@ -6,15 +6,13 @@
 Welcome to Viper Core's documentation!
 ======================================
 
+.. contents:: Table of Contents
+
+Welcome to the show
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   
+   pages/vipercmd
+   pages/ml

@@ -6,6 +6,18 @@ import os
 import h5py
 
 class NPYSingleCellDataset(Dataset):
+    """Summary line.
+
+    Extended description of function.
+
+    Args:
+        arg1 (int): Description of arg1
+        arg2 (str): Description of arg2
+
+    Returns:
+        bool: Description of return value
+
+    """
     def __init__(self, dir_list, dir_labels, root_dir, max_level=5, transform=None, return_id=False, return_fake_id=False):
         
         self.root_dir = root_dir

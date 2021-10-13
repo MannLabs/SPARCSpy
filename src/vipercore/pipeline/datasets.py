@@ -25,7 +25,9 @@ class Dataset:
                  debug = False,
                  overwrite = False):
         
-        
+        self.segmentation_f = segmentation_f
+        self.extraction_f = extraction_f
+        self.classification_f = classification_f
         
         PIL.Image.MAX_IMAGE_PIXELS = 10000000000
         
@@ -75,7 +77,7 @@ class Dataset:
                     shutil.copyfile(config_path, new_config_path)
                     
                 self.load_config_from_file(new_config_path)
-        """
+        
         # === setup segmentation ===
         if self.segmentation_f is not None:
             seg_directory = os.path.join(self.dataset_location, self.DEFAULT_SEGMENTATION_DIR_NAME)
@@ -108,7 +110,7 @@ class Dataset:
                                                  intermediate_output = self.intermediate_output)
         else:
             self.classification_f = None
-        """
+        
                 
     def load_config_from_file(self, file_path):
         
