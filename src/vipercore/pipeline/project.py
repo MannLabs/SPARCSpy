@@ -57,6 +57,10 @@ class Project:
                  classification_f = None,
                  selection_f = None
                  ):
+        
+        self.debug = debug
+        self.overwrite = overwrite
+        self.intermediate_output = intermediate_output
          
         self.segmentation_f = segmentation_f
         self.extraction_f = extraction_f
@@ -85,7 +89,7 @@ class Project:
             # Check if there is already a config file in the dataset folder in case no config file has been specified
             
             if os.path.isfile(new_config_path):
-                self.load_config_from_file(new_config_path)
+                self._load_config_from_file(new_config_path)
             
             else:
                 warnings.warn(f"You will need to add a config named {self.DEFAULT_CONFIG_NAME} file manually to the dataset")
@@ -108,7 +112,7 @@ class Project:
                     # The blueprint config file is copied to the dataset folder and renamed to the default name
                     shutil.copyfile(config_path, new_config_path)
                     
-                self.load_config_from_file(new_config_path)
+                self._load_config_from_file(new_config_path)
         
         # === setup segmentation ===
         if self.segmentation_f is not None:
