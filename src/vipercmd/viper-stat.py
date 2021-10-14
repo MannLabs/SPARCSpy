@@ -25,10 +25,6 @@ def generate_parser():
     return parser
     
 def main():
-    """
-        :param calibration_points: Calibration coordinates in the form of :math:`(3, 2)`.
-        :type calibration_points: :class:`numpy.array`, optional
-    """
    
     print(f"Viper-stat collecting information. This can take some time...")
     

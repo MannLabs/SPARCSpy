@@ -15,4 +15,5 @@ Welcome to the show
    :caption: Contents:
    
    pages/vipercmd
+   pages/pipeline
    pages/ml
