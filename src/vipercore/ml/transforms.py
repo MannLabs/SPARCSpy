@@ -18,7 +18,7 @@ class RandomRotation(object):
         angle = random.choice(self.choices)
         return TF.rotate(tensor, angle)
     
-    
+
 class GaussianNoise(object):
     def __init__(self, sigma=0.1, channels=[]):
         self.sigma = sigma

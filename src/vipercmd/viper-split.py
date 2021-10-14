@@ -10,37 +10,7 @@ import numpy as np
 import random
 from multiprocessing import Pool
 
-# Manipulate existing single cell hdf5 datasets
-# can be used for splitting, shuffleing and compression / decompression
-#
-# usage: viper-split [-h] [-o OUTPUT OUTPUT] [-r RANDOM] [-t THREADS] [-c COMPRESSION] input_dataset
-# positional arguments:
-#  input_dataset         input dataset which should be split
-#
-# optional arguments:
-#  -h, --help            show this help message and exit
-#  -o OUTPUT OUTPUT, --output OUTPUT OUTPUT
-#                      output dataset pairs. for example -o test 0.9
-#  -r RANDOM, --random RANDOM
-#                        shuffle single cells randomly
-#  -t THREADS, --threads THREADS
-#                        number of threads
-#  -c COMPRESSION, --compression COMPRESSION
-#                        use lzf compression
-#
-# Splitting with shuffle and compression:
-# viper-split single_cells.h5 -r -c -o train.h5 0.9 -o test.h5 0.05 -o validate.h5 0.05
-#
-# Shuffle:
-# viper-split single_cells.h5 -r -o single_cells.h5 1.0
-#
-# Compression:
-# viper-split single_cells.h5 -c -o single_cells.h5 1.0
-#
-# Decompression:
-# viper-split single_cells.h5 -o single_cells.h5 1.0
-
-def main():
+def _generate_parser():
     # instantiate the parser
     parser = argparse.ArgumentParser(description='Manipulate existing single cell hdf5 datasets.')
     
@@ -55,6 +25,17 @@ def main():
     
     parser.add_argument("-c","--compression", default=False, action='store_true', help="use lzf compression")
     
+    return parser
+    
+def _main():
+    
+    """
+        :param calibration_points: Calibration coordinates in the form of :math:`(3, 2)`.
+        :type calibration_points: :class:`numpy.array`, optional
+    """
+    
+    
+    parser = generate_parser()
     args = parser.parse_args()
     
     
@@ -111,11 +92,11 @@ def main():
        
     print(f"\n=== starting parallel execution with {args.threads} threads ===")
     with Pool(processes=args.threads) as pool:
-        x = pool.map(write_new_list,slices)
+        x = pool.map(_write_new_list,slices)
     
     input_hdf.close()
     
-def write_new_list(param):
+def _write_new_list(param):
     name, length, section = param
     
     input_hdf = h5py.File(input_name, 'r')
@@ -159,7 +140,7 @@ def write_new_list(param):
     output_hdf.close()    
     input_hdf.close()
 
-def sizeof_fmt(num, suffix="B"):
+def _sizeof_fmt(num, suffix="B"):
     for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
         if abs(num) < 1024.0:
             return f"{num:3.1f}{unit}{suffix}"
@@ -168,4 +149,4 @@ def sizeof_fmt(num, suffix="B"):
 
 if __name__ == "__main__":
 
-    main()
+    _main()

@@ -11,12 +11,7 @@ from colorama import init
 from colorama import Fore, Back, Style
 import h5py
 
-
-def main():
-    
-   
-    print(f"Viper-stat collecting information. This can take some time...")
-    
+def generate_parser():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Scan directory for viper projects.')
     
@@ -27,7 +22,18 @@ def main():
     parser.add_argument("-t","--threads", type=int, default=8, help="number of threads")
     
     parser.add_argument("-r","--recursion", type=int, default=5, help="levels of recursion")
+    return parser
     
+def main():
+    """
+        :param calibration_points: Calibration coordinates in the form of :math:`(3, 2)`.
+        :type calibration_points: :class:`numpy.array`, optional
+    """
+   
+    print(f"Viper-stat collecting information. This can take some time...")
+    
+    
+    parser = generate_parser()
     args = parser.parse_args()
     
     global num_threads 
