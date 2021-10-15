@@ -16,4 +16,3 @@ Welcome to the show
    
    pages/vipercmd
    pages/pipeline
-   pages/ml
