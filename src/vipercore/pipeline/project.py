@@ -113,9 +113,13 @@ class Project:
                     shutil.copyfile(config_path, new_config_path)
                     
                 self._load_config_from_file(new_config_path)
+                
         
         # === setup segmentation ===
         if self.segmentation_f is not None:
+            if not segmentation_f.__name__ in self.config:
+                raise ValueError(f"Config for {segmentation_f.__name__} is missing from the config file")
+                
             seg_directory = os.path.join(self.project_location, self.DEFAULT_SEGMENTATION_DIR_NAME)
             self.segmentation_f = segmentation_f(self.config[segmentation_f.__name__], 
                                                  seg_directory,
@@ -128,6 +132,10 @@ class Project:
         # === setup extraction ===
         if extraction_f is not None:
             extraction_directory = os.path.join(self.project_location, self.DEFAULT_EXTRACTION_DIR_NAME)
+            
+            if not extraction_f.__name__ in self.config:
+                raise ValueError(f"Config for {extraction_f.__name__} is missing from the config file")
+            
             self.extraction_f = extraction_f(self.config[extraction_f.__name__], 
                                                  extraction_directory,
                                                  debug = self.debug,
@@ -136,19 +144,12 @@ class Project:
         else:
             self.extraction_f = None
             
-        # === setup classification ===
-        if classification_f is not None:
-            classification_directory = os.path.join(self.project_location, self.DEFAULT_CLASSIFICATION_DIR_NAME)
-            self.classification_f = classification_f(self.config[classification_f.__name__], 
-                                                 classification_directory,
-                                                 debug = self.debug,
-                                                 overwrite = self.overwrite,
-                                                 intermediate_output = self.intermediate_output)
-        else:
-            self.classification_f = None
             
         # === setup classification ===
         if classification_f is not None:
+            if not classification_f.__name__ in self.config:
+                raise ValueError(f"Config for {classification_f.__name__} is missing from the config file")
+                
             classification_directory = os.path.join(self.project_location, self.DEFAULT_CLASSIFICATION_DIR_NAME)
             self.classification_f = classification_f(self.config[classification_f.__name__], 
                                                  classification_directory,
@@ -160,6 +161,9 @@ class Project:
             
         # === setup selection ===
         if selection_f is not None:
+            if not selection_f.__name__ in self.config:
+                raise ValueError(f"Config for {selection_f.__name__} is missing from the config file")
+                
             selection_directory = os.path.join(self.project_location, self.DEFAULT_SELECTION_DIR_NAME)
             self.selection_f = selection_f(self.config[selection_f.__name__], 
                                                  selection_directory,
