@@ -45,16 +45,14 @@ def main():
             print("search directory not a valid path")
         
     table = scan_directory(args.recursion, search_directory)
-          
+    
+    # check if any projects were found
     if len(table) > 0:
         
         table.sort(key=lambda x: x[0])
         
         for line in table:
             print_project(line)
-        #print(tabulate(table, 
-        #               headers=["Project", "Segmentation", "Cells", "Extraction", "Size"],
-        #               stralign="right"))
     else:
         print("No projects found")
 def print_project(line):
@@ -142,7 +140,7 @@ def scan_directory(levels_left, path):
 
             with Pool(max_workers=num_threads) as pool:
                 projects = pool.map(partial(scan_directory, levels_left-1),current_level_directories)
-
+            
             return list(flatten(projects))
 
 def get_dir_size(path):
@@ -173,7 +171,9 @@ def flatten(l):
             if len(el)>0:
                 yield el[0]
         else:
-            yield el
+            # pool.map might return None on subfolders
+            if el is not None:
+                yield el
             
 # https://stackoverflow.com/questions/1094841/get-human-readable-version-of-file-size
 def sizeof_fmt(num, suffix="B"):

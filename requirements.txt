@@ -9,3 +9,5 @@ scikit-fmm
 pyYaml
 pillow
 torch
+tabulate
+colorama
