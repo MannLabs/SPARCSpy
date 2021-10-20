@@ -43,8 +43,12 @@ if platform.system() == "Linux":
         st = os.stat(src_module)
         os.chmod(src_module, st.st_mode | 0o111)
         
+        
+        
         if not os.path.islink(symlink_origin):
-            os.symlink(symlink_origin, src_module)
+            print(f"symlink for {cmd} does not exist, will be created")
+            os.symlink(src_module, symlink_origin)
+            
             
 else:
     print("Automatic symlinks are only supported on linux. Please add viper cli commands to your PATH.")
