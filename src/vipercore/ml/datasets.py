@@ -135,7 +135,7 @@ class HDF5SingleCellDataset(Dataset):
                  transform=None, 
                  return_id=False, 
                  return_fake_id=False,
-                select_channel=None):
+                 select_channel=None):
         
         self.root_dir = root_dir
         self.dir_labels = dir_labels
@@ -177,6 +177,10 @@ class HDF5SingleCellDataset(Dataset):
             return
         
     def scan_directory(self, path, current_label, levels_left):
+        
+        # iterates over all files and folders in a directory
+        # hdf5 files are added to the index
+        # subfolders are recursively scanned
         
         if levels_left > 0:
             
