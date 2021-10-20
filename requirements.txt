@@ -1,5 +1,6 @@
 #### Required Packages #####
 numpy
+pandas
 matplotlib
 h5py
 scikit-image

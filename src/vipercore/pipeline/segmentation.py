@@ -441,7 +441,29 @@ class Shard(Logable):
         
         self.log("============= Saved segmentation ============= ")
 class Segmentation(ProcessingStep):
-    
+    """Segmentation helper class used for creating segmentation workflows
+    Attributes:
+        maps (dict(str)): Segmentation workflows based on the :class:`.Segmentation` class can use maps for saving and loading checkpoints and perform. Maps can be numpy arrays 
+        
+    Example:
+        .. code-block:: python
+            def process(self):
+                # two maps are initialized
+                self.maps = {"map0": None,
+                             "map1": None}
+                
+                # its checked if the segmentation directory already contains these maps and they are then loaded. The index of the first map whoch has not been found is returned. It indicates the step where computation needs to resume
+                current_step = self.load_maps_from_disk()
+                
+                if current_step <= 0:
+                    # do stuff and generate map0
+                    self.save_map("map0")
+                    
+                if current_step <= 1:
+                    # do stuff and generate map1
+                    self.save_map("map1")
+                            
+    """
     DEFAULT_OUTPUT_FILE = "segmentation.h5"
     DEFAULT_FILTER_FILE = "classes.csv"
     def __init__(self, *args, **kwargs):
@@ -493,6 +515,37 @@ class Segmentation(ProcessingStep):
         to_write = "\n".join([str(i) for i in list(classes)])
         with open(filtered_path, 'w') as myfile:
             myfile.write(to_write)
+            
+    def load_maps_from_disk(self):     
+        
+        if not hasattr(self, "maps"):
+            raise AttributeError("No maps have been defined. Therefore saving and loading of maps as checkpoints is not supported. Initialize maps in the process method of the segmentation like self.maps = {'map1': None,'map2': None}")
+            
+        # iterating over all maps
+        for map_index, map_name in enumerate(self.maps.keys()):
+
+            
+            try:
+                map_path = os.path.join(self.segmentation_directory, "{}_{}_map.npy".format(map_index, map_name))
+
+                if os.path.isfile(map_path):
+                    map = np.load(map_path)
+                    self.log("Loaded map {} {} from path {}".format(map_index, map_name, map_path))
+                    self.maps[map_name] = map
+                else:
+                    self.log("No existing map {} {} found at path {}, new one will be created".format(map_index,map_name, map_path))
+                    self.maps[map_name] = None
+                    
+            except:
+                self.log("Error loading map {} {} from path {}".format(map_index,map_name, map_path))
+                self.maps[map_name] = None
+        
+        # determine where to start based on precomputed maps and parameters
+        # get index of lowest map which could not be loaded
+        # reruslts in index of step where to start
+                
+        is_not_none = [el is not None for el in self.maps.values()]
+        return np.argmin(is_not_none) if not all(is_not_none) else len(is_not_none)
         
         
 class ShardedSegmentation(ProcessingStep):
