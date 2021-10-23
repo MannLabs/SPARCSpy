@@ -56,7 +56,12 @@ def main():
     else:
         print("No projects found")
 def print_project(line):
-    
+    """
+    Arguments:
+        line (list): List of Lists with the following items:
+        [project name, segmentation finished, number of cells in segmentation, project size, extractions]
+        extraction is a list of tuples (extraction name , number of cells, size)
+    """
     
     out_line = []
     Fore.RED + 'You can colorize a single line.' + Style.RESET_ALL
