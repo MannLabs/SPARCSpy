@@ -290,9 +290,9 @@ class MLClusterClassifier:
 
         embedding_2_pca = PCA(n_components=2).fit_transform(result)
 
-        self.log(f"start umap")        
-        reducer = umap.UMAP(n_neighbors=self.config["umap_neighbours"], min_dist=self.config["umap_min_dist"], n_components=2,metric='cosine')
-        embedding_umap = reducer.fit_transform(embedding_pca)
+        #self.log(f"start umap")        
+        #reducer = umap.UMAP(n_neighbors=self.config["umap_neighbours"], min_dist=self.config["umap_min_dist"], n_components=2,metric='cosine')
+        #embedding_umap = reducer.fit_transform(embedding_pca)
         
         #self.log(f"start tsne")
         #embedding_tsne = TSNE(n_jobs=self.config["threads"]).fit_transform(embedding_pca)
@@ -305,8 +305,8 @@ class MLClusterClassifier:
         dataframe["cell_id"] = class_id.astype("int")
         dataframe["pca_0"] = embedding_2_pca[:,0]
         dataframe["pca_1"] = embedding_2_pca[:,1]
-        dataframe["umap_0"] = embedding_umap[:,0]
-        dataframe["umap_1"] = embedding_umap[:,1]
+        #dataframe["umap_0"] = embedding_umap[:,0]
+        #dataframe["umap_1"] = embedding_umap[:,1]
         #dataframe["tsne_0"] = embedding_tsne[:,0]
         #dataframe["tsne_1"] = embedding_tsne[:,1]
         
