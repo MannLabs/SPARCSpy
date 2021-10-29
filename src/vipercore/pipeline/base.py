@@ -6,7 +6,7 @@ import shutil
 class Logable(object):
     """object which can create log entries.
         
-    Attributes:
+    Args:
         directory (str): A directory must be set in every descendent before log can be called.
         
         DEFAULT_LOG_NAME (str, optional, default ``processing.log``): Default log file.
@@ -67,18 +67,18 @@ class Logable(object):
     
 class ProcessingStep(Logable):
     
-    """object which can create log entries.
+    """Processing step living in its own subdirectory of the project.
         
-    Attributes:
-        config (dict): A directory must be set in every descendent before log can be called.
+    Args:
+        config (dict): Config file which is passed by the Project class when called. Is loaded from the project based on the name of the class.
         
-        directory (str): A directory must be set in every descendent before log can be called.
+        directory (str): Directory which should be used by the processing step. A subdirectory of the project directory is passed by the project class when called. The directory will be newly created if it does not exist yet.
         
-        debug (str, optional, default ``processing.log``): Default log file.
-        
-        intermediate_output (str, optional, default ``processing.log``): Default log file.
-        
-        overwrite (str, optional, default ``processing.log``): Default log file.
+        intermediate_output (bool, optional, default ``False``): When set to True intermediate outputs will be saved where applicable.
+            
+        debug (bool, optional, default ``False``): When set to True debug outputs will be printed where applicable. 
+            
+        overwrite (bool, optional, default ``True``): When set to True, the processing step directory will be delted and newly created when called.
 
     """
     
@@ -104,6 +104,18 @@ class ProcessingStep(Logable):
                  intermediate_output=None, 
                  overwrite=None, **kwargs):
     
+        """object which can create log entries.
+        
+        Args:
+            
+            intermediate_output (bool, optional, default ``None``): Allows overriding the value set on initiation. When set to True intermediate outputs will be saved where applicable.
+            
+            debug (bool, optional, default ``None``): Allows overriding the value set on initiation. When set to True debug outputs will be printed where applicable. 
+                
+            overwrite (bool, optional, default ``None``): Allows overriding the value set on initiation. When set to True, the processing step directory will be delted and newly created when called.
+
+        """
+    
         # set flags if provided
         self.debug = debug if debug is not None else self.debug
         self.overwrite = overwrite if overwrite is not None else self.overwrite
@@ -124,8 +136,3 @@ class ProcessingStep(Logable):
         else:
             warnings.warn("no process method defined")
             
-    
-
-
-    
-    

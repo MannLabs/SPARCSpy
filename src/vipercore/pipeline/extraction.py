@@ -23,7 +23,6 @@ import _pickle as cPickle
 
 class SingleCellExtraction:
     
-    
     DEFAULT_LOG_NAME = "processing.log" 
     DEFAULT_DATA_DIR = "data"
     CLEAN_LOG = False
@@ -31,23 +30,24 @@ class SingleCellExtraction:
     def __init__(self, 
                  config, 
                  folder_path, 
-                 debug=False, 
-                 overwrite=False,
-                 intermediate_output = True):
-        
-        """class can be initiated to create a WGA extraction workfow
+                 debug = False, 
+                 overwrite = False,
+                 intermediate_output = False):
 
-        :param config: Configuration for the extraction passed over from the :class:`pipeline.Dataset`
-        :type config: dict
+        """class can be used to create a DAPI - WGA extraction workfow
+        
+        Args:
 
-        :param string: Directiory for the extraction log and results. is created if not existing yet
-        :type config: string
+            config (dict): Config file which is passed by the Project class when called. Is loaded from the project based on the name of the class.
         
-        :param debug: Flag used to output debug information and map images
-        :type debug: bool, default False
-        
-        :param overwrite: Flag used to recalculate all images, not yet implemented
-        :type overwrite: bool, default False
+            directory (str): Directory which should be used by the processing step. A subdirectory of the project directory is passed by the project class when called. The directory will be newly created if it does not exist yet.
+            
+            intermediate_output (bool, optional, default ``False``): When set to True intermediate outputs will be saved where applicable.
+                
+            debug (bool, optional, default ``False``): When set to True debug outputs will be printed where applicable. 
+                
+            overwrite (bool, optional, default ``True``): When set to True, the processing step directory will be delted and newly created when called.
+            
         """
         self.debug = debug
         self.overwrite = overwrite
