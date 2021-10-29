@@ -47,7 +47,7 @@ class Project:
     
     # Project object is initialized, nothing is written to disk
     def __init__(self, 
-                 location_path, 
+                 location_path,
                  config_path =  "",
                  intermediate_output = False,
                  debug = False,
@@ -318,4 +318,15 @@ class Project:
     def process(self):
         self.segment()
         self.extract()
+<<<<<<< HEAD
+<<<<<<< HEAD
+        
+            
+            
+            
+=======
         self.classify()
+>>>>>>> update and documentation of project base class
+=======
+        self.classify()
+>>>>>>> fb366ee8a0f5e1601aeb9d59ad741dcce74dcfbe
