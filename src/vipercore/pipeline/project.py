@@ -319,6 +319,7 @@ class Project:
         self.segment()
         self.extract()
 <<<<<<< HEAD
+<<<<<<< HEAD
         
             
             
@@ -326,3 +327,6 @@ class Project:
 =======
         self.classify()
 >>>>>>> update and documentation of project base class
+=======
+        self.classify()
+>>>>>>> fb366ee8a0f5e1601aeb9d59ad741dcce74dcfbe
