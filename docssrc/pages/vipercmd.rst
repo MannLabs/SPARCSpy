@@ -1,8 +1,5 @@
-command line arguments
-***********************
-
 viper-split
-=======================
+====================
 .. argparse::
    :module: vipercmd.viper-split
    :func: _generate_parser
@@ -31,7 +28,7 @@ Examples:
 
    
 viper-stat
-=======================
+====================
 .. argparse::
    :module: vipercmd.viper-stat
    :func: generate_parser

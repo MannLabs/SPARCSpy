@@ -15,27 +15,29 @@ class Project:
     
     Args:
         location_path (str): Path to the folder where to project should be created. The folder is created in case the specified folder does not exist.
-        config_path (str, optional): Path pointing to a valid configuration file. The file will be copied to the project directory and renamed to the name specified in ``DEFAULT_CLASSIFICATION_DIR_NAME``. See the section configuration to find out more about the config file. 
-        intermediate_output (bool, optional, default ``False``): When set to True intermediate outputs will be saved where applicable.
+        
+        config_path (str, optional, default ""): Path pointing to a valid configuration file. The file will be copied to the project directory and renamed to the name specified in ``DEFAULT_CLASSIFICATION_DIR_NAME``. See the section configuration to find out more about the config file.
+        
+        intermediate_output (bool, default ``False``): When set to True intermediate outputs will be saved where applicable.
             
-        debug (bool, optional, default ``False``): When set to True debug outputs will be printed where applicable. 
+        debug (bool, default ``False``): When set to True debug outputs will be printed where applicable. 
             
-        overwrite (bool, optional, default ``True``): When set to False intermediate outputs will be loaded.
+        overwrite (bool, default ``False``): When set to True, the processing step directory will be completely deleted and newly created when called.
             
-        segmentation_f (Class, optional, default ``None``): Class containing segmentation workflow.
+        segmentation_f (Class, default ``None``): Class containing segmentation workflow.
             
-        extraction_f (Class, optional, default ``None``): Class containing extraction workflow.
+        extraction_f (Class, default ``None``): Class containing extraction workflow.
             
-        classification_f (Class, optional, default ``None``): Class containing classification workflow.
+        classification_f (Class, default ``None``): Class containing classification workflow.
             
-        selection_f (Class, optional, default ``None``): Class containing selection workflow.
+        selection_f (Class, default ``None``): Class containing selection workflow.
             
     Attributes:
-        DEFAULT_CONFIG_NAME (str): Default config name which is used for the config file in the project directory. This name needs to be used when no config is supplied and the config is manually created in the project folder.
-        DEFAULT_SEGMENTATION_DIR_NAME (str): Default foldername for the segmentation process.
-        DEFAULT_EXTRACTION_DIR_NAME (str): Default foldername for the segmentation process.
-        DEFAULT_CLASSIFICATION_DIR_NAME (str): Default foldername for the classification process.
-        DEFAULT_SELECTION_DIR_NAME (str, default "selection"): Default foldername for the selection process.
+        DEFAULT_CONFIG_NAME (str, default "config.yml"): Default config name which is used for the config file in the project directory. This name needs to be used when no config is supplied and the config is manually created in the project folder.
+        DEFAULT_SEGMENTATION_DIR_NAME (str, default "segmentation"): Default foldername for the segmentation process.
+        DEFAULT_EXTRACTION_DIR_NAME (str, default "extraction"): Default foldername for the extraction process.
+        DEFAULT_CLASSIFICATION_DIR_NAME (str, default "selection"): Default foldername for the classification process.
+        DEFAULT_SELECTION_DIR_NAME (str, default "classification"): Default foldername for the selection process.
     
     """
 
@@ -43,7 +45,7 @@ class Project:
     DEFAULT_SEGMENTATION_DIR_NAME = "segmentation"
     DEFAULT_EXTRACTION_DIR_NAME = "extraction"
     DEFAULT_CLASSIFICATION_DIR_NAME = "classification"
-    DEFAULT_SELECTION_DIR_NAME = "Selection"
+    DEFAULT_SELECTION_DIR_NAME = "selection"
     
     # Project object is initialized, nothing is written to disk
     def __init__(self, 
@@ -51,7 +53,7 @@ class Project:
                  config_path =  "",
                  intermediate_output = False,
                  debug = False,
-                 overwrite = True,
+                 overwrite = False,
                  segmentation_f = None,
                  extraction_f = None,
                  classification_f = None,
@@ -318,15 +320,4 @@ class Project:
     def process(self):
         self.segment()
         self.extract()
-<<<<<<< HEAD
-<<<<<<< HEAD
-        
-            
-            
-            
-=======
         self.classify()
->>>>>>> update and documentation of project base class
-=======
-        self.classify()
->>>>>>> fb366ee8a0f5e1601aeb9d59ad741dcce74dcfbe

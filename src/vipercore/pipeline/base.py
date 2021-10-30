@@ -5,13 +5,15 @@ import shutil
 
 class Logable(object):
     """object which can create log entries.
-        
     Args:
-        directory (str): A directory must be set in every descendent before log can be called.
+        debug (bool, default ``False``): When set to ``True`` log entries will be printed to the console. 
         
-        DEFAULT_LOG_NAME (str, optional, default ``processing.log``): Default log file.
+    Attributes:
+        directory (str): A directory must be set in every descendant before log can be called.
         
-        DEFAULT_FORMAT (str): Date and time format used for logging.
+        DEFAULT_LOG_NAME (str, default ``processing.log``): Default log file name.
+        
+        DEFAULT_FORMAT (str): Date and time format used for logging. See `datetime.strftime <https://docs.python.org/3/library/datetime.html#datetime.date.strftime`_.
     """
     
     DEFAULT_LOG_NAME = "processing.log"
@@ -72,13 +74,13 @@ class ProcessingStep(Logable):
     Args:
         config (dict): Config file which is passed by the Project class when called. Is loaded from the project based on the name of the class.
         
-        directory (str): Directory which should be used by the processing step. A subdirectory of the project directory is passed by the project class when called. The directory will be newly created if it does not exist yet.
+        directory (str): Directory which should be used by the processing step. The directory will be newly created if it does not exist yet. When used with the :ref:`Project` class, a subdirectory of the project directory is passed. 
         
-        intermediate_output (bool, optional, default ``False``): When set to True intermediate outputs will be saved where applicable.
+        intermediate_output (bool, default ``False``): When set to True intermediate outputs will be saved where applicable.
             
-        debug (bool, optional, default ``False``): When set to True debug outputs will be printed where applicable. 
+        debug (bool, default ``False``): When set to True debug outputs will be printed where applicable. 
             
-        overwrite (bool, optional, default ``True``): When set to True, the processing step directory will be delted and newly created when called.
+        overwrite (bool, default ``False``): When set to True, the processing step directory will be completely deleted and newly created when called.
 
     """
     
@@ -112,7 +114,7 @@ class ProcessingStep(Logable):
             
             debug (bool, optional, default ``None``): Allows overriding the value set on initiation. When set to True debug outputs will be printed where applicable. 
                 
-            overwrite (bool, optional, default ``None``): Allows overriding the value set on initiation. When set to True, the processing step directory will be delted and newly created when called.
+            overwrite (bool, optional, default ``None``): Allows overriding the value set on initiation. When set to True, the processing step directory will be completely deleted and newly created when called.
 
         """
     

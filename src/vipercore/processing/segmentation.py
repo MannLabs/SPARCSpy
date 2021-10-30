@@ -6,7 +6,6 @@ import matplotlib.cm as cm
 from tqdm import tqdm
 import multiprocessing
 from numba import njit
-
 import numba as nb
 
 from skimage.color import label2rgb
@@ -195,8 +194,8 @@ def shift_labels(input_map, shift, return_shifted_labels=False):
     """
         
     imap = input_map[:].copy()
-    if not issubclass(imap.dtype.type, np.integer):
-        raise ValueError("operation is only permitted for integer arrays")
+    #if not issubclass(imap.dtype.type, np.integer):
+    #    raise ValueError("operation is only permitted for integer arrays")
 
     shifted_map = np.where(imap == 0, 0, imap+shift)
 
@@ -233,7 +232,7 @@ def contact_filter_lambda(label, background=0):
     
     num_labels = np.max(label)
     
-    background_matrix = np.ones((np.max(label)+1,2),dtype='i')
+    background_matrix = np.ones((np.max(label)+1,2),dtype='int')
 
     for y in range(1,len(label)-1):
         for x in range(1,len(label[0])-1):
@@ -261,7 +260,7 @@ def remove_classes(label_in, to_remove, background=0, reindex=False):
     # generate library which contains the new class for label x at library[x]
     remove_set = set(to_remove)
 
-    library = np.zeros(np.max(label)+1, dtype=np.int_)
+    library = np.zeros(np.max(label)+1, dtype="int")
     
     
     carry = 0
@@ -305,7 +304,7 @@ def contact_filter(inarr, threshold=1, reindex=False, background=0):
     
     return label
 
-def size_filter(label, limits=[0,np.inf], background=0, reindex=False):
+def size_filter(label, limits=[0,100000], background=0, reindex=False):
     center,points_class,coords = mask_centroid(label)
     
     below = np.argwhere(points_class < limits[0]).flatten()

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>ml &mdash; Viper Core  documentation</title>
+  <title>pipeline &mdash; Viper Core  documentation</title>
   
 
   
@@ -40,7 +40,8 @@
 
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="command line arguments" href="vipercmd.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -86,9 +87,13 @@
             
             
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="vipercmd.html">command line arguments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ml.html">pipeline</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-vipercore.pipeline.project">project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-vipercore.pipeline.base">base</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -137,7 +142,7 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>ml</li>
+      <li>pipeline</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -156,1353 +161,270 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="ml">
-<h1>ml<a class="headerlink" href="#ml" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-vipercore.ml.datasets">
-<span id="datasets"></span><h2>datasets<a class="headerlink" href="#module-vipercore.ml.datasets" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="pipeline">
+<h1>pipeline<a class="headerlink" href="#pipeline" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-vipercore.pipeline.project">
+<span id="project"></span><h2>project<a class="headerlink" href="#module-vipercore.pipeline.project" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="vipercore.ml.datasets.HDF5SingleCellDataset">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.ml.datasets.</span></span><span class="sig-name descname"><span class="pre">HDF5SingleCellDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_fake_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.datasets.HDF5SingleCellDataset" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="vipercore.ml.datasets.NPYSingleCellDataset">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.ml.datasets.</span></span><span class="sig-name descname"><span class="pre">NPYSingleCellDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_fake_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.datasets.NPYSingleCellDataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Summary line.</p>
-<p>Extended description of function.</p>
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.pipeline.project.</span></span><span class="sig-name descname"><span class="pre">Project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermediate_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentation_f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extraction_f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classification_f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.project.Project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Project base class used to create a new viper project.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>arg1</strong> (<em>int</em>) – Description of arg1</p></li>
-<li><p><strong>arg2</strong> (<em>str</em>) – Description of arg2</p></li>
+<li><p><strong>location_path</strong> (<em>str</em>) – Path to the folder where to project should be created. The folder is created in case the specified folder does not exist.</p></li>
+<li><p><strong>config_path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path pointing to a valid configuration file. The file will be copied to the project directory and renamed to the name specified in <code class="docutils literal notranslate"><span class="pre">DEFAULT_CLASSIFICATION_DIR_NAME</span></code>. See the section configuration to find out more about the config file.</p></li>
+<li><p><strong>intermediate_output</strong> (bool, optional, default <code class="docutils literal notranslate"><span class="pre">False</span></code>) – When set to True intermediate outputs will be saved where applicable.</p></li>
+<li><p><strong>debug</strong> (bool, optional, default <code class="docutils literal notranslate"><span class="pre">False</span></code>) – When set to True debug outputs will be printed where applicable.</p></li>
+<li><p><strong>overwrite</strong> (bool, optional, default <code class="docutils literal notranslate"><span class="pre">True</span></code>) – When set to False intermediate outputs will be loaded.</p></li>
+<li><p><strong>segmentation_f</strong> (Class, optional, default <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Class containing segmentation workflow.</p></li>
+<li><p><strong>extraction_f</strong> (Class, optional, default <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Class containing extraction workflow.</p></li>
+<li><p><strong>classification_f</strong> (Class, optional, default <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Class containing classification workflow.</p></li>
+<li><p><strong>selection_f</strong> (Class, optional, default <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Class containing selection workflow.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Description of return value</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
 </dl>
-</dd></dl>
-
-</div>
-<div class="section" id="module-vipercore.ml.metrics">
-<span id="metrics"></span><h2>metrics<a class="headerlink" href="#module-vipercore.ml.metrics" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.ml.metrics.auc">
-<span class="sig-prename descclassname"><span class="pre">vipercore.ml.metrics.</span></span><span class="sig-name descname"><span class="pre">auc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.metrics.auc" title="Permalink to this definition">¶</a></dt>
-<dd><p>area under curve of the receiver operator characteristic</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.ml.metrics.precision">
-<span class="sig-prename descclassname"><span class="pre">vipercore.ml.metrics.</span></span><span class="sig-name descname"><span class="pre">precision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.metrics.precision" title="Permalink to this definition">¶</a></dt>
-<dd><p>precision for predictiong class pos_label</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.ml.metrics.precision_top_n">
-<span class="sig-prename descclassname"><span class="pre">vipercore.ml.metrics.</span></span><span class="sig-name descname"><span class="pre">precision_top_n</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.metrics.precision_top_n" title="Permalink to this definition">¶</a></dt>
-<dd><p>precision for the top_n percentage (0.01 = 1%) predictions</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.ml.metrics.recall">
-<span class="sig-prename descclassname"><span class="pre">vipercore.ml.metrics.</span></span><span class="sig-name descname"><span class="pre">recall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.metrics.recall" title="Permalink to this definition">¶</a></dt>
-<dd><p>recall for predictiong class pos_label</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.ml.metrics.recall_top_n">
-<span class="sig-prename descclassname"><span class="pre">vipercore.ml.metrics.</span></span><span class="sig-name descname"><span class="pre">recall_top_n</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.metrics.recall_top_n" title="Permalink to this definition">¶</a></dt>
-<dd><p>recall for the top_n percentage (0.01 = 1%) predictions</p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-vipercore.ml.models">
-<span id="models"></span><h2>models<a class="headerlink" href="#module-vipercore.ml.models" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="vipercore.ml.models.GolgiCAE">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.ml.models.</span></span><span class="sig-name descname"><span class="pre">GolgiCAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.models.GolgiCAE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="vipercore.ml.models.GolgiVAE">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.ml.models.</span></span><span class="sig-name descname"><span class="pre">GolgiVAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.models.GolgiVAE" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.models.GolgiVAE.decode">
-<span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.models.GolgiVAE.decode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Maps the given latent codes
-onto the image space.
-:param z: (Tensor) [B x D]
-:return: (Tensor) [B x C x H x W]</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.models.GolgiVAE.encode">
-<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.models.GolgiVAE.encode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encodes the input by passing through the encoder network
-and returns the latent codes.
-:param input: (Tensor) Input tensor to encoder [N x C x H x W]
-:return: (Tensor) List of latent codes</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.models.GolgiVAE.loss_function">
-<span class="sig-name descname"><span class="pre">loss_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.models.GolgiVAE.loss_function" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Computes the VAE loss function.
-KL(N(mu, sigma), N(0, 1)) = log</p>
-</div></blockquote>
-<p>rac{1}{sigma} +
-rac{sigma^2 + mu^2}{2} -
-rac{1}{2}</p>
-<blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd">param args</dt>
-<dd class="field-odd"><p></p></dd>
-<dt class="field-even">param kwargs</dt>
-<dd class="field-even"><p></p></dd>
-<dt class="field-odd">return</dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.models.GolgiVAE.reparameterize">
-<span class="sig-name descname"><span class="pre">reparameterize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logvar</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.models.GolgiVAE.reparameterize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reparameterization trick to sample from N(mu, var) from
-N(0,1).
-:param mu: (Tensor) Mean of the latent Gaussian [B x D]
-:param logvar: (Tensor) Standard deviation of the latent Gaussian [B x D]
-:return: (Tensor) [B x D]</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="vipercore.ml.models.GolgiVGG">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.ml.models.</span></span><span class="sig-name descname"><span class="pre">GolgiVGG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.models.GolgiVGG" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-<div class="section" id="module-vipercore.ml.plmodels">
-<span id="plmodels"></span><h2>plmodels<a class="headerlink" href="#module-vipercore.ml.plmodels" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AEModel">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.ml.plmodels.</span></span><span class="sig-name descname"><span class="pre">AEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hparams</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AEModel" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AEModel.configure_optimizers">
-<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AEModel.configure_optimizers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Choose what optimizers and learning-rate schedulers to use in your optimization.
-Normally you’d need one. But in the case of GANs or similar you might have multiple.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.DEFAULT_CONFIG_NAME">
+<span class="sig-name descname"><span class="pre">DEFAULT_CONFIG_NAME</span></span><a class="headerlink" href="#vipercore.pipeline.project.Project.DEFAULT_CONFIG_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default config name which is used for the config file in the project directory. This name needs to be used when no config is supplied and the config is manually created in the project folder.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p>Any of these 6 options.</p>
-<ul class="simple">
-<li><p><strong>Single optimizer</strong>.</p></li>
-<li><p><strong>List or Tuple</strong> of optimizers.</p></li>
-<li><p><strong>Two lists</strong> - The first list has multiple optimizers, and the second has multiple LR schedulers (or
-multiple lr_dict).</p></li>
-<li><p><strong>Dictionary</strong>, with an <code class="docutils literal notranslate"><span class="pre">&quot;optimizer&quot;</span></code> key, and (optionally) a <code class="docutils literal notranslate"><span class="pre">&quot;lr_scheduler&quot;</span></code>
-key whose value is a single LR scheduler or lr_dict.</p></li>
-<li><p><strong>Tuple of dictionaries</strong> as described above, with an optional <code class="docutils literal notranslate"><span class="pre">&quot;frequency&quot;</span></code> key.</p></li>
-<li><p><strong>None</strong> - Fit will run without any optimizer.</p></li>
-</ul>
-</p>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The lr_dict is a dictionary which contains the scheduler and its associated configuration.
-The default configuration is shown below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lr_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;scheduler&#39;</span><span class="p">:</span> <span class="n">lr_scheduler</span><span class="p">,</span> <span class="c1"># The LR scheduler instance (required)</span>
-    <span class="c1"># The unit of the scheduler&#39;s step size, could also be &#39;step&#39;</span>
-    <span class="s1">&#39;interval&#39;</span><span class="p">:</span> <span class="s1">&#39;epoch&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># The frequency of the scheduler</span>
-    <span class="s1">&#39;monitor&#39;</span><span class="p">:</span> <span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="c1"># Metric for `ReduceLROnPlateau` to monitor</span>
-    <span class="s1">&#39;strict&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># Whether to crash the training if `monitor` is not found</span>
-    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># Custom name for `LearningRateMonitor` to use</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Only the <code class="docutils literal notranslate"><span class="pre">&quot;scheduler&quot;</span></code> key is required, the rest will be set to the defaults above.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">frequency</span></code> value specified in a dict along with the <code class="docutils literal notranslate"><span class="pre">optimizer</span></code> key is an int corresponding
-to the number of sequential batches optimized with the specific optimizer.
-It should be given to none or to all of the optimizers.
-There is a difference between passing multiple optimizers in a list,
-and passing multiple optimizers in dictionaries with a frequency of 1:
-In the former case, all optimizers will operate on the given batch in each optimization step.
-In the latter, only one optimizer will operate on the given batch at every step.
-This is different from the <code class="docutils literal notranslate"><span class="pre">frequency</span></code> value specified in the lr_dict mentioned below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">optimizer_one</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">optimizer_two</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer_one</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer_two</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
-    <span class="p">]</span>
-</pre></div>
-</div>
-<p>In this example, the first optimizer will be used for the first 5 steps,
-the second optimizer for the next 10 steps and that cycle will continue.
-If an LR scheduler is specified for an optimizer using the <code class="docutils literal notranslate"><span class="pre">lr_scheduler</span></code> key in the above dict,
-the scheduler will only be updated when its optimizer is being used.</p>
-</div>
-<p>Examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># most cases</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+</dd></dl>
 
-<span class="c1"># multiple optimizer case (e.g.: GAN)</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.DEFAULT_SEGMENTATION_DIR_NAME">
+<span class="sig-name descname"><span class="pre">DEFAULT_SEGMENTATION_DIR_NAME</span></span><a class="headerlink" href="#vipercore.pipeline.project.Project.DEFAULT_SEGMENTATION_DIR_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default foldername for the segmentation process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="c1"># example with learning rate schedulers</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">dis_sch</span> <span class="o">=</span> <span class="n">CosineAnnealing</span><span class="p">(</span><span class="n">dis_opt</span><span class="p">,</span> <span class="n">T_max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span><span class="p">],</span> <span class="p">[</span><span class="n">dis_sch</span><span class="p">]</span>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.DEFAULT_EXTRACTION_DIR_NAME">
+<span class="sig-name descname"><span class="pre">DEFAULT_EXTRACTION_DIR_NAME</span></span><a class="headerlink" href="#vipercore.pipeline.project.Project.DEFAULT_EXTRACTION_DIR_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default foldername for the segmentation process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="c1"># example with step-based learning rate schedulers</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">gen_sch</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;scheduler&#39;</span><span class="p">:</span> <span class="n">ExponentialLR</span><span class="p">(</span><span class="n">gen_opt</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">),</span>
-               <span class="s1">&#39;interval&#39;</span><span class="p">:</span> <span class="s1">&#39;step&#39;</span><span class="p">}</span>  <span class="c1"># called after each training step</span>
-    <span class="n">dis_sch</span> <span class="o">=</span> <span class="n">CosineAnnealing</span><span class="p">(</span><span class="n">dis_opt</span><span class="p">,</span> <span class="n">T_max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># called every epoch</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span><span class="p">],</span> <span class="p">[</span><span class="n">gen_sch</span><span class="p">,</span> <span class="n">dis_sch</span><span class="p">]</span>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.DEFAULT_CLASSIFICATION_DIR_NAME">
+<span class="sig-name descname"><span class="pre">DEFAULT_CLASSIFICATION_DIR_NAME</span></span><a class="headerlink" href="#vipercore.pipeline.project.Project.DEFAULT_CLASSIFICATION_DIR_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default foldername for the classification process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="c1"># example with optimizer frequencies</span>
-<span class="c1"># see training procedure in `Improved Training of Wasserstein GANs`, Algorithm 1</span>
-<span class="c1"># https://arxiv.org/abs/1704.00028</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">n_critic</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">dis_opt</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="n">n_critic</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">gen_opt</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
-    <span class="p">)</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Some things to know:</p>
-<ul class="simple">
-<li><p>Lightning calls <code class="docutils literal notranslate"><span class="pre">.backward()</span></code> and <code class="docutils literal notranslate"><span class="pre">.step()</span></code> on each optimizer and learning rate scheduler as needed.</p></li>
-<li><p>If you use 16-bit precision (<code class="docutils literal notranslate"><span class="pre">precision=16</span></code>), Lightning will automatically handle the optimizers.</p></li>
-<li><p>If you use multiple optimizers, <a class="reference internal" href="#vipercore.ml.plmodels.AEModel.training_step" title="vipercore.ml.plmodels.AEModel.training_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">training_step()</span></code></a> will have an additional <code class="docutils literal notranslate"><span class="pre">optimizer_idx</span></code> parameter.</p></li>
-<li><p>If you use <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.LBFGS</span></code>, Lightning handles the closure function automatically for you.</p></li>
-<li><p>If you use multiple optimizers, gradients will be calculated only for the parameters of current optimizer
-at each training step.</p></li>
-<li><p>If you need to control how often those optimizers step or override the default <code class="docutils literal notranslate"><span class="pre">.step()</span></code> schedule,
-override the <code class="xref py py-meth docutils literal notranslate"><span class="pre">optimizer_step()</span></code> hook.</p></li>
-</ul>
-</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.DEFAULT_SELECTION_DIR_NAME">
+<span class="sig-name descname"><span class="pre">DEFAULT_SELECTION_DIR_NAME</span></span><a class="headerlink" href="#vipercore.pipeline.project.Project.DEFAULT_SELECTION_DIR_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default foldername for the selection process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str, default “selection”</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AEModel.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AEModel.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.forward()</span></code>.</p>
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.classify">
+<span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.project.Project.classify" title="Permalink to this definition">¶</a></dt>
+<dd><p>classify single cells with the defined classification at classification_f.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>*args</strong> – Whatever you decide to pass into the forward method.</p></li>
-<li><p><strong>**kwargs</strong> – Keyword arguments are also possible.</p></li>
+<li><p><strong>intermediate_output</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
+<li><p><strong>debug</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Your model’s output</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AEModel.on_train_epoch_end">
-<span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AEModel.on_train_epoch_end" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the training loop at the very end of the epoch.</p>
-<p>To access all batch outputs at the end of the epoch, either:</p>
-<ol class="arabic simple">
-<li><p>Implement <cite>training_epoch_end</cite> in the LightningModule OR</p></li>
-<li><p>Cache data across steps on the attribute(s) of the <cite>LightningModule</cite> and access them in this hook</p></li>
-</ol>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AEModel.on_train_epoch_start">
-<span class="sig-name descname"><span class="pre">on_train_epoch_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AEModel.on_train_epoch_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the training loop at the very beginning of the epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AEModel.on_validation_epoch_start">
-<span class="sig-name descname"><span class="pre">on_validation_epoch_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AEModel.on_validation_epoch_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the validation loop at the very beginning of the epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AEModel.training_step">
-<span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AEModel.training_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here you compute and return the training loss and some additional metrics for e.g.
-the progress bar or logger.</p>
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.extract">
+<span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.project.Project.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>extract single cells with the defined extraction at extraction_f.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>batch</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …) | [<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …]) – The output of your <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>. A tensor, tuple or list.</p></li>
-<li><p><strong>batch_idx</strong> (<em>int</em>) – Integer displaying index of this batch</p></li>
-<li><p><strong>optimizer_idx</strong> (<em>int</em>) – When using multiple optimizers, this argument will also be present.</p></li>
-<li><p><strong>hiddens</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – Passed in if
-<a href="#id1"><span class="problematic" id="id2">:paramref:`~pytorch_lightning.core.lightning.LightningModule.truncated_bptt_steps`</span></a> &gt; 0.</p></li>
+<li><p><strong>intermediate_output</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
+<li><p><strong>debug</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Any of.</p>
-<ul class="simple">
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> - The loss tensor</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dict</span></code> - A dictionary. Can include any keys, but must include the key <code class="docutils literal notranslate"><span class="pre">'loss'</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> - Training will skip to the next batch</p></li>
-</ul>
-</p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Returning <code class="docutils literal notranslate"><span class="pre">None</span></code> is currently not supported for multi-GPU or TPU, or with 16-bit precision enabled.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.load_input_from_array">
+<span class="sig-name descname"><span class="pre">load_input_from_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.project.Project.load_input_from_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>load input image from a number of files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> (<em>numpy.ndarray</em>) – Numpy array of shape <code class="docutils literal notranslate"><span class="pre">[channels,</span> <span class="pre">height,</span> <span class="pre">width]</span></code> .</p></li>
+<li><p><strong>remap</strong> (<em>list</em><em>(</em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Define remapping of channels. For example use <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">2]</span></code> to change the order of the first and the second channel.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.load_input_from_file">
+<span class="sig-name descname"><span class="pre">load_input_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[(0,</span> <span class="pre">-</span> <span class="pre">1),</span> <span class="pre">(0,</span> <span class="pre">-</span> <span class="pre">1)]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.project.Project.load_input_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>load input image from a number of files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_paths</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List containing paths to each channel like <code class="docutils literal notranslate"><span class="pre">[&quot;path1/img.tiff&quot;,</span> <span class="pre">&quot;path2/img.tiff&quot;,</span> <span class="pre">&quot;path3/img.tiff&quot;]</span></code>. Expects a list of file paths with length <code class="docutils literal notranslate"><span class="pre">input_channel</span></code> as defined in the config.yml. Input data is NOT copied to the project folder by default. Different segmentation functions especially tiled segmentations might copy the input</p></li>
+<li><p><strong>remap</strong> (<em>list</em><em>(</em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Define remapping of channels. For example use <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">2]</span></code> to change the order of the first and the second channel.</p></li>
+<li><p><strong>crop</strong> (<em>list</em><em>(</em><em>tuple</em><em>)</em><em>, </em><em>optional</em>) – When set it can be used to crop the input image. The first element refers to the first dimension of the image and so on. For example use <code class="docutils literal notranslate"><span class="pre">[(0,1000),(0,2000)]</span></code> To crop the image to <cite>1000 px height</cite> and <cite>2000 px width</cite> from the top left corner.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.segment">
+<span class="sig-name descname"><span class="pre">segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.project.Project.segment" title="Permalink to this definition">¶</a></dt>
+<dd><p>segment project with the defined segmentation under segmentation_f.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>intermediate_output</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
+<li><p><strong>debug</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<p>In this step you’d normally do the forward pass and calculate the loss for a batch.
-You can also do fancier things like multiple forward passes or something model specific.</p>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">batch</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">loss</span>
-</pre></div>
-</div>
-<p>If you define multiple optimizers, this step will be called with an additional
-<code class="docutils literal notranslate"><span class="pre">optimizer_idx</span></code> parameter.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multiple optimizers (e.g.: GANs)</span>
-<span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">optimizer_idx</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">optimizer_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1"># do training_step with encoder</span>
-    <span class="k">if</span> <span class="n">optimizer_idx</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="c1"># do training_step with decoder</span>
-</pre></div>
-</div>
-<p>If you add truncated back propagation through time you will also get an additional
-argument with the hidden states of the previous step.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Truncated back-propagation through time</span>
-<span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">hiddens</span><span class="p">):</span>
-    <span class="c1"># hiddens are the hidden states from the previous truncated backprop step</span>
-    <span class="o">...</span>
-    <span class="n">out</span><span class="p">,</span> <span class="n">hiddens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">hiddens</span><span class="p">)</span>
-    <span class="o">...</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s1">&#39;hiddens&#39;</span><span class="p">:</span> <span class="n">hiddens</span><span class="p">}</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The loss value shown in the progress bar is smoothed (averaged) over the last values,
-so it differs from the actual loss returned in train/validation step.</p>
-</div>
+<div class="section" id="module-vipercore.pipeline.base">
+<span id="base"></span><h2>base<a class="headerlink" href="#module-vipercore.pipeline.base" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.pipeline.base.</span></span><span class="sig-name descname"><span class="pre">Logable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.Logable" title="Permalink to this definition">¶</a></dt>
+<dd><p>object which can create log entries.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.directory">
+<span class="sig-name descname"><span class="pre">directory</span></span><a class="headerlink" href="#vipercore.pipeline.base.Logable.directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>A directory must be set in every descendent before log can be called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.DEFAULT_LOG_NAME">
+<span class="sig-name descname"><span class="pre">DEFAULT_LOG_NAME</span></span><a class="headerlink" href="#vipercore.pipeline.base.Logable.DEFAULT_LOG_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default log file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str, optional, default <code class="docutils literal notranslate"><span class="pre">processing.log</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.DEFAULT_FORMAT">
+<span class="sig-name descname"><span class="pre">DEFAULT_FORMAT</span></span><a class="headerlink" href="#vipercore.pipeline.base.Logable.DEFAULT_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Date and time format used for logging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.Logable.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>log a message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em><em>, </em><em>list</em><em>(</em><em>str</em><em>)</em><em>, </em><em>dict</em><em>(</em><em>str</em><em>)</em>) – Strings are s</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AutoEncoderModel">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.ml.plmodels.</span></span><span class="sig-name descname"><span class="pre">AutoEncoderModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AutoEncoderModel" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AutoEncoderModel.configure_optimizers">
-<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AutoEncoderModel.configure_optimizers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Choose what optimizers and learning-rate schedulers to use in your optimization.
-Normally you’d need one. But in the case of GANs or similar you might have multiple.</p>
+<dt class="sig sig-object py" id="vipercore.pipeline.base.ProcessingStep">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.pipeline.base.</span></span><span class="sig-name descname"><span class="pre">ProcessingStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermediate_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.ProcessingStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>object which can create log entries.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.ProcessingStep.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#vipercore.pipeline.base.ProcessingStep.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>A directory must be set in every descendent before log can be called.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p>Any of these 6 options.</p>
-<ul class="simple">
-<li><p><strong>Single optimizer</strong>.</p></li>
-<li><p><strong>List or Tuple</strong> of optimizers.</p></li>
-<li><p><strong>Two lists</strong> - The first list has multiple optimizers, and the second has multiple LR schedulers (or
-multiple lr_dict).</p></li>
-<li><p><strong>Dictionary</strong>, with an <code class="docutils literal notranslate"><span class="pre">&quot;optimizer&quot;</span></code> key, and (optionally) a <code class="docutils literal notranslate"><span class="pre">&quot;lr_scheduler&quot;</span></code>
-key whose value is a single LR scheduler or lr_dict.</p></li>
-<li><p><strong>Tuple of dictionaries</strong> as described above, with an optional <code class="docutils literal notranslate"><span class="pre">&quot;frequency&quot;</span></code> key.</p></li>
-<li><p><strong>None</strong> - Fit will run without any optimizer.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The lr_dict is a dictionary which contains the scheduler and its associated configuration.
-The default configuration is shown below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lr_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;scheduler&#39;</span><span class="p">:</span> <span class="n">lr_scheduler</span><span class="p">,</span> <span class="c1"># The LR scheduler instance (required)</span>
-    <span class="c1"># The unit of the scheduler&#39;s step size, could also be &#39;step&#39;</span>
-    <span class="s1">&#39;interval&#39;</span><span class="p">:</span> <span class="s1">&#39;epoch&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># The frequency of the scheduler</span>
-    <span class="s1">&#39;monitor&#39;</span><span class="p">:</span> <span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="c1"># Metric for `ReduceLROnPlateau` to monitor</span>
-    <span class="s1">&#39;strict&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># Whether to crash the training if `monitor` is not found</span>
-    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># Custom name for `LearningRateMonitor` to use</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Only the <code class="docutils literal notranslate"><span class="pre">&quot;scheduler&quot;</span></code> key is required, the rest will be set to the defaults above.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">frequency</span></code> value specified in a dict along with the <code class="docutils literal notranslate"><span class="pre">optimizer</span></code> key is an int corresponding
-to the number of sequential batches optimized with the specific optimizer.
-It should be given to none or to all of the optimizers.
-There is a difference between passing multiple optimizers in a list,
-and passing multiple optimizers in dictionaries with a frequency of 1:
-In the former case, all optimizers will operate on the given batch in each optimization step.
-In the latter, only one optimizer will operate on the given batch at every step.
-This is different from the <code class="docutils literal notranslate"><span class="pre">frequency</span></code> value specified in the lr_dict mentioned below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">optimizer_one</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">optimizer_two</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer_one</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer_two</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
-    <span class="p">]</span>
-</pre></div>
-</div>
-<p>In this example, the first optimizer will be used for the first 5 steps,
-the second optimizer for the next 10 steps and that cycle will continue.
-If an LR scheduler is specified for an optimizer using the <code class="docutils literal notranslate"><span class="pre">lr_scheduler</span></code> key in the above dict,
-the scheduler will only be updated when its optimizer is being used.</p>
-</div>
-<p>Examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># most cases</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
-
-<span class="c1"># multiple optimizer case (e.g.: GAN)</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span>
-
-<span class="c1"># example with learning rate schedulers</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">dis_sch</span> <span class="o">=</span> <span class="n">CosineAnnealing</span><span class="p">(</span><span class="n">dis_opt</span><span class="p">,</span> <span class="n">T_max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span><span class="p">],</span> <span class="p">[</span><span class="n">dis_sch</span><span class="p">]</span>
-
-<span class="c1"># example with step-based learning rate schedulers</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">gen_sch</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;scheduler&#39;</span><span class="p">:</span> <span class="n">ExponentialLR</span><span class="p">(</span><span class="n">gen_opt</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">),</span>
-               <span class="s1">&#39;interval&#39;</span><span class="p">:</span> <span class="s1">&#39;step&#39;</span><span class="p">}</span>  <span class="c1"># called after each training step</span>
-    <span class="n">dis_sch</span> <span class="o">=</span> <span class="n">CosineAnnealing</span><span class="p">(</span><span class="n">dis_opt</span><span class="p">,</span> <span class="n">T_max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># called every epoch</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span><span class="p">],</span> <span class="p">[</span><span class="n">gen_sch</span><span class="p">,</span> <span class="n">dis_sch</span><span class="p">]</span>
-
-<span class="c1"># example with optimizer frequencies</span>
-<span class="c1"># see training procedure in `Improved Training of Wasserstein GANs`, Algorithm 1</span>
-<span class="c1"># https://arxiv.org/abs/1704.00028</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">n_critic</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">dis_opt</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="n">n_critic</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">gen_opt</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
-    <span class="p">)</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Some things to know:</p>
-<ul class="simple">
-<li><p>Lightning calls <code class="docutils literal notranslate"><span class="pre">.backward()</span></code> and <code class="docutils literal notranslate"><span class="pre">.step()</span></code> on each optimizer and learning rate scheduler as needed.</p></li>
-<li><p>If you use 16-bit precision (<code class="docutils literal notranslate"><span class="pre">precision=16</span></code>), Lightning will automatically handle the optimizers.</p></li>
-<li><p>If you use multiple optimizers, <a class="reference internal" href="#vipercore.ml.plmodels.AutoEncoderModel.training_step" title="vipercore.ml.plmodels.AutoEncoderModel.training_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">training_step()</span></code></a> will have an additional <code class="docutils literal notranslate"><span class="pre">optimizer_idx</span></code> parameter.</p></li>
-<li><p>If you use <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.LBFGS</span></code>, Lightning handles the closure function automatically for you.</p></li>
-<li><p>If you use multiple optimizers, gradients will be calculated only for the parameters of current optimizer
-at each training step.</p></li>
-<li><p>If you need to control how often those optimizers step or override the default <code class="docutils literal notranslate"><span class="pre">.step()</span></code> schedule,
-override the <code class="xref py py-meth docutils literal notranslate"><span class="pre">optimizer_step()</span></code> hook.</p></li>
-</ul>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AutoEncoderModel.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AutoEncoderModel.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.forward()</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>*args</strong> – Whatever you decide to pass into the forward method.</p></li>
-<li><p><strong>**kwargs</strong> – Keyword arguments are also possible.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Your model’s output</p>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AutoEncoderModel.on_train_epoch_end">
-<span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AutoEncoderModel.on_train_epoch_end" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the training loop at the very end of the epoch.</p>
-<p>To access all batch outputs at the end of the epoch, either:</p>
-<ol class="arabic simple">
-<li><p>Implement <cite>training_epoch_end</cite> in the LightningModule OR</p></li>
-<li><p>Cache data across steps on the attribute(s) of the <cite>LightningModule</cite> and access them in this hook</p></li>
-</ol>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AutoEncoderModel.on_train_epoch_start">
-<span class="sig-name descname"><span class="pre">on_train_epoch_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AutoEncoderModel.on_train_epoch_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the training loop at the very beginning of the epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AutoEncoderModel.on_validation_epoch_start">
-<span class="sig-name descname"><span class="pre">on_validation_epoch_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AutoEncoderModel.on_validation_epoch_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the validation loop at the very beginning of the epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AutoEncoderModel.training_step">
-<span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AutoEncoderModel.training_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here you compute and return the training loss and some additional metrics for e.g.
-the progress bar or logger.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.ProcessingStep.directory">
+<span class="sig-name descname"><span class="pre">directory</span></span><a class="headerlink" href="#vipercore.pipeline.base.ProcessingStep.directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>A directory must be set in every descendent before log can be called.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>batch</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …) | [<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …]) – The output of your <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>. A tensor, tuple or list.</p></li>
-<li><p><strong>batch_idx</strong> (<em>int</em>) – Integer displaying index of this batch</p></li>
-<li><p><strong>optimizer_idx</strong> (<em>int</em>) – When using multiple optimizers, this argument will also be present.</p></li>
-<li><p><strong>hiddens</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – Passed in if
-<a href="#id3"><span class="problematic" id="id4">:paramref:`~pytorch_lightning.core.lightning.LightningModule.truncated_bptt_steps`</span></a> &gt; 0.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Any of.</p>
-<ul class="simple">
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> - The loss tensor</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dict</span></code> - A dictionary. Can include any keys, but must include the key <code class="docutils literal notranslate"><span class="pre">'loss'</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> - Training will skip to the next batch</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Returning <code class="docutils literal notranslate"><span class="pre">None</span></code> is currently not supported for multi-GPU or TPU, or with 16-bit precision enabled.</p>
-</div>
-<p>In this step you’d normally do the forward pass and calculate the loss for a batch.
-You can also do fancier things like multiple forward passes or something model specific.</p>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">batch</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">loss</span>
-</pre></div>
-</div>
-<p>If you define multiple optimizers, this step will be called with an additional
-<code class="docutils literal notranslate"><span class="pre">optimizer_idx</span></code> parameter.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multiple optimizers (e.g.: GANs)</span>
-<span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">optimizer_idx</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">optimizer_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1"># do training_step with encoder</span>
-    <span class="k">if</span> <span class="n">optimizer_idx</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="c1"># do training_step with decoder</span>
-</pre></div>
-</div>
-<p>If you add truncated back propagation through time you will also get an additional
-argument with the hidden states of the previous step.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Truncated back-propagation through time</span>
-<span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">hiddens</span><span class="p">):</span>
-    <span class="c1"># hiddens are the hidden states from the previous truncated backprop step</span>
-    <span class="o">...</span>
-    <span class="n">out</span><span class="p">,</span> <span class="n">hiddens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">hiddens</span><span class="p">)</span>
-    <span class="o">...</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s1">&#39;hiddens&#39;</span><span class="p">:</span> <span class="n">hiddens</span><span class="p">}</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The loss value shown in the progress bar is smoothed (averaged) over the last values,
-so it differs from the actual loss returned in train/validation step.</p>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.AutoEncoderModel.validation_step">
-<span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.AutoEncoderModel.validation_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Operates on a single batch of data from the validation set.
-In this step you’d might generate examples or calculate anything of interest like accuracy.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># the pseudocode for these calls</span>
-<span class="n">val_outs</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">val_batch</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">:</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">validation_step</span><span class="p">(</span><span class="n">val_batch</span><span class="p">)</span>
-    <span class="n">val_outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-<span class="n">validation_epoch_end</span><span class="p">(</span><span class="n">val_outs</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>batch</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …) | [<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …]) – The output of your <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>. A tensor, tuple or list.</p></li>
-<li><p><strong>batch_idx</strong> (<em>int</em>) – The index of this batch</p></li>
-<li><p><strong>dataloader_idx</strong> (<em>int</em>) – The index of the dataloader that produced this batch
-(only if multiple val dataloaders used)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Any of.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Any object or value</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> - Validation will skip to the next batch</p></li>
-</ul>
-</div></blockquote>
-</p>
-</dd>
-</dl>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># pseudocode of order</span>
-<span class="n">val_outs</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">val_batch</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">:</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">validation_step</span><span class="p">(</span><span class="n">val_batch</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">defined</span><span class="p">(</span><span class="s1">&#39;validation_step_end&#39;</span><span class="p">):</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">validation_step_end</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-    <span class="n">val_outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-<span class="n">val_outs</span> <span class="o">=</span> <span class="n">validation_epoch_end</span><span class="p">(</span><span class="n">val_outs</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># if you have one val dataloader:</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">)</span>
-
-<span class="c1"># if you have multiple val dataloaders:</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">dataloader_idx</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># CASE 1: A single validation dataset</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">batch</span>
-
-    <span class="c1"># implement your own</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-    <span class="c1"># log 6 example images</span>
-    <span class="c1"># or generated text... or whatever</span>
-    <span class="n">sample_imgs</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span>
-    <span class="n">grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span><span class="n">sample_imgs</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="s1">&#39;example_images&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-    <span class="c1"># calculate acc</span>
-    <span class="n">labels_hat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">val_acc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">labels_hat</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span><span class="p">)</span>
-
-    <span class="c1"># log the outputs!</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">log_dict</span><span class="p">({</span><span class="s1">&#39;val_loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s1">&#39;val_acc&#39;</span><span class="p">:</span> <span class="n">val_acc</span><span class="p">})</span>
-</pre></div>
-</div>
-<p>If you pass in multiple val dataloaders, <a class="reference internal" href="#vipercore.ml.plmodels.AutoEncoderModel.validation_step" title="vipercore.ml.plmodels.AutoEncoderModel.validation_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validation_step()</span></code></a> will have an additional argument.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># CASE 2: multiple validation dataloaders</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">dataloader_idx</span><span class="p">):</span>
-    <span class="c1"># dataloader_idx tells you which dataset this is.</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you don’t need to validate you don’t need to implement this method.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When the <a class="reference internal" href="#vipercore.ml.plmodels.AutoEncoderModel.validation_step" title="vipercore.ml.plmodels.AutoEncoderModel.validation_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validation_step()</span></code></a> is called, the model has been put in eval mode
-and PyTorch gradients have been disabled. At the end of validation,
-the model goes back to training mode and gradients are enabled.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.GeneralModel">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.ml.plmodels.</span></span><span class="sig-name descname"><span class="pre">GeneralModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hparams</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.GeneralModel" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.GeneralModel.configure_optimizers">
-<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.GeneralModel.configure_optimizers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Choose what optimizers and learning-rate schedulers to use in your optimization.
-Normally you’d need one. But in the case of GANs or similar you might have multiple.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p>Any of these 6 options.</p>
-<ul class="simple">
-<li><p><strong>Single optimizer</strong>.</p></li>
-<li><p><strong>List or Tuple</strong> of optimizers.</p></li>
-<li><p><strong>Two lists</strong> - The first list has multiple optimizers, and the second has multiple LR schedulers (or
-multiple lr_dict).</p></li>
-<li><p><strong>Dictionary</strong>, with an <code class="docutils literal notranslate"><span class="pre">&quot;optimizer&quot;</span></code> key, and (optionally) a <code class="docutils literal notranslate"><span class="pre">&quot;lr_scheduler&quot;</span></code>
-key whose value is a single LR scheduler or lr_dict.</p></li>
-<li><p><strong>Tuple of dictionaries</strong> as described above, with an optional <code class="docutils literal notranslate"><span class="pre">&quot;frequency&quot;</span></code> key.</p></li>
-<li><p><strong>None</strong> - Fit will run without any optimizer.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The lr_dict is a dictionary which contains the scheduler and its associated configuration.
-The default configuration is shown below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lr_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;scheduler&#39;</span><span class="p">:</span> <span class="n">lr_scheduler</span><span class="p">,</span> <span class="c1"># The LR scheduler instance (required)</span>
-    <span class="c1"># The unit of the scheduler&#39;s step size, could also be &#39;step&#39;</span>
-    <span class="s1">&#39;interval&#39;</span><span class="p">:</span> <span class="s1">&#39;epoch&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># The frequency of the scheduler</span>
-    <span class="s1">&#39;monitor&#39;</span><span class="p">:</span> <span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="c1"># Metric for `ReduceLROnPlateau` to monitor</span>
-    <span class="s1">&#39;strict&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># Whether to crash the training if `monitor` is not found</span>
-    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># Custom name for `LearningRateMonitor` to use</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Only the <code class="docutils literal notranslate"><span class="pre">&quot;scheduler&quot;</span></code> key is required, the rest will be set to the defaults above.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">frequency</span></code> value specified in a dict along with the <code class="docutils literal notranslate"><span class="pre">optimizer</span></code> key is an int corresponding
-to the number of sequential batches optimized with the specific optimizer.
-It should be given to none or to all of the optimizers.
-There is a difference between passing multiple optimizers in a list,
-and passing multiple optimizers in dictionaries with a frequency of 1:
-In the former case, all optimizers will operate on the given batch in each optimization step.
-In the latter, only one optimizer will operate on the given batch at every step.
-This is different from the <code class="docutils literal notranslate"><span class="pre">frequency</span></code> value specified in the lr_dict mentioned below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">optimizer_one</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">optimizer_two</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer_one</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer_two</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
-    <span class="p">]</span>
-</pre></div>
-</div>
-<p>In this example, the first optimizer will be used for the first 5 steps,
-the second optimizer for the next 10 steps and that cycle will continue.
-If an LR scheduler is specified for an optimizer using the <code class="docutils literal notranslate"><span class="pre">lr_scheduler</span></code> key in the above dict,
-the scheduler will only be updated when its optimizer is being used.</p>
-</div>
-<p>Examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># most cases</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
-
-<span class="c1"># multiple optimizer case (e.g.: GAN)</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span>
-
-<span class="c1"># example with learning rate schedulers</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">dis_sch</span> <span class="o">=</span> <span class="n">CosineAnnealing</span><span class="p">(</span><span class="n">dis_opt</span><span class="p">,</span> <span class="n">T_max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span><span class="p">],</span> <span class="p">[</span><span class="n">dis_sch</span><span class="p">]</span>
-
-<span class="c1"># example with step-based learning rate schedulers</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">gen_sch</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;scheduler&#39;</span><span class="p">:</span> <span class="n">ExponentialLR</span><span class="p">(</span><span class="n">gen_opt</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">),</span>
-               <span class="s1">&#39;interval&#39;</span><span class="p">:</span> <span class="s1">&#39;step&#39;</span><span class="p">}</span>  <span class="c1"># called after each training step</span>
-    <span class="n">dis_sch</span> <span class="o">=</span> <span class="n">CosineAnnealing</span><span class="p">(</span><span class="n">dis_opt</span><span class="p">,</span> <span class="n">T_max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># called every epoch</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span><span class="p">],</span> <span class="p">[</span><span class="n">gen_sch</span><span class="p">,</span> <span class="n">dis_sch</span><span class="p">]</span>
-
-<span class="c1"># example with optimizer frequencies</span>
-<span class="c1"># see training procedure in `Improved Training of Wasserstein GANs`, Algorithm 1</span>
-<span class="c1"># https://arxiv.org/abs/1704.00028</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">n_critic</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">dis_opt</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="n">n_critic</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">gen_opt</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
-    <span class="p">)</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Some things to know:</p>
-<ul class="simple">
-<li><p>Lightning calls <code class="docutils literal notranslate"><span class="pre">.backward()</span></code> and <code class="docutils literal notranslate"><span class="pre">.step()</span></code> on each optimizer and learning rate scheduler as needed.</p></li>
-<li><p>If you use 16-bit precision (<code class="docutils literal notranslate"><span class="pre">precision=16</span></code>), Lightning will automatically handle the optimizers.</p></li>
-<li><p>If you use multiple optimizers, <a class="reference internal" href="#vipercore.ml.plmodels.GeneralModel.training_step" title="vipercore.ml.plmodels.GeneralModel.training_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">training_step()</span></code></a> will have an additional <code class="docutils literal notranslate"><span class="pre">optimizer_idx</span></code> parameter.</p></li>
-<li><p>If you use <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.LBFGS</span></code>, Lightning handles the closure function automatically for you.</p></li>
-<li><p>If you use multiple optimizers, gradients will be calculated only for the parameters of current optimizer
-at each training step.</p></li>
-<li><p>If you need to control how often those optimizers step or override the default <code class="docutils literal notranslate"><span class="pre">.step()</span></code> schedule,
-override the <code class="xref py py-meth docutils literal notranslate"><span class="pre">optimizer_step()</span></code> hook.</p></li>
-</ul>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.GeneralModel.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.GeneralModel.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.forward()</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>*args</strong> – Whatever you decide to pass into the forward method.</p></li>
-<li><p><strong>**kwargs</strong> – Keyword arguments are also possible.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Your model’s output</p>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.GeneralModel.on_train_epoch_end">
-<span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.GeneralModel.on_train_epoch_end" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the training loop at the very end of the epoch.</p>
-<p>To access all batch outputs at the end of the epoch, either:</p>
-<ol class="arabic simple">
-<li><p>Implement <cite>training_epoch_end</cite> in the LightningModule OR</p></li>
-<li><p>Cache data across steps on the attribute(s) of the <cite>LightningModule</cite> and access them in this hook</p></li>
-</ol>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.GeneralModel.on_train_epoch_start">
-<span class="sig-name descname"><span class="pre">on_train_epoch_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.GeneralModel.on_train_epoch_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the training loop at the very beginning of the epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.GeneralModel.on_train_start">
-<span class="sig-name descname"><span class="pre">on_train_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.GeneralModel.on_train_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called at the beginning of training after sanity check.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.GeneralModel.on_validation_epoch_end">
-<span class="sig-name descname"><span class="pre">on_validation_epoch_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.GeneralModel.on_validation_epoch_end" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the validation loop at the very end of the epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.GeneralModel.on_validation_epoch_start">
-<span class="sig-name descname"><span class="pre">on_validation_epoch_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.GeneralModel.on_validation_epoch_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the validation loop at the very beginning of the epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.GeneralModel.training_step">
-<span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.GeneralModel.training_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here you compute and return the training loss and some additional metrics for e.g.
-the progress bar or logger.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.ProcessingStep.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><a class="headerlink" href="#vipercore.pipeline.base.ProcessingStep.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default log file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>batch</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …) | [<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …]) – The output of your <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>. A tensor, tuple or list.</p></li>
-<li><p><strong>batch_idx</strong> (<em>int</em>) – Integer displaying index of this batch</p></li>
-<li><p><strong>optimizer_idx</strong> (<em>int</em>) – When using multiple optimizers, this argument will also be present.</p></li>
-<li><p><strong>hiddens</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – Passed in if
-<a href="#id5"><span class="problematic" id="id6">:paramref:`~pytorch_lightning.core.lightning.LightningModule.truncated_bptt_steps`</span></a> &gt; 0.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Any of.</p>
-<ul class="simple">
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> - The loss tensor</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dict</span></code> - A dictionary. Can include any keys, but must include the key <code class="docutils literal notranslate"><span class="pre">'loss'</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> - Training will skip to the next batch</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Returning <code class="docutils literal notranslate"><span class="pre">None</span></code> is currently not supported for multi-GPU or TPU, or with 16-bit precision enabled.</p>
-</div>
-<p>In this step you’d normally do the forward pass and calculate the loss for a batch.
-You can also do fancier things like multiple forward passes or something model specific.</p>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">batch</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">loss</span>
-</pre></div>
-</div>
-<p>If you define multiple optimizers, this step will be called with an additional
-<code class="docutils literal notranslate"><span class="pre">optimizer_idx</span></code> parameter.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multiple optimizers (e.g.: GANs)</span>
-<span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">optimizer_idx</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">optimizer_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1"># do training_step with encoder</span>
-    <span class="k">if</span> <span class="n">optimizer_idx</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="c1"># do training_step with decoder</span>
-</pre></div>
-</div>
-<p>If you add truncated back propagation through time you will also get an additional
-argument with the hidden states of the previous step.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Truncated back-propagation through time</span>
-<span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">hiddens</span><span class="p">):</span>
-    <span class="c1"># hiddens are the hidden states from the previous truncated backprop step</span>
-    <span class="o">...</span>
-    <span class="n">out</span><span class="p">,</span> <span class="n">hiddens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">hiddens</span><span class="p">)</span>
-    <span class="o">...</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s1">&#39;hiddens&#39;</span><span class="p">:</span> <span class="n">hiddens</span><span class="p">}</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The loss value shown in the progress bar is smoothed (averaged) over the last values,
-so it differs from the actual loss returned in train/validation step.</p>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.GeneralModel.validation_step">
-<span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.GeneralModel.validation_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Operates on a single batch of data from the validation set.
-In this step you’d might generate examples or calculate anything of interest like accuracy.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># the pseudocode for these calls</span>
-<span class="n">val_outs</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">val_batch</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">:</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">validation_step</span><span class="p">(</span><span class="n">val_batch</span><span class="p">)</span>
-    <span class="n">val_outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-<span class="n">validation_epoch_end</span><span class="p">(</span><span class="n">val_outs</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>batch</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …) | [<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …]) – The output of your <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>. A tensor, tuple or list.</p></li>
-<li><p><strong>batch_idx</strong> (<em>int</em>) – The index of this batch</p></li>
-<li><p><strong>dataloader_idx</strong> (<em>int</em>) – The index of the dataloader that produced this batch
-(only if multiple val dataloaders used)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Any of.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Any object or value</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> - Validation will skip to the next batch</p></li>
-</ul>
-</div></blockquote>
-</p>
-</dd>
-</dl>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># pseudocode of order</span>
-<span class="n">val_outs</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">val_batch</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">:</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">validation_step</span><span class="p">(</span><span class="n">val_batch</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">defined</span><span class="p">(</span><span class="s1">&#39;validation_step_end&#39;</span><span class="p">):</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">validation_step_end</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-    <span class="n">val_outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-<span class="n">val_outs</span> <span class="o">=</span> <span class="n">validation_epoch_end</span><span class="p">(</span><span class="n">val_outs</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># if you have one val dataloader:</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">)</span>
-
-<span class="c1"># if you have multiple val dataloaders:</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">dataloader_idx</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># CASE 1: A single validation dataset</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">batch</span>
-
-    <span class="c1"># implement your own</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-    <span class="c1"># log 6 example images</span>
-    <span class="c1"># or generated text... or whatever</span>
-    <span class="n">sample_imgs</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span>
-    <span class="n">grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span><span class="n">sample_imgs</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="s1">&#39;example_images&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-    <span class="c1"># calculate acc</span>
-    <span class="n">labels_hat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">val_acc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">labels_hat</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span><span class="p">)</span>
-
-    <span class="c1"># log the outputs!</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">log_dict</span><span class="p">({</span><span class="s1">&#39;val_loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s1">&#39;val_acc&#39;</span><span class="p">:</span> <span class="n">val_acc</span><span class="p">})</span>
-</pre></div>
-</div>
-<p>If you pass in multiple val dataloaders, <a class="reference internal" href="#vipercore.ml.plmodels.GeneralModel.validation_step" title="vipercore.ml.plmodels.GeneralModel.validation_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validation_step()</span></code></a> will have an additional argument.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># CASE 2: multiple validation dataloaders</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">dataloader_idx</span><span class="p">):</span>
-    <span class="c1"># dataloader_idx tells you which dataset this is.</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you don’t need to validate you don’t need to implement this method.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When the <a class="reference internal" href="#vipercore.ml.plmodels.GeneralModel.validation_step" title="vipercore.ml.plmodels.GeneralModel.validation_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validation_step()</span></code></a> is called, the model has been put in eval mode
-and PyTorch gradients have been disabled. At the end of validation,
-the model goes back to training mode and gradients are enabled.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.MultilabelSupervisedModel">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.ml.plmodels.</span></span><span class="sig-name descname"><span class="pre">MultilabelSupervisedModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.MultilabelSupervisedModel" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.MultilabelSupervisedModel.configure_optimizers">
-<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.configure_optimizers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Choose what optimizers and learning-rate schedulers to use in your optimization.
-Normally you’d need one. But in the case of GANs or similar you might have multiple.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p>Any of these 6 options.</p>
-<ul class="simple">
-<li><p><strong>Single optimizer</strong>.</p></li>
-<li><p><strong>List or Tuple</strong> of optimizers.</p></li>
-<li><p><strong>Two lists</strong> - The first list has multiple optimizers, and the second has multiple LR schedulers (or
-multiple lr_dict).</p></li>
-<li><p><strong>Dictionary</strong>, with an <code class="docutils literal notranslate"><span class="pre">&quot;optimizer&quot;</span></code> key, and (optionally) a <code class="docutils literal notranslate"><span class="pre">&quot;lr_scheduler&quot;</span></code>
-key whose value is a single LR scheduler or lr_dict.</p></li>
-<li><p><strong>Tuple of dictionaries</strong> as described above, with an optional <code class="docutils literal notranslate"><span class="pre">&quot;frequency&quot;</span></code> key.</p></li>
-<li><p><strong>None</strong> - Fit will run without any optimizer.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The lr_dict is a dictionary which contains the scheduler and its associated configuration.
-The default configuration is shown below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lr_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;scheduler&#39;</span><span class="p">:</span> <span class="n">lr_scheduler</span><span class="p">,</span> <span class="c1"># The LR scheduler instance (required)</span>
-    <span class="c1"># The unit of the scheduler&#39;s step size, could also be &#39;step&#39;</span>
-    <span class="s1">&#39;interval&#39;</span><span class="p">:</span> <span class="s1">&#39;epoch&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># The frequency of the scheduler</span>
-    <span class="s1">&#39;monitor&#39;</span><span class="p">:</span> <span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="c1"># Metric for `ReduceLROnPlateau` to monitor</span>
-    <span class="s1">&#39;strict&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># Whether to crash the training if `monitor` is not found</span>
-    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># Custom name for `LearningRateMonitor` to use</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Only the <code class="docutils literal notranslate"><span class="pre">&quot;scheduler&quot;</span></code> key is required, the rest will be set to the defaults above.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">frequency</span></code> value specified in a dict along with the <code class="docutils literal notranslate"><span class="pre">optimizer</span></code> key is an int corresponding
-to the number of sequential batches optimized with the specific optimizer.
-It should be given to none or to all of the optimizers.
-There is a difference between passing multiple optimizers in a list,
-and passing multiple optimizers in dictionaries with a frequency of 1:
-In the former case, all optimizers will operate on the given batch in each optimization step.
-In the latter, only one optimizer will operate on the given batch at every step.
-This is different from the <code class="docutils literal notranslate"><span class="pre">frequency</span></code> value specified in the lr_dict mentioned below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">optimizer_one</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">optimizer_two</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer_one</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer_two</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
-    <span class="p">]</span>
-</pre></div>
-</div>
-<p>In this example, the first optimizer will be used for the first 5 steps,
-the second optimizer for the next 10 steps and that cycle will continue.
-If an LR scheduler is specified for an optimizer using the <code class="docutils literal notranslate"><span class="pre">lr_scheduler</span></code> key in the above dict,
-the scheduler will only be updated when its optimizer is being used.</p>
-</div>
-<p>Examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># most cases</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
-
-<span class="c1"># multiple optimizer case (e.g.: GAN)</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span>
-
-<span class="c1"># example with learning rate schedulers</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">dis_sch</span> <span class="o">=</span> <span class="n">CosineAnnealing</span><span class="p">(</span><span class="n">dis_opt</span><span class="p">,</span> <span class="n">T_max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span><span class="p">],</span> <span class="p">[</span><span class="n">dis_sch</span><span class="p">]</span>
-
-<span class="c1"># example with step-based learning rate schedulers</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">gen_sch</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;scheduler&#39;</span><span class="p">:</span> <span class="n">ExponentialLR</span><span class="p">(</span><span class="n">gen_opt</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">),</span>
-               <span class="s1">&#39;interval&#39;</span><span class="p">:</span> <span class="s1">&#39;step&#39;</span><span class="p">}</span>  <span class="c1"># called after each training step</span>
-    <span class="n">dis_sch</span> <span class="o">=</span> <span class="n">CosineAnnealing</span><span class="p">(</span><span class="n">dis_opt</span><span class="p">,</span> <span class="n">T_max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># called every epoch</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">gen_opt</span><span class="p">,</span> <span class="n">dis_opt</span><span class="p">],</span> <span class="p">[</span><span class="n">gen_sch</span><span class="p">,</span> <span class="n">dis_sch</span><span class="p">]</span>
-
-<span class="c1"># example with optimizer frequencies</span>
-<span class="c1"># see training procedure in `Improved Training of Wasserstein GANs`, Algorithm 1</span>
-<span class="c1"># https://arxiv.org/abs/1704.00028</span>
-<span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">gen_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_gen</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">dis_opt</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dis</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-    <span class="n">n_critic</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">dis_opt</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="n">n_critic</span><span class="p">},</span>
-        <span class="p">{</span><span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">gen_opt</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
-    <span class="p">)</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Some things to know:</p>
-<ul class="simple">
-<li><p>Lightning calls <code class="docutils literal notranslate"><span class="pre">.backward()</span></code> and <code class="docutils literal notranslate"><span class="pre">.step()</span></code> on each optimizer and learning rate scheduler as needed.</p></li>
-<li><p>If you use 16-bit precision (<code class="docutils literal notranslate"><span class="pre">precision=16</span></code>), Lightning will automatically handle the optimizers.</p></li>
-<li><p>If you use multiple optimizers, <a class="reference internal" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.training_step" title="vipercore.ml.plmodels.MultilabelSupervisedModel.training_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">training_step()</span></code></a> will have an additional <code class="docutils literal notranslate"><span class="pre">optimizer_idx</span></code> parameter.</p></li>
-<li><p>If you use <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.LBFGS</span></code>, Lightning handles the closure function automatically for you.</p></li>
-<li><p>If you use multiple optimizers, gradients will be calculated only for the parameters of current optimizer
-at each training step.</p></li>
-<li><p>If you need to control how often those optimizers step or override the default <code class="docutils literal notranslate"><span class="pre">.step()</span></code> schedule,
-override the <code class="xref py py-meth docutils literal notranslate"><span class="pre">optimizer_step()</span></code> hook.</p></li>
-</ul>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.MultilabelSupervisedModel.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.forward()</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>*args</strong> – Whatever you decide to pass into the forward method.</p></li>
-<li><p><strong>**kwargs</strong> – Keyword arguments are also possible.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Your model’s output</p>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str, optional, default <code class="docutils literal notranslate"><span class="pre">processing.log</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_epoch_end">
-<span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_epoch_end" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the training loop at the very end of the epoch.</p>
-<p>To access all batch outputs at the end of the epoch, either:</p>
-<ol class="arabic simple">
-<li><p>Implement <cite>training_epoch_end</cite> in the LightningModule OR</p></li>
-<li><p>Cache data across steps on the attribute(s) of the <cite>LightningModule</cite> and access them in this hook</p></li>
-</ol>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_epoch_start">
-<span class="sig-name descname"><span class="pre">on_train_epoch_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_epoch_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the training loop at the very beginning of the epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_start">
-<span class="sig-name descname"><span class="pre">on_train_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called at the beginning of training after sanity check.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.MultilabelSupervisedModel.on_validation_epoch_end">
-<span class="sig-name descname"><span class="pre">on_validation_epoch_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.on_validation_epoch_end" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the validation loop at the very end of the epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.MultilabelSupervisedModel.on_validation_epoch_start">
-<span class="sig-name descname"><span class="pre">on_validation_epoch_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.on_validation_epoch_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called in the validation loop at the very beginning of the epoch.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.MultilabelSupervisedModel.training_step">
-<span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.training_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here you compute and return the training loss and some additional metrics for e.g.
-the progress bar or logger.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.ProcessingStep.intermediate_output">
+<span class="sig-name descname"><span class="pre">intermediate_output</span></span><a class="headerlink" href="#vipercore.pipeline.base.ProcessingStep.intermediate_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default log file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>batch</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …) | [<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …]) – The output of your <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>. A tensor, tuple or list.</p></li>
-<li><p><strong>batch_idx</strong> (<em>int</em>) – Integer displaying index of this batch</p></li>
-<li><p><strong>optimizer_idx</strong> (<em>int</em>) – When using multiple optimizers, this argument will also be present.</p></li>
-<li><p><strong>hiddens</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – Passed in if
-<a href="#id7"><span class="problematic" id="id8">:paramref:`~pytorch_lightning.core.lightning.LightningModule.truncated_bptt_steps`</span></a> &gt; 0.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Any of.</p>
-<ul class="simple">
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> - The loss tensor</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dict</span></code> - A dictionary. Can include any keys, but must include the key <code class="docutils literal notranslate"><span class="pre">'loss'</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> - Training will skip to the next batch</p></li>
-</ul>
-</p>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str, optional, default <code class="docutils literal notranslate"><span class="pre">processing.log</span></code></p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Returning <code class="docutils literal notranslate"><span class="pre">None</span></code> is currently not supported for multi-GPU or TPU, or with 16-bit precision enabled.</p>
-</div>
-<p>In this step you’d normally do the forward pass and calculate the loss for a batch.
-You can also do fancier things like multiple forward passes or something model specific.</p>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">batch</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">loss</span>
-</pre></div>
-</div>
-<p>If you define multiple optimizers, this step will be called with an additional
-<code class="docutils literal notranslate"><span class="pre">optimizer_idx</span></code> parameter.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multiple optimizers (e.g.: GANs)</span>
-<span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">optimizer_idx</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">optimizer_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1"># do training_step with encoder</span>
-    <span class="k">if</span> <span class="n">optimizer_idx</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="c1"># do training_step with decoder</span>
-</pre></div>
-</div>
-<p>If you add truncated back propagation through time you will also get an additional
-argument with the hidden states of the previous step.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Truncated back-propagation through time</span>
-<span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">hiddens</span><span class="p">):</span>
-    <span class="c1"># hiddens are the hidden states from the previous truncated backprop step</span>
-    <span class="o">...</span>
-    <span class="n">out</span><span class="p">,</span> <span class="n">hiddens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">hiddens</span><span class="p">)</span>
-    <span class="o">...</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s1">&#39;hiddens&#39;</span><span class="p">:</span> <span class="n">hiddens</span><span class="p">}</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The loss value shown in the progress bar is smoothed (averaged) over the last values,
-so it differs from the actual loss returned in train/validation step.</p>
-</div>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.ml.plmodels.MultilabelSupervisedModel.validation_step">
-<span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.validation_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Operates on a single batch of data from the validation set.
-In this step you’d might generate examples or calculate anything of interest like accuracy.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># the pseudocode for these calls</span>
-<span class="n">val_outs</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">val_batch</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">:</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">validation_step</span><span class="p">(</span><span class="n">val_batch</span><span class="p">)</span>
-    <span class="n">val_outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-<span class="n">validation_epoch_end</span><span class="p">(</span><span class="n">val_outs</span><span class="p">)</span>
-</pre></div>
-</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.ProcessingStep.overwrite">
+<span class="sig-name descname"><span class="pre">overwrite</span></span><a class="headerlink" href="#vipercore.pipeline.base.ProcessingStep.overwrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default log file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>batch</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …) | [<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, …]) – The output of your <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>. A tensor, tuple or list.</p></li>
-<li><p><strong>batch_idx</strong> (<em>int</em>) – The index of this batch</p></li>
-<li><p><strong>dataloader_idx</strong> (<em>int</em>) – The index of the dataloader that produced this batch
-(only if multiple val dataloaders used)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p>Any of.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Any object or value</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> - Validation will skip to the next batch</p></li>
-</ul>
-</div></blockquote>
-</p>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str, optional, default <code class="docutils literal notranslate"><span class="pre">processing.log</span></code></p>
 </dd>
 </dl>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># pseudocode of order</span>
-<span class="n">val_outs</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">val_batch</span> <span class="ow">in</span> <span class="n">val_data</span><span class="p">:</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">validation_step</span><span class="p">(</span><span class="n">val_batch</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">defined</span><span class="p">(</span><span class="s1">&#39;validation_step_end&#39;</span><span class="p">):</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">validation_step_end</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-    <span class="n">val_outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-<span class="n">val_outs</span> <span class="o">=</span> <span class="n">validation_epoch_end</span><span class="p">(</span><span class="n">val_outs</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># if you have one val dataloader:</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">)</span>
-
-<span class="c1"># if you have multiple val dataloaders:</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">dataloader_idx</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># CASE 1: A single validation dataset</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">batch</span>
-
-    <span class="c1"># implement your own</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-    <span class="c1"># log 6 example images</span>
-    <span class="c1"># or generated text... or whatever</span>
-    <span class="n">sample_imgs</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span>
-    <span class="n">grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span><span class="n">sample_imgs</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="s1">&#39;example_images&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-    <span class="c1"># calculate acc</span>
-    <span class="n">labels_hat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">val_acc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">labels_hat</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span><span class="p">)</span>
-
-    <span class="c1"># log the outputs!</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">log_dict</span><span class="p">({</span><span class="s1">&#39;val_loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s1">&#39;val_acc&#39;</span><span class="p">:</span> <span class="n">val_acc</span><span class="p">})</span>
-</pre></div>
-</div>
-<p>If you pass in multiple val dataloaders, <a class="reference internal" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.validation_step" title="vipercore.ml.plmodels.MultilabelSupervisedModel.validation_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validation_step()</span></code></a> will have an additional argument.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># CASE 2: multiple validation dataloaders</span>
-<span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">dataloader_idx</span><span class="p">):</span>
-    <span class="c1"># dataloader_idx tells you which dataset this is.</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you don’t need to validate you don’t need to implement this method.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When the <a class="reference internal" href="#vipercore.ml.plmodels.MultilabelSupervisedModel.validation_step" title="vipercore.ml.plmodels.MultilabelSupervisedModel.validation_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validation_step()</span></code></a> is called, the model has been put in eval mode
-and PyTorch gradients have been disabled. At the end of validation,
-the model goes back to training mode and gradients are enabled.</p>
-</div>
 </dd></dl>
 
 </dd></dl>
@@ -1515,6 +437,9 @@ the model goes back to training mode and gradients are enabled.</p>
            
           </div>
           <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="vipercmd.html" class="btn btn-neutral float-left" title="command line arguments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 

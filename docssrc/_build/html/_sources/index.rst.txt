@@ -11,8 +11,26 @@ Welcome to Viper Core's documentation!
 Welcome to the show
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :numbered:
+   :caption: Command Line Tools:
    
    pages/vipercmd
-   pages/pipeline
+   
+  
+
+.. toctree::
+   :maxdepth: 2
+   :numbered:
+   :caption: Pipeline:
+   
+   pages/base
+   pages/project
+   pages/segmentation
+   
+   
+.. toctree::
+   :maxdepth: 2
+   :numbered:
+   :caption: Processing:
+   
