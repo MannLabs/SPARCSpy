@@ -23,3 +23,6 @@ def test_percentile_normalization_H_W():
     normalized = percentile_normalization(test_array, 0.05,0.95)
     assert np.max(normalized) == pytest.approx(1)
     assert np.min(normalized) == pytest.approx(0)
+    
+def test_test():
+    assert 1 == 1
