@@ -3,6 +3,44 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
+def percentile_normalization(im, lower_percentile, upper_percentile):
+    
+    """Normalize an input image channel wise based on defined percentiles.
+    
+    Args
+        channels (np.array): Numpy array of shape ``(height, width)`` or``(channels, height, width)``.
+    """
+    
+    # chek if data is passed as (height, width) or (channels, height, width)
+    
+    if len(im.shape) == 2:
+        im = _percentile_norm(im, lower_percentile, upper_percentile)
+        
+    elif len(im.shape) == 3:
+        for i, channel in enumerate(im):
+            im[i] = _percentile_norm(im[i], lower_percentile, upper_percentile)
+            
+    else:
+        raise ValueError("Input dimensions should be (height, width) or (channels, height, width).")
+
+        
+    return im
+    
+def _percentile_norm(im, lower_percentile, upper_percentile):
+    
+    lower_value = np.quantile(np.ravel(im),lower_percentile)
+    upper_value = np.quantile(np.ravel(im),upper_percentile)
+                                         
+    IPR = upper_value - lower_value
+
+
+    out_im = im - lower_value 
+    out_im = out_im / IPR
+    out_im = np.clip(out_im, 0, 1)
+            
+    return out_im
+    
+
 @jit(nopython=True, parallel = True) # Set "nopython" mode for best performance, equivalent to @njit
 def rolling_window_mean(array,size,scaling = False):
     overlap=0

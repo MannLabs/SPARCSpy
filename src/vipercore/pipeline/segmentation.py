@@ -28,6 +28,13 @@ class Segmentation(ProcessingStep):
         
         DEFAULT_OUTPUT_FILE (str, default ``segmentation.h5``)
         DEFAULT_FILTER_FILE (str, default ``classes.csv``)
+        PRINT_MAPS_ON_DEBUG (bool, default ``False``)
+        
+        identifier (int, default ``None``): Only set if called by :class:`ShardedSegmentation`. Unique index of the shard.
+            
+        window (list(tuple), default ``None``): Only set if called by :class:`ShardedSegmentation`. Defines the window which is assigned to the shard. The window will be applied to the input. The first element refers to the first dimension of the image and so on. For example use ``[(0,1000),(0,2000)]`` To crop the image to `1000 px height` and `2000 px width` from the top left corner.
+
+        input_path (str, default ``None``): Only set if called by :class:`ShardedSegmentation`. Location of the input hdf5 file. During sharded segmentation the :class:`ShardedSegmentation` derived helper class will save the input image in form of a hdf5 file. This makes the input image available for parallel reading by the segmentation processes.
         
     Example:
         .. code-block:: python
@@ -51,9 +58,13 @@ class Segmentation(ProcessingStep):
     """
     DEFAULT_OUTPUT_FILE = "segmentation.h5"
     DEFAULT_FILTER_FILE = "classes.csv"
+    PRINT_MAPS_ON_DEBUG = False
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        self.identifier = None
+        self.window = None
+        self.input_path = None
         
     
     def initialize_as_shard(self, 
@@ -110,6 +121,7 @@ class Segmentation(ProcessingStep):
             classes (list(int)): List of all classes in the labels array, which have passed the filtering step. All classes contained in this list will be extracted.
         
         """
+        self.log("saving segmentation")
         
         # size (C, H, W) is expected
         # dims are expanded in case (H, W) is passed
@@ -131,6 +143,8 @@ class Segmentation(ProcessingStep):
         with open(filtered_path, 'w') as myfile:
             myfile.write(to_write)
             
+        self.log("=== finished segmentation ===")
+            
     def load_maps_from_disk(self):     
         
         """Tries to load all maps which were defined in ``self.maps`` and returns the current state of processing.
@@ -148,7 +162,7 @@ class Segmentation(ProcessingStep):
 
             
             try:
-                map_path = os.path.join(self.segmentation_directory, "{}_{}_map.npy".format(map_index, map_name))
+                map_path = os.path.join(self.directory, "{}_{}_map.npy".format(map_index, map_name))
 
                 if os.path.isfile(map_path):
                     map = np.load(map_path)
@@ -203,7 +217,7 @@ class Segmentation(ProcessingStep):
             map_index = list(self.maps.keys()).index(map_name)
             
             if self.intermediate_output:
-                map_path = os.path.join(self.segmentation_directory, "{}_{}_map.npy".format(map_index, map_name))
+                map_path = os.path.join(self.directory, "{}_{}_map.npy".format(map_index, map_name))
                 np.save(map_path, self.maps[map_name])
                 self.log("Saved map {} {} under path {}".format(map_index,map_name, map_path))
             
@@ -213,16 +227,31 @@ class Segmentation(ProcessingStep):
                 
                 for i, channel in enumerate(self.maps[map_name]):
                     
-                    
-                    
                     channel_name = "{}_{}_{}_map.png".format(map_index, map_name,i)
-                    channel_path = os.path.join(self.segmentation_directory, channel_name)
-                    self.save_image(channel, save_name = channel_path)
+                    channel_path = os.path.join(self.directory, channel_name)
+                    
+                    if self.debug and self.PRINT_MAPS_ON_DEBUG:
+                        self.save_image(channel, save_name = channel_path)
             else:
                 channel_name = "{}_{}_map.png".format(map_index, map_name)
-                channel_path = os.path.join(self.segmentation_directory, channel_name)
+                channel_path = os.path.join(self.directory, channel_name)
+                
+                if self.debug and self.PRINT_MAPS_ON_DEBUG:
+                    self.save_image(self.maps[map_name], save_name = channel_path)
+                
+    def save_image(self, array, save_name="", cmap="magma",**kwargs):
+        
+        fig = plt.figure(frameon=False)
+        fig.set_size_inches((10, 10))
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        ax.imshow(array, cmap=cmap,**kwargs)
 
-                self.save_image(self.maps[map_name], save_name = channel_path)
+        if save_name != "":
+            plt.savefig(save_name)
+            plt.show()
+            plt.close()
     
         
         
@@ -281,7 +310,7 @@ class ShardedSegmentation(ProcessingStep):
         
         self.resolve_sharding(sharding_plan)
         
-        self.log("============= Finished Segmentation ============= ")
+        self.log("=== finished segmentation === ")
         
             
     def initialize_shard_list(self, sharding_plan):

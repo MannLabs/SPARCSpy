@@ -16,7 +16,7 @@ class Project:
     Args:
         location_path (str): Path to the folder where to project should be created. The folder is created in case the specified folder does not exist.
         
-        config_path (str, optional, default ""): Path pointing to a valid configuration file. The file will be copied to the project directory and renamed to the name specified in ``DEFAULT_CLASSIFICATION_DIR_NAME``. See the section configuration to find out more about the config file.
+        config_path (str, optional, default ""): Path pointing to a valid configuration file. The file will be copied to the project directory and renamed to the name specified in ``DEFAULT_CLASSIFICATION_DIR_NAME``. If no config is specified, the existing config in the project directory will be used, if possible. See the section configuration to find out more about the config file. 
         
         intermediate_output (bool, default ``False``): When set to True intermediate outputs will be saved where applicable.
             
@@ -86,6 +86,7 @@ class Project:
                 
         # handle configuration file
         new_config_path = os.path.join(self.project_location,self.DEFAULT_CONFIG_NAME)
+        
         if config_path == "":
             
             # Check if there is already a config file in the dataset folder in case no config file has been specified
@@ -100,20 +101,14 @@ class Project:
             if not os.path.isfile(config_path):
                 raise ValueError("Your config path is invalid")
                 
-            else:
+            else:       
                 
-                # check if there is an old config file
-                if os.path.isfile(new_config_path):               
-                    if overwrite:   
-                        # The blueprint config file is copied to the dataset folder and renamed to the default name
-                        shutil.copyfile(config_path, new_config_path)
-                        
-                    else:
-                        warnings.warn(f"You specified a new config file but didnt specify overwrite. The existing file will be loaded. Did you mean create(overwrite=True)?")
-                else:
-                    # The blueprint config file is copied to the dataset folder and renamed to the default name
-                    shutil.copyfile(config_path, new_config_path)
+                print("modifying config")
+                if os.path.isfile(new_config_path):
+                    os.remove(new_config_path) 
                     
+                # The blueprint config file is copied to the dataset folder and renamed to the default name
+                shutil.copy(config_path, new_config_path)
                 self._load_config_from_file(new_config_path)
                 
         
@@ -188,6 +183,7 @@ class Project:
                 self.config = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
                 print(exc)
+                
                 
     def load_input_from_file(self, file_paths, remap = None, crop=[(0,-1),(0,-1)]):
         """load input image from a number of files.
