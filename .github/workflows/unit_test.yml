@@ -8,23 +8,31 @@ on:
     branches: [ '*' ]
   pull_request:
     branches: [ '*' ]
+    
+    name: Python Package using Conda
+
+
 
 jobs:
-  build:
-
+  build-linux:
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
 
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.10
       uses: actions/setup-python@v2
       with:
-        python-version: "3.10"
+        python-version: 3.10
+    - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f .github/workflows/pytest_requirements.txt ]; then pip install -r .github/workflows/pytest_requirements.txt; fi
+        conda env update --file .github/workflows/environment.yml --name base
     - name: Test with pytest
       run: |
+        conda install pytest
         pytest
