@@ -12,25 +12,22 @@ Welcome to the show
 
 .. toctree::
    :maxdepth: 1
-   :numbered:
    :caption: Command Line Tools:
    
    pages/vipercmd
    
-  
-
 .. toctree::
    :maxdepth: 2
-   :numbered:
    :caption: Pipeline:
    
-   pages/base
-   pages/project
-   pages/segmentation
-   
+   pages/pipeline/base
+   pages/pipeline/project
+   pages/pipeline/segmentation
    
 .. toctree::
    :maxdepth: 2
    :numbered:
    :caption: Processing:
+   
+   
    
