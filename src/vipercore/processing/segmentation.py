@@ -6,6 +6,9 @@ import matplotlib.cm as cm
 from tqdm import tqdm
 import multiprocessing
 from numba import njit
+
+import numba as nb
+
 from skimage.color import label2rgb
 from skimage.filters import gaussian
 from skimage import filters
@@ -356,6 +359,45 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     
     center = np.stack((y,x)).T
     return center, points_class
+
+@njit
+def selected_coords(segmentation, classes, debug=False):
+    num_classes = len(classes)
+    
+    #setup emtpy lists
+    coords = [[(np.array([0.,0.], dtype="int64"))]]
+    
+    
+    
+    for i in range(num_classes):
+        coords.append([(np.array([0.,0.], dtype="int64"))])
+
+    
+    points_class = np.zeros((num_classes))
+    center = np.zeros((num_classes,2,))
+    
+    y_size, x_size = segmentation.shape
+    
+    for y in range(y_size):
+        for x in range(x_size):
+            
+            class_id = segmentation[y,x]
+            
+            if class_id in classes:
+                
+                return_id = np.argwhere(classes==class_id)[0][0]
+                
+                
+                coords[return_id].append(np.array([y,x], dtype="int64")) # coords[translated_id].append(np.array([x,y]))
+                points_class[return_id] +=1
+                center[return_id] += np.array([x,y])
+                
+                
+    x = center[:,0]/points_class
+    y = center[:,1]/points_class
+    center = np.stack((y,x)).T
+    
+    return center, points_class, coords
 
 def mask_centroid(mask, class_range=None, debug=False):
     
