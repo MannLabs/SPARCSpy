@@ -5,10 +5,15 @@ from tqdm import tqdm
 
 def percentile_normalization(im, lower_percentile, upper_percentile):
     
-    """Normalize an input image channel wise based on defined percentiles.
+    """Normalize an input image channel wise based on defined percentiles. 
+    The percentiles will be calculated and the image will be normalized to ``[0, 1]`` based on the lower and upper percentile.
     
     Args
-        channels (np.array): Numpy array of shape ``(height, width)`` or``(channels, height, width)``.
+        channels (np.array): Numpy array of shape ``(height, width)`` or ``(channels, height, width)``.
+        
+        lower_percentile (float, between [0, 1]): lower percentile used for normalization. All lower values will be clipped to 0.
+        
+        upper_percentile (float, between [0, 1]): upper percentile used for normalization. All higher values will be clipped to 1.
     """
     
     # chek if data is passed as (height, width) or (channels, height, width)

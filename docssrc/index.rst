@@ -29,5 +29,7 @@ Welcome to the show
    :numbered:
    :caption: Processing:
    
+   pages/processing/preprocessing
+   
    
    

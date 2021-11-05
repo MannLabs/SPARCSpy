@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1. viper-split &mdash; Viper Core  documentation</title>
+  <title>viper-split &mdash; Viper Core  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -17,7 +17,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="1. base" href="base.html" />
+    <link rel="next" title="base" href="pipeline/base.html" />
     <link rel="prev" title="Welcome to Viper Core’s documentation!" href="../index.html" /> 
 </head>
 
@@ -38,21 +38,26 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">1. viper-split</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Positional Arguments">1.1. Positional Arguments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Named Arguments">1.2. Named Arguments</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">viper-split</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Positional Arguments">Positional Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#viper-stat">2. viper-stat</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Positional Arguments">2.1. Positional Arguments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Named Arguments">2.2. Named Arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#viper-stat">viper-stat</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Positional Arguments">Positional Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Pipeline:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="base.html">1. base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project.html">2. project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/base.html">base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/project.html">project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/segmentation.html">segmentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processing/preprocessing.html">1. Preprocessing</a></li>
 </ul>
 
         </div>
@@ -69,7 +74,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li><span class="section-number">1. </span>viper-split</li>
+      <li>viper-split</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/pages/vipercmd.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -80,14 +85,14 @@
            <div itemprop="articleBody">
              
   <div class="section" id="viper-split">
-<h1><span class="section-number">1. </span>viper-split<a class="headerlink" href="#viper-split" title="Permalink to this headline"></a></h1>
+<h1>viper-split<a class="headerlink" href="#viper-split" title="Permalink to this headline"></a></h1>
 <p><p>Manipulate existing single cell hdf5 datasets.</p>
 </p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">viper</span><span class="o">-</span><span class="n">split</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUTPUT</span> <span class="n">OUTPUT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">THREADS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span><span class="p">]</span> <span class="n">input_dataset</span>
 </pre></div>
 </div>
 <div class="section" id="Positional Arguments">
-<h2><span class="section-number">2.1. </span>Positional Arguments<a class="headerlink" href="#Positional Arguments" title="Permalink to this headline"></a></h2>
+<h2>Positional Arguments<a class="headerlink" href="#Positional Arguments" title="Permalink to this headline"></a></h2>
 <dl class="option-list">
 <dt><kbd>input_dataset</kbd></dt>
 <dd><p>input dataset which should be split</p>
@@ -95,7 +100,7 @@
 </dl>
 </div>
 <div class="section" id="Named Arguments">
-<h2><span class="section-number">2.2. </span>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline"></a></h2>
+<h2>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline"></a></h2>
 <dl class="option-list">
 <dt><kbd>-o, --output</kbd></dt>
 <dd><p>Output definition &lt;name&gt; &lt;length&gt;. For example -o test.h5 0.9 or or -o test.h5 1000. If the sum of all lengths is &lt;= 1, it is interpretated as fraction. Else its used as absolute value</p>
@@ -137,14 +142,14 @@ viper-split can be used for splitting, shuffleing and compression / decompressio
 </dl>
 </div>
 <div class="section" id="viper-stat">
-<h1><span class="section-number">2. </span>viper-stat<a class="headerlink" href="#viper-stat" title="Permalink to this headline"></a></h1>
+<h1>viper-stat<a class="headerlink" href="#viper-stat" title="Permalink to this headline"></a></h1>
 <p><p>Scan directory for viper projects.</p>
 </p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">viper</span><span class="o">-</span><span class="n">stat</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">THREADS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="n">RECURSION</span><span class="p">]</span> <span class="p">[</span><span class="n">search_directory</span><span class="p">]</span>
 </pre></div>
 </div>
 <div class="section" id="Positional Arguments">
-<h2><span class="section-number">2.1. </span>Positional Arguments<a class="headerlink" href="#Positional Arguments" title="Permalink to this headline"></a></h2>
+<h2>Positional Arguments<a class="headerlink" href="#Positional Arguments" title="Permalink to this headline"></a></h2>
 <dl class="option-list">
 <dt><kbd>search_directory</kbd></dt>
 <dd><p>directory containing viper projects</p>
@@ -152,7 +157,7 @@ viper-split can be used for splitting, shuffleing and compression / decompressio
 </dl>
 </div>
 <div class="section" id="Named Arguments">
-<h2><span class="section-number">2.2. </span>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline"></a></h2>
+<h2>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline"></a></h2>
 <dl class="option-list">
 <dt><kbd>-t, --threads</kbd></dt>
 <dd><p>number of threads</p>
@@ -188,7 +193,7 @@ viper-split can be used for splitting, shuffleing and compression / decompressio
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to Viper Core’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="base.html" class="btn btn-neutral float-right" title="1. base" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="pipeline/base.html" class="btn btn-neutral float-right" title="base" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
