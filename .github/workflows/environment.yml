@@ -1,0 +1,6 @@
+name: base
+dependencies:
+  - numpy
+  - matplotlib
+  - python
+  - numba
