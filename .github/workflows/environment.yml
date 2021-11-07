@@ -10,5 +10,5 @@ dependencies:
   - tqdm
   - scipy
   - scikit-image
-  - pip
+  - pip:
     - scikit-fmm
