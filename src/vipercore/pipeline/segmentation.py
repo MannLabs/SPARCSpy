@@ -356,7 +356,6 @@ class ShardedSegmentation(ProcessingStep):
         for y in range(shards_side[0]):
             for x in range(shards_side[1]):
 
-
                 last_row = y == shards_side[0]-1
                 last_column = x == shards_side[1]-1
 
