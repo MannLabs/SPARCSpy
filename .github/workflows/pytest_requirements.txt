@@ -1,3 +1,0 @@
-#### Required Packages #####
-numpy
-numba
