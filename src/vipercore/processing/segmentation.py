@@ -360,8 +360,81 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     center = np.stack((y,x)).T
     return center, points_class
 
+from numba import prange
+import numba as nb
+
 @njit
+def _selected_coords_fast(mask, classes, debug=False, background=0):
+    
+    num_classes = np.max(mask)+1
+    
+    coords = []
+    
+    for i in prange(num_classes):
+        coords.append([np.array([0.,0.], dtype="uint32")])
+    
+    rows, cols = mask.shape
+    
+    for row in range(rows):
+        if row % 10000 == 0:
+            print(row)
+        for col in range(cols):
+            return_id = mask[row, col]
+            if return_id != background:
+                coords[return_id].append(np.array([row, col], dtype="uint32")) # coords[translated_id].append(np.array([x,y]))
+    
+    for i, el in enumerate(coords):
+        #print(i, el)
+        if i not in classes:
+            #print(i)
+            coords[i] = [np.array([0.,0.], dtype="uint32")]
+                
+        #return
+    return coords
+             
+
+def selected_coords_fast(inarr, classes, debug=False):
+    # return with empty lists if no classes are provided
+    if len(classes) == 0:
+        return [],[],[]
+    
+    # calculate all coords in list
+    # due to typing issues in numba, every list and sublist contains np.array([0.,0.], dtype="int32") as first element
+    coords = _selected_coords_fast(inarr.astype("uint32"), nb.typed.List(classes))
+    
+    print("start removal of zero vectors")
+    # removal of np.array([0.,0.], dtype="int32")
+    coords = [np.array(el[1:]) for el in coords[1:]]
+    
+    print("start removal of out of class cells")
+    # remove empty elements, not in class list
+    coords_filtered = [el for i, el in enumerate(coords) if i+1 in classes]
+    
+    print("start center calculation")
+    center = [np.mean(el, axis=0) for el in coords_filtered]
+    
+    print("start length calculation")
+    length = [len(el) for el in coords_filtered]
+    
+    return center, length, coords
+
+# calculate center, coordinates and number of pixel for a selected set of classes
 def selected_coords(segmentation, classes, debug=False):
+    center, points_class, coords = _selected_coords(segmentation, classes, debug=False)
+    
+    # ccoords array contains [0, 0] as first element.
+    # hack needed to tell numba the datatype
+    # folowing lines are needed for removal
+    out_l = []
+    for elem in coords:
+        if len(elem) > 1:
+            out_l.append(np.array(elem[1:]))
+    
+    coords = out_l
+    return center, points_class, coords
+
+@njit
+def _selected_coords(segmentation, classes, debug=False):
     num_classes = len(classes)
     
     #setup emtpy lists
@@ -556,9 +629,6 @@ class Shape:
     def get_poly(self):
         return self.poly+self.offset
     
-    def get_center(self):
-        return np.array([self.center[1],self.center[0]])
-    
         
     def sort_edges(self, edges):
         """
@@ -585,5 +655,12 @@ class Shape:
         
         return(np.array(new))
     
-    def plot(self, axis, **kwargs):
-        axis.plot(self.poly[:,0]+self.offset[0],self.poly[:,1]+self.offset[1], **kwargs)
+    def plot(self, axis,  flip=True, **kwargs):
+        """
+        Args
+            flip (bool, True): Shapes are still in the (row, col) format and need to bee flipped if plotted with a (x, y) coordinate system.
+        """
+        if flip:
+            axis.plot(self.poly[:,1]+self.offset[1],self.poly[:,0]+self.offset[0], **kwargs)
+        else:
+            axis.plot(self.poly[:,0]+self.offset[0],self.poly[:,1]+self.offset[1], **kwargs)

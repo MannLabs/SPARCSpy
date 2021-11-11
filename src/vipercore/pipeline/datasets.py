@@ -124,6 +124,8 @@ class Dataset:
                 print(exc)
                 
     def load_input_from_file(self, file_paths, remap = None, crop=[(0,-1),(0,-1)]):
+        #crop: first position indicates crop top, bottom while second position indicates crop left, right
+        
         if self.config == None:
             raise ValueError("Dataset has no config file loaded")
             

@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import random
 import torchvision.transforms.functional as TF
+import torchvision.transforms as T
 
 class RandomRotation(object):
     def __init__(self, choices=4, include_zero=True):
@@ -38,6 +39,23 @@ class GaussianNoise(object):
         
             tensor = tensor + sampled_noise
         return tensor
+
+class GaussianBlur(object):
+    
+    def __init__(self, kernel_size = [5, 7, 9], sigma=[0.1, 0.2], channels=[]):
+        self.kernel_size = kernel_size
+        self.sigma = sigma
+        self.channels = channels
+        
+        
+    def __call__(self, tensor):
+        
+        #randomly select a kernel size and sigma to add more variation
+        kernel_size = random.choice(self.kernel_size)
+        sigma = random.choice(self.sigma)
+
+        #return the corrected image
+        return T.GaussianBlur(torch, kernel_size, sigma)
     
 class ChannelReducer(object) :
     def __init__(self, channels=5):

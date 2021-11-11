@@ -1,0 +1,14 @@
+name: base
+channels:
+    - conda-forge
+dependencies:
+  - numpy
+  - matplotlib
+  - python
+  - numba
+  - matplotlib
+  - tqdm
+  - scipy
+  - scikit-image
+  - pip:
+    - scikit-fmm
