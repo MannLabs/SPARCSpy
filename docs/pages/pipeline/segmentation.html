@@ -17,6 +17,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="selection" href="selection.html" />
     <link rel="prev" title="project" href="project.html" /> 
 </head>
 
@@ -37,8 +38,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html">1. viper-split</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html#viper-stat">2. viper-stat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html">viper-split</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html#viper-stat">viper-stat</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Pipeline:</span></p>
 <ul class="current">
@@ -49,6 +50,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#shardedsegmentation">ShardedSegmentation</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">selection</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing/preprocessing.html">1. Preprocessing</a></li>
 </ul>
 
         </div>
@@ -82,7 +88,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="vipercore.pipeline.segmentation.Segmentation">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.pipeline.segmentation.</span></span><span class="sig-name descname"><span class="pre">Segmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.segmentation.Segmentation" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="selection.html#vipercore.pipeline.base.ProcessingStep" title="vipercore.pipeline.base.ProcessingStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">vipercore.pipeline.base.ProcessingStep</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="protocols.html#vipercore.pipeline.base.ProcessingStep" title="vipercore.pipeline.base.ProcessingStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">vipercore.pipeline.base.ProcessingStep</span></code></a></p>
 <p>Segmentation helper class used for creating segmentation workflows.
 .. attribute:: maps</p>
 <blockquote>
@@ -274,7 +280,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="vipercore.pipeline.segmentation.ShardedSegmentation">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.pipeline.segmentation.</span></span><span class="sig-name descname"><span class="pre">ShardedSegmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.segmentation.ShardedSegmentation" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="selection.html#vipercore.pipeline.base.ProcessingStep" title="vipercore.pipeline.base.ProcessingStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">vipercore.pipeline.base.ProcessingStep</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="protocols.html#vipercore.pipeline.base.ProcessingStep" title="vipercore.pipeline.base.ProcessingStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">vipercore.pipeline.base.ProcessingStep</span></code></a></p>
 <p>object which can create log entries.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="vipercore.pipeline.segmentation.ShardedSegmentation.DEFAULT_OUTPUT_FILE">
@@ -347,6 +353,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="project.html" class="btn btn-neutral float-left" title="project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="selection.html" class="btn btn-neutral float-right" title="selection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

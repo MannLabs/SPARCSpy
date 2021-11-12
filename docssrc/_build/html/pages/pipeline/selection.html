@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>base &mdash; Viper Core  documentation</title>
+  <title>selection &mdash; Viper Core  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -16,7 +16,9 @@
         <script src="../../_static/doctools.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="1. Preprocessing" href="../processing/preprocessing.html" />
+    <link rel="prev" title="segmentation" href="segmentation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,10 +42,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../vipercmd.html#viper-stat">viper-stat</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Pipeline:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="base.html">base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project.html">project</a></li>
 <li class="toctree-l1"><a class="reference internal" href="segmentation.html">segmentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">selection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#lmdselection">LMDSelection</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processing:</span></p>
 <ul>
@@ -64,7 +70,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>base</li>
+      <li>selection</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/pages/pipeline/selection.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -74,52 +80,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="base">
-<h1>base<a class="headerlink" href="#base" title="Permalink to this headline"></a></h1>
-<div class="section" id="logable">
-<h2>Logable<a class="headerlink" href="#logable" title="Permalink to this headline"></a></h2>
+  <div class="section" id="selection">
+<h1>selection<a class="headerlink" href="#selection" title="Permalink to this headline"></a></h1>
+<div class="section" id="lmdselection">
+<h2>LMDSelection<a class="headerlink" href="#lmdselection" title="Permalink to this headline"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.pipeline.base.</span></span><span class="sig-name descname"><span class="pre">Logable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.Logable" title="Permalink to this definition"></a></dt>
-<dd><p>object which can create log entries.
-:param debug: When set to <code class="docutils literal notranslate"><span class="pre">True</span></code> log entries will be printed to the console.
-:type debug: bool, default <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.directory">
-<span class="sig-name descname"><span class="pre">directory</span></span><a class="headerlink" href="#vipercore.pipeline.base.Logable.directory" title="Permalink to this definition"></a></dt>
-<dd><p>A directory must be set in every descendant before log can be called.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.DEFAULT_LOG_NAME">
-<span class="sig-name descname"><span class="pre">DEFAULT_LOG_NAME</span></span><a class="headerlink" href="#vipercore.pipeline.base.Logable.DEFAULT_LOG_NAME" title="Permalink to this definition"></a></dt>
-<dd><p>Default log file name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>str, default <code class="docutils literal notranslate"><span class="pre">processing.log</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.DEFAULT_FORMAT">
-<span class="sig-name descname"><span class="pre">DEFAULT_FORMAT</span></span><a class="headerlink" href="#vipercore.pipeline.base.Logable.DEFAULT_FORMAT" title="Permalink to this definition"></a></dt>
-<dd><p>Date and time format used for logging. See <a href="#id1"><span class="problematic" id="id2">`datetime.strftime &lt;https://docs.python.org/3/library/datetime.html#datetime.date.strftime`_</span></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="vipercore.pipeline.selection.LMDSelection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.pipeline.selection.</span></span><span class="sig-name descname"><span class="pre">LMDSelection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.selection.LMDSelection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="protocols.html#vipercore.pipeline.base.ProcessingStep" title="vipercore.pipeline.base.ProcessingStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">vipercore.pipeline.base.ProcessingStep</span></code></a></p>
+<p>Select single cells from a segmented hdf5 file and generate cutting data for the LMD Microscope</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vipercore.pipeline.selection.LMDSelection.check_cell_set_sanity">
+<span class="sig-name descname"><span class="pre">check_cell_set_sanity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.selection.LMDSelection.check_cell_set_sanity" title="Permalink to this definition"></a></dt>
+<dd><p>Check if cell_set dictionary contains the right fields</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.log">
-<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.Logable.log" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="vipercore.pipeline.selection.LMDSelection.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.selection.LMDSelection.log" title="Permalink to this definition"></a></dt>
 <dd><p>log a message</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -128,36 +106,79 @@
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-</div>
-<div class="section" id="processingstep">
-<h2>ProcessingStep<a class="headerlink" href="#processingstep" title="Permalink to this headline"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="vipercore.pipeline.base.ProcessingStep">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.pipeline.base.</span></span><span class="sig-name descname"><span class="pre">ProcessingStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermediate_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.ProcessingStep" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#vipercore.pipeline.base.Logable" title="vipercore.pipeline.base.Logable"><code class="xref py py-class docutils literal notranslate"><span class="pre">vipercore.pipeline.base.Logable</span></code></a></p>
-<p>Processing step living in its own subdirectory of the project.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vipercore.pipeline.selection.LMDSelection.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_sets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration_marker</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.selection.LMDSelection.process" title="Permalink to this definition"></a></dt>
+<dd><p>Process function for starting the processing</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<em>dict</em>) – Config file which is passed by the Project class when called. Is loaded from the project based on the name of the class.</p></li>
-<li><p><strong>directory</strong> (<em>str</em>) – Directory which should be used by the processing step. The directory will be newly created if it does not exist yet. When used with the <span class="xref std std-ref">Project</span> class, a subdirectory of the project directory is passed.</p></li>
-<li><p><strong>intermediate_output</strong> (bool, default <code class="docutils literal notranslate"><span class="pre">False</span></code>) – When set to True intermediate outputs will be saved where applicable.</p></li>
-<li><p><strong>debug</strong> (bool, default <code class="docutils literal notranslate"><span class="pre">False</span></code>) – When set to True debug outputs will be printed where applicable.</p></li>
-<li><p><strong>overwrite</strong> (bool, default <code class="docutils literal notranslate"><span class="pre">False</span></code>) – When set to True, the processing step directory will be completely deleted and newly created when called.</p></li>
+<li><p><strong>hdf_location</strong> (<em>str</em>) – path of the segmentation hdf5 file. If this class is used as part of a project processing workflow, this argument will be provided.</p></li>
+<li><p><strong>cell_sets</strong> (<em>list</em><em>(</em><em>dict</em><em>)</em>) – List of dictionaries containing the sets of cells which should be sorted into a single well.</p></li>
+<li><p><strong>calibration_marker</strong> (<em>np.array</em>) – Array of size ‘(3,2)’ containing the calibration marker coordinates in the ‘(row, column)’ format.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="vipercore.pipeline.base.ProcessingStep.log">
-<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.ProcessingStep.log" title="Permalink to this definition"></a></dt>
-<dd><p>log a message</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em><em>, </em><em>list</em><em>(</em><em>str</em><em>)</em><em>, </em><em>dict</em><em>(</em><em>str</em><em>)</em>) – Strings are s</p>
-</dd>
-</dl>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If this class is used as part of a project processing workflow, the first argument will be provided by the <code class="docutils literal notranslate"><span class="pre">Project</span></code> class based on the previous segmentation. Therefore, only the second and third argument need to be provided. Under the hood, the Project class retrives the most recent segmentation and passes it forward together with the supplied parameters. The Implementation is similar to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="n">input_segmentation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segmentation_f</span><span class="o">.</span><span class="n">get_output</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">selection_f</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">input_segmentation</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p class="rubric">Example</p>
+<p>The following parameters are required in the config file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calibration marker should be defined as (row, column).</span>
+<span class="n">marker_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">marker_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">1100</span><span class="p">])</span>
+<span class="n">marker_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1100</span><span class="p">,</span><span class="mi">505</span><span class="p">])</span>
+
+<span class="c1"># A numpy Array of shape (3, 2) should be passed.</span>
+<span class="n">calibration_marker</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">marker_0</span><span class="p">,</span> <span class="n">marker_1</span><span class="p">,</span> <span class="n">marker_2</span><span class="p">])</span>
+
+
+<span class="c1"># Sets of cells can be defined by providing a name and a list of classes in a dictionary.</span>
+<span class="n">cells_to_select</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dataset1&quot;</span><span class="p">,</span> <span class="s2">&quot;classes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]}]</span>
+
+<span class="c1"># Alternatively, a path to a csv file can be provided.</span>
+<span class="c1"># If a relative path is provided, it is accessed relativ to the projects base directory.</span>
+<span class="n">cells_to_select</span> <span class="o">+=</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dataset2&quot;</span><span class="p">,</span> <span class="s2">&quot;classes&quot;</span><span class="p">:</span> <span class="s2">&quot;segmentation/class_subset.csv&quot;</span><span class="p">}]</span>
+
+<span class="c1"># If desired, wells can be passed with the individual sets.</span>
+<span class="n">cells_to_select</span> <span class="o">+=</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dataset3&quot;</span><span class="p">,</span> <span class="s2">&quot;classes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span> <span class="s2">&quot;well&quot;</span><span class="p">:</span><span class="s2">&quot;A1&quot;</span><span class="p">}]</span>
+
+<span class="n">project</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">cells_to_select</span><span class="p">,</span> <span class="n">calibration_marker</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The following parameters are required in the config file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">LMDSelection</span><span class="p">:</span>
+    <span class="nt">threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+
+    <span class="c1"># defines the channel used for generating cutting masks</span>
+    <span class="c1"># segmentation.hdf5 =&gt; labels =&gt; segmentation_channel</span>
+    <span class="c1"># When using WGA segmentation:</span>
+    <span class="c1">#    0 corresponds to nuclear masks</span>
+    <span class="c1">#    1 corresponds to cytosolic masks.</span>
+    <span class="nt">segmentation_channel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+
+    <span class="c1"># dilation of the cutting mask in pixel</span>
+    <span class="nt">shape_dilation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+
+    <span class="c1"># number of datapoints which are averaged for smoothing</span>
+    <span class="c1"># the number of datapoints over an distance of n pixel is 2*n</span>
+    <span class="nt">smoothing_filter_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+
+    <span class="c1"># fold reduction of datapoints for compression</span>
+    <span class="nt">poly_compression_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30</span>
+</pre></div>
+</div>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -168,7 +189,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="segmentation.html" class="btn btn-neutral float-left" title="segmentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../processing/preprocessing.html" class="btn btn-neutral float-right" title="1. Preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

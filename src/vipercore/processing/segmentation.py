@@ -6,6 +6,7 @@ import matplotlib.cm as cm
 from tqdm import tqdm
 import multiprocessing
 from numba import njit
+from numba import prange
 import numba as nb
 
 from skimage.color import label2rgb
@@ -360,6 +361,61 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     return center, points_class
 
 @njit
+def _selected_coords_fast(mask, classes, debug=False, background=0):
+    
+    num_classes = np.max(mask)+1
+    
+    coords = []
+    
+    for i in prange(num_classes):
+        coords.append([np.array([0.,0.], dtype="uint32")])
+    
+    rows, cols = mask.shape
+    
+    for row in range(rows):
+        if row % 10000 == 0:
+            print(row)
+        for col in range(cols):
+            return_id = mask[row, col]
+            if return_id != background:
+                coords[return_id].append(np.array([row, col], dtype="uint32")) # coords[translated_id].append(np.array([x,y]))
+    
+    for i, el in enumerate(coords):
+        #print(i, el)
+        if i not in classes:
+            #print(i)
+            coords[i] = [np.array([0.,0.], dtype="uint32")]
+                
+        #return
+    return coords
+             
+
+def selected_coords_fast(inarr, classes, debug=False):
+    # return with empty lists if no classes are provided
+    if len(classes) == 0:
+        return [],[],[]
+    
+    # calculate all coords in list
+    # due to typing issues in numba, every list and sublist contains np.array([0.,0.], dtype="int32") as first element
+    coords = _selected_coords_fast(inarr.astype("uint32"), nb.typed.List(classes))
+    
+    print("start removal of zero vectors")
+    # removal of np.array([0.,0.], dtype="int32")
+    coords = [np.array(el[1:]) for el in coords[1:]]
+    
+    print("start removal of out of class cells")
+    # remove empty elements, not in class list
+    coords_filtered = [np.array(el) for i, el in enumerate(coords) if i+1 in classes]
+    
+    print("start center calculation")
+    center = [np.mean(el, axis=0) for el in coords_filtered]
+    
+    print("start length calculation")
+    length = [len(el) for el in coords_filtered]
+    
+    return center, length, coords_filtered
+
+@njit
 def selected_coords(segmentation, classes, debug=False):
     num_classes = len(classes)
     
@@ -440,149 +496,3 @@ def mask_centroid(mask, class_range=None, debug=False):
     return center,points_class,coords
   
 
-class Shape:
-    """
-    Helper class which is created for every segment. Can be used to convert a list of pixels into a polygon.
-    Reasonable results should only be expected for fully connected sets of coordinates. 
-    The resulting polygon has a baseline resolution of twice the pixel density.
-    
-    """
-    
-    def __init__(self, center,length,coords):
-        self.center = center
-        self.length = length
-        self.coords = np.array(coords)
-        
-        #print(self.center,self.length)
-        
-        #print(self.coords.shape)
-        # may be needed for further debugging
-        """
-        fig = plt.figure(frameon=False)
-        fig.set_size_inches(10,10)
-        ax = plt.Axes(fig, [0., 0., 1., 1.])
-        ax.set_axis_off()
-        fig.add_axes(ax)
-
-        ax.imshow(bounds)
-        ax.plot(edges[:,1]*2,edges[:,0]*2)"""
-        
-    def create_poly(self, 
-                    smoothing_filter_size = 12,
-                    poly_compression_factor = 8,
-                   dilation = 0):
-        
-        """
-        Converts a list of pixels into a polygon.
-
-        Parameters
-        ----------
-        smoothing_filter_size : int, default = 12
-            The smoothing filter is the circular convolution with a vector of length smoothing_filter_size and all elements 1 / smoothing_filter_size.
-            
-        poly_compression_factor : int, default = 8    
-            When compression is seeked, only every n-th element is kept for n = poly_compression_factor.
-        """
-        
-        
-        safety_offset = 3
-        dilation_offset = dilation 
-        
-        
-        # top left offsett used for creating the offset map
-        self.offset = np.min(self.coords,axis=0)-safety_offset-dilation_offset
-        
-        
-        self.offset_coords = self.coords-self.offset
-        
-        self.offset_map = np.zeros(np.max(self.offset_coords,axis=0)+2*safety_offset+dilation_offset)
-        
-        
-        y = tuple(self.offset_coords.T[0])
-        x = tuple(self.offset_coords.T[1])
-
-        self.offset_map[(y,x)] = 1
-        self.offset_map = self.offset_map.astype(int)
-        
-        plt.imshow(self.offset_map)
-        plt.show()
-        
-        self.offset_map = sk_dilation(self.offset_map , selem=disk(dilation))
-        
-        plt.imshow(self.offset_map)
-        plt.show()
-        
-        # find polygon bounds from mask
-        bounds = sk.segmentation.find_boundaries(self.offset_map, connectivity=1, mode="subpixel", background=0)
-        
-        
-        
-        edges = np.array(np.where(bounds == 1))/2
-        edges = edges.T
-        edges = self.sort_edges(edges)
-        
-        # smoothing resulting shape
-        smk = np.ones((smoothing_filter_size,1))/smoothing_filter_size
-        edges = convolve2d(edges,smk,mode="full",boundary="wrap")
-        
-        
-        # compression of the resulting polygon      
-        newlen = np.round(len(edges)/poly_compression_factor).astype(int)
-        
-        mine = 0
-        maxe= len(edges)-1
-        
-        indices=np.linspace(mine,maxe,newlen).astype(int)
-
-        self.poly = edges[indices]
-        
-        # Useful for debuging
-        """
-        print(self.poly.shape)
-        fig = plt.figure(frameon=False)
-        fig.set_size_inches(10,10)
-        ax = plt.Axes(fig, [0., 0., 1., 1.])
-        ax.set_axis_off()
-        fig.add_axes(ax)
-
-        ax.imshow(bounds)
-        ax.plot(edges[:,1]*2,edges[:,0]*2)
-        ax.plot(self.poly[:,1]*2,self.poly[:,0]*2)
-        """
-        
-        return self
-    
-    def get_poly(self):
-        return self.poly+self.offset
-    
-    def get_center(self):
-        return np.array([self.center[1],self.center[0]])
-    
-        
-    def sort_edges(self, edges):
-        """
-        greedy sorts the vertices of a graph.
-        
-        """
-
-        it = len(edges)
-        new = []
-        new.append(edges[0])
-
-        edges = np.delete(edges,0,0)
-
-        for i in range(1,it):
-
-            old = np.array(new[i-1])
-
-
-            dist = np.linalg.norm(edges-old,axis=1)
-
-            min_index = np.argmin(dist)
-            new.append(edges[min_index])
-            edges = np.delete(edges,min_index,0)
-        
-        return(np.array(new))
-    
-    def plot(self, axis, **kwargs):
-        axis.plot(self.poly[:,0]+self.offset[0],self.poly[:,1]+self.offset[1], **kwargs)

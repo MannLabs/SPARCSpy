@@ -252,6 +252,9 @@ class Segmentation(ProcessingStep):
             plt.savefig(save_name)
             plt.show()
             plt.close()
+            
+    def get_output(self):
+        return os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE)
     
         
         
@@ -472,3 +475,6 @@ class ShardedSegmentation(ProcessingStep):
         hf.close()      
         
         self.log("resolved sharding plan")
+        
+    def get_output(self):
+        return os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE)

@@ -281,9 +281,7 @@ class Project:
         if self.extraction_f == None:
             raise ValueError("No extraction method defined")
             
-        input_segmentation = self.segmentation_f.get_output_file_path()
-        if not os.path.isfile(input_segmentation):
-            raise ValueError("Segmentation was not found at {}".format(input_segmentation))
+        input_segmentation = self.segmentation_f.get_output()
         
         input_dir = os.path.join(self.project_location,self.DEFAULT_SEGMENTATION_DIR_NAME, "classes.csv")
         self.extraction_f(input_segmentation,  input_dir, *args, **kwargs)
@@ -300,18 +298,35 @@ class Project:
 
             overwrite (bool, optional): Can be set when calling to override the project wide flag.
         """
-                 
-        if self.classification_f == None:
-            raise ValueError("No classification method defined")
-            pass
             
-        input_extraction = self.extraction_f.get_output_path()
+        input_extraction = self.extraction_f.get_output()
         
 
         if not os.path.isdir(input_extraction):
             raise ValueError("input was not found at {}".format(input_extraction))
             
         self.classification_f(input_extraction, *args, **kwargs)
+        
+    def select(self, 
+                *args, 
+                **kwargs):
+        """classify single cells with the defined classification at classification_f.
+        
+        Args:
+            intermediate_output (bool, optional): Can be set when calling to override the project wide flag.
+
+            debug (bool, optional):Can be set when calling to override the project wide flag.
+
+            overwrite (bool, optional): Can be set when calling to override the project wide flag.
+        """
+                 
+        if self.selection_f == None:
+            raise ValueError("No classification method defined")
+            pass
+            
+        input_selection = self.segmentation_f.get_output()
+            
+        self.selection_f(input_selection, *args, **kwargs)
             
     def process(self):
         self.segment()

@@ -49,6 +49,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="segmentation.html">segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">selection</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Processing:</span></p>
 <ul>
@@ -220,6 +221,21 @@
 <dt class="sig sig-object py" id="vipercore.pipeline.project.Project.segment">
 <span class="sig-name descname"><span class="pre">segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.project.Project.segment" title="Permalink to this definition"></a></dt>
 <dd><p>segment project with the defined segmentation under segmentation_f.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>intermediate_output</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
+<li><p><strong>debug</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em><em>, </em><em>optional</em>) – Can be set when calling to override the project wide flag.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vipercore.pipeline.project.Project.select">
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.project.Project.select" title="Permalink to this definition"></a></dt>
+<dd><p>classify single cells with the defined classification at classification_f.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

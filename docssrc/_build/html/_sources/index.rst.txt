@@ -23,6 +23,7 @@ Welcome to the show
    pages/pipeline/base
    pages/pipeline/project
    pages/pipeline/segmentation
+   pages/pipeline/selection
    
 .. toctree::
    :maxdepth: 2

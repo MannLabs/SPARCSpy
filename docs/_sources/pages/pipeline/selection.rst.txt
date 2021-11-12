@@ -1,14 +1,9 @@
-base
+selection
 ########
 
-Logable
+LMDSelection
 ==============
-.. autoclass:: vipercore.pipeline.base.Logable
-    :members:
-
-ProcessingStep
-==============
-.. autoclass:: vipercore.pipeline.base.ProcessingStep
+.. autoclass:: vipercore.pipeline.selection.LMDSelection
     :members:
     :show-inheritance:
     :inherited-members:
