@@ -20,6 +20,7 @@ Welcome to the show
    :maxdepth: 2
    :caption: Pipeline:
    
+   pages/pipeline/introduction
    pages/pipeline/base
    pages/pipeline/project
    pages/pipeline/segmentation

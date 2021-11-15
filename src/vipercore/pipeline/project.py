@@ -9,7 +9,9 @@ from PIL import Image
 import PIL
 import numpy as np
 
-class Project:
+from vipercore.pipeline.base import Logable
+
+class Project(Logable):
     """
     Project base class used to create a new viper project.
     
@@ -48,8 +50,9 @@ class Project:
     DEFAULT_SELECTION_DIR_NAME = "selection"
     
     # Project object is initialized, nothing is written to disk
-    def __init__(self, 
+    def __init__(self,    
                  location_path,
+                 *args,
                  config_path =  "",
                  intermediate_output = False,
                  debug = False,
@@ -57,8 +60,11 @@ class Project:
                  segmentation_f = None,
                  extraction_f = None,
                  classification_f = None,
-                 selection_f = None
+                 selection_f = None, 
+                 **kwargs
                  ):
+        
+        super().__init__(debug=debug)
         
         self.debug = debug
         self.overwrite = overwrite
@@ -74,6 +80,8 @@ class Project:
         
         self.input_image = None
         self.config = None
+        
+        self.directory = location_path
         
         # handle location
         self.project_location = location_path
@@ -169,12 +177,24 @@ class Project:
                                                  intermediate_output = self.intermediate_output)
         else:
             self.selection_f = None
+            
+        # parse remapping
+        self.remap = None
+        if "channel_remap" in self.config:
+            char_list = self.config["channel_remap"].split(",")
+            self.log("channel remap parameter found:")
+            self.log(char_list)
+            
+            self.remap = [int(el.strip()) for el in char_list]
+            
+            
         
                 
     def _load_config_from_file(self, file_path):
         """
         loads config from file and writes it to self.config
         """
+        self.log(f"Loading config from {file_path}")
         if not os.path.isfile(file_path):
             raise ValueError("Your config path is invalid")
             
@@ -185,14 +205,12 @@ class Project:
                 print(exc)
                 
                 
-    def load_input_from_file(self, file_paths, remap = None, crop=[(0,-1),(0,-1)]):
+    def load_input_from_file(self, file_paths, crop=[(0,-1),(0,-1)]):
         """load input image from a number of files.
 
         Args:
             file_paths (list(str)): List containing paths to each channel like ``["path1/img.tiff", "path2/img.tiff", "path3/img.tiff"]``. Expects a list of file paths with length ``input_channel`` as defined in the config.yml. Input data is NOT copied to the project folder by default. Different segmentation functions especially tiled segmentations might copy the input
             
-            remap (list(int), optional): Define remapping of channels. For example use ``[1, 0, 2]`` to change the order of the first and the second channel. 
-
             crop (list(tuple), optional): When set it can be used to crop the input image. The first element refers to the first dimension of the image and so on. For example use ``[(0,1000),(0,2000)]`` To crop the image to `1000 px height` and `2000 px width` from the top left corner.
         """
         if self.config == None:
@@ -218,8 +236,8 @@ class Project:
         
         print(self.input_image.shape)
         
-        if remap != None:
-            self.input_image = self.input_image[remap]
+        if self.remap != None:
+            self.input_image = self.input_image[self.remap]
         
         
     def load_input_from_array(self, array, remap = None):
@@ -240,8 +258,8 @@ class Project:
             
         self.input_image = np.array(array, dtype="float64")
             
-        if remap != None:
-            self.input_image = self.input_image[remap]
+        if self.remap != None:
+            self.input_image = self.input_image[self.remap]
             
     def segment(self, 
                 *args, 

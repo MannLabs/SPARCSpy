@@ -301,7 +301,7 @@ def contact_filter(inarr, threshold=1, reindex=False, background=0):
     to_remove = np.delete(to_remove, np.where(to_remove == background))
 
     # remove these classes
-    label = remove_classes(label,to_remove,reindex=reindex)
+    label = remove_classes(label,nb.typed.List(to_remove),reindex=reindex)
     
     return label
 
@@ -314,7 +314,7 @@ def size_filter(label, limits=[0,100000], background=0, reindex=False):
     to_remove = list(below) + list(above)
     
     if len(to_remove) > 0:
-        label = remove_classes(label,to_remove,reindex=reindex)
+        label = remove_classes(label,nb.typed.List(to_remove),reindex=reindex)
     
     return label
 

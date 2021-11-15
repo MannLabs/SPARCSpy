@@ -240,7 +240,7 @@ class LMDSelection(ProcessingStep):
             raise KeyError()
         
         if "classes" in cell_set:
-            if not isinstance(cell_set["classes"], (list, str)):
+            if not isinstance(cell_set["classes"], (list, str, np.ndarray)):
                 self.log("No list of classes specified for cell set")
                 raise TypeError()
         else:

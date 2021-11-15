@@ -58,7 +58,8 @@ class Segmentation(ProcessingStep):
     """
     DEFAULT_OUTPUT_FILE = "segmentation.h5"
     DEFAULT_FILTER_FILE = "classes.csv"
-    PRINT_MAPS_ON_DEBUG = False
+    PRINT_MAPS_ON_DEBUG = True
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -240,7 +241,6 @@ class Segmentation(ProcessingStep):
                     self.save_image(self.maps[map_name], save_name = channel_path)
                 
     def save_image(self, array, save_name="", cmap="magma",**kwargs):
-        
         fig = plt.figure(frameon=False)
         fig.set_size_inches((10, 10))
         ax = plt.Axes(fig, [0., 0., 1., 1.])
@@ -388,7 +388,7 @@ class ShardedSegmentation(ProcessingStep):
         output = os.path.join(self.directory,self.DEFAULT_OUTPUT_FILE)
         
         label_size = (2,self.image_size[0],self.image_size[1])
-        channel_size = (3,self.image_size[0],self.image_size[1])
+        channel_size = (self.config["input_channels"],self.image_size[0],self.image_size[1])
 
         
         hf = h5py.File(output, 'w')
@@ -462,12 +462,13 @@ class ShardedSegmentation(ProcessingStep):
             else:
                 self.log("Sharding sanity check: edge classes are NOT a full subset of all classes.")
             
-            plot_image(hdf_channels[0].astype(np.float64))
-            plot_image(hdf_channels[1].astype(np.float64))
-            plot_image(hdf_channels[2].astype(np.float64))
-
-            image = label2rgb(hdf_labels[1],hdf_channels[0].astype(np.float64)/np.max(hdf_channels[0].astype(np.float64)),alpha=0.2, bg_label=0)
-            plot_image(image)
+            for i in range(len(hdf_channels)):
+                plot_image(hdf_channels[i].astype(np.float64))
+            
+            for i in range(len(hdf_labels)):
+                image = label2rgb(hdf_labels[i],hdf_channels[0].astype(np.float64)/np.max(hdf_channels[0].astype(np.float64)),alpha=0.2, bg_label=0)
+                plot_image(image)
+            
         
         
         

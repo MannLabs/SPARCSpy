@@ -15,11 +15,305 @@ from scipy.ndimage import binary_fill_holes
 from vipercore.processing.segmentation import numba_mask_centroid
 from vipercore.processing.utils import plot_image
 from vipercore.processing.deprecated import normalize, MinMax
+from vipercore.pipeline.base import ProcessingStep
+
 import uuid
 import shutil
 import timeit
 
 import _pickle as cPickle
+
+
+
+class HDF5CellExtraction(ProcessingStep):
+    
+    
+    DEFAULT_LOG_NAME = "processing.log" 
+    DEFAULT_DATA_FILE = "single_cells.h5"
+    DEFAULT_DATA_DIR = "data"
+    CLEAN_LOG = False
+    
+    def __init__(self, 
+                 *args,
+                 **kwargs):
+        
+        super().__init__(*args, **kwargs)
+        
+        """class can be initiated to create a WGA extraction workfow
+
+        :param config: Configuration for the extraction passed over from the :class:`pipeline.Dataset`
+        :type config: dict
+
+        :param string: Directiory for the extraction log and results. is created if not existing yet
+        :type config: string
+        
+        :param debug: Flag used to output debug information and map images
+        :type debug: bool, default False
+        
+        :param overwrite: Flag used to recalculate all images, not yet implemented
+        :type overwrite: bool, default False
+        """
+            
+        
+        
+            
+        
+    def get_output_path(self):
+        return self.extraction_data_directory            
+                
+        
+    def process(self, input_segmentation_path, filtered_classes_path):
+        # is called with the path to the segmented image
+        
+        self.extraction_data_directory = os.path.join(self.directory, self.DEFAULT_DATA_DIR)
+        if not os.path.isdir(self.extraction_data_directory):
+            os.makedirs(self.extraction_data_directory)
+            self.log("Created new data directory " + self.extraction_data_directory)
+        
+        # parse remapping
+        self.remap = None
+        if "channel_remap" in self.config:
+            char_list = self.config["channel_remap"].split(",")
+            self.log("channel remap parameter found:")
+            self.log(char_list)
+            
+            self.remap = [int(el.strip()) for el in char_list]
+        
+        # setup cache
+        self.uuid = str(uuid.uuid4())
+        self.extraction_cache = os.path.join(self.config["cache"],self.uuid)
+        if not os.path.isdir(self.extraction_cache):
+            os.makedirs(self.extraction_cache)
+            self.log("Created new extraction cache " + self.extraction_cache)
+            
+        self.log("Started extraction")
+        self.log("Loading segmentation data from {input_segmentation_path}")
+        
+        hf = h5py.File(input_segmentation_path, 'r')
+        hdf_channels = hf.get('channels')
+        hdf_labels = hf.get('labels')
+        
+        
+        self.log("Finished loading channel data " + str(hdf_channels.shape))
+        self.log("Finished loading label data " + str(hdf_labels.shape))
+        
+        self.log("Loading filtered classes")
+        cr = csv.reader(open(filtered_classes_path,'r'))
+        filtered_classes = [int(el[0]) for el in list(cr)]
+        self.log("Loaded {} filtered classes".format(len(filtered_classes)))
+        
+        
+        # Calculate centers
+        self.log("Checked class coordinates")
+        
+        center_path = os.path.join(self.directory,"center.pickle")
+        if os.path.isfile(center_path) and not self.overwrite:
+            
+            self.log("Cached version found, loading")
+            with open(center_path, "rb") as input_file:
+                center_nuclei = cPickle.load(input_file)
+                px_center = np.round(center_nuclei).astype(int)
+                
+        else:
+            self.log("Started class coordinate calculation")
+            center_nuclei, length = numba_mask_centroid(hdf_labels[0], debug=self.debug)
+            px_center = np.round(center_nuclei).astype(int)
+            self.log("Finished class coordinate calculation")
+            with open(center_path, "wb") as output_file:
+                cPickle.dump(center_nuclei, output_file)
+
+            with open(os.path.join(self.directory,"length.pickle"), "wb") as output_file:
+                cPickle.dump(length, output_file)
+                
+            del length
+        
+        # parallel execution
+        
+        class_list = list(filtered_classes)
+        # Zero class contains background
+        
+        if 0 in class_list: class_list.remove(0)
+            
+        num_classes = len(class_list)
+        
+        num_channels = len(hdf_channels) + len(hdf_labels)
+        
+        self.log(f"Input channels: {len(hdf_channels)}")
+        self.log(f"Input labels: {len(hdf_labels)}")
+        self.log(f"Output channels: {num_channels}")
+        self.log(f"Started parallel extraction of {num_classes} classes")
+        start = timeit.default_timer()
+        
+        f = partial(self._extract_classes, px_center, input_segmentation_path)
+    
+        
+        with Pool(processes=self.config["threads"]) as pool:
+            x = pool.map(f,class_list)
+            
+        
+        stop = timeit.default_timer()
+        duration = stop - start
+        rate = num_classes/duration
+        self.log(f"Finished parallel extraction in {duration:.2f} seconds ({rate:.2f} cells / second)")
+        self.log("Collect cells")
+        # collect cells
+        
+        # create empty hdf5
+        current_level_files = [ name for name in os.listdir(self.extraction_cache) if os.path.isfile(os.path.join(self.extraction_cache, name))]
+        num_classes = len(current_level_files)
+        
+        compression_type = "lzf" if self.config["compression"] else None
+        
+        output_path = os.path.join(self.extraction_data_directory, self.DEFAULT_DATA_FILE)
+        hf = h5py.File(output_path, 'w')
+        
+        hf.create_dataset('single_cell_index', (num_classes,2) ,dtype="uint32")
+        hf.create_dataset('single_cell_data', (num_classes,
+                                                   num_channels,
+                                                   self.config["image_size"],
+                                                   self.config["image_size"]),
+                                               chunks=(1,
+                                                       1,
+                                                       self.config["image_size"],
+                                                       self.config["image_size"]),
+                                               compression=compression_type,
+                                               dtype="float16")
+        output_index = hf.get('single_cell_index')
+        output_data = hf.get('single_cell_data')
+        
+        i = 0
+        for file in current_level_files:
+            
+            filetype = file.split(".")[-1]
+            filename = file.split(".")[0]
+  
+            if filetype == "npy":
+
+                
+                class_id = int(filename)
+
+                if i % 10000 == 0:
+                    self.log(f"Collecting dataset {i}")
+
+
+                current_cell = os.path.join(self.extraction_cache, file)
+                output_data[i] = np.load(current_cell)
+                output_index[i] = np.array([i,class_id])
+                i+=1 
+
+                
+                    
+            else:
+                self.log(f"Non .npy file found {filename}, output hdf might contain missing values")
+                        
+        
+        hf.close()
+        self.log("Finished collection")
+        
+        # remove cache
+        
+        
+        self.log("Cleaning up cache")
+        shutil.rmtree(self.extraction_cache)
+        self.log("Finished cleaning up cache")
+        
+        
+    def _extract_classes(self, center_list, input_segmentation_path, arg):
+        if arg % 10000 == 0:
+            self.log("Extracting dataset {}".format(arg))
+            
+        index = arg
+        
+        px_center = center_list[index]
+        
+        input_hdf = h5py.File(input_segmentation_path, 'r', 
+                       rdcc_nbytes=self.config["hdf5_rdcc_nbytes"], 
+                       rdcc_w0=self.config["hdf5_rdcc_w0"],
+                       rdcc_nslots=self.config["hdf5_rdcc_nslots"])
+        
+        hdf_channels = input_hdf.get('channels')
+        hdf_labels = input_hdf.get('labels')
+        
+        width = self.config["image_size"]//2
+        
+        image_width = hdf_channels.shape[1]
+        image_height = hdf_channels.shape[2]
+        
+        window_y = slice(px_center[0]-width,px_center[0]+width)
+        window_x = slice(px_center[1]-width,px_center[1]+width)
+        
+        # check for boundaries
+        if width < px_center[0] and px_center[0] < image_width-width and width < px_center[1] and px_center[1] < image_height-width:
+            # channel 0: nucleus mask
+            nuclei_mask = hdf_labels[0,window_y,window_x]
+            
+            nuclei_mask = np.where(nuclei_mask == index, 1,0)
+
+            nuclei_mask_extended = gaussian(nuclei_mask,preserve_range=True,sigma=5)
+            nuclei_mask = gaussian(nuclei_mask,preserve_range=True,sigma=1)
+
+            """
+            if self.debug:
+                plot_image(nuclei_mask, size=(5,5), save_name=os.path.join(self.extraction_directory,"{}_0".format(index)), cmap="Greys") 
+            """
+            # channel 1: cell mask
+            
+            cell_mask = hdf_labels[1,window_y,window_x]
+            cell_mask = np.where(cell_mask == index,1,0).astype(int)
+            cell_mask = binary_fill_holes(cell_mask)
+
+            cell_mask_extended = dilation(cell_mask,selem=disk(6))
+
+            cell_mask =  gaussian(cell_mask,preserve_range=True,sigma=1)   
+            cell_mask_extended = gaussian(cell_mask_extended,preserve_range=True,sigma=5)
+
+            """
+            if self.debug:
+                plot_image(cell_mask, size=(5,5), save_name=os.path.join(self.extraction_directory,"{}_1".format(index)), cmap="Greys") 
+            """
+            
+            # channel 2: nucleus
+            channel_nucleus = hdf_channels[0,window_y,window_x]
+            channel_nucleus = normalize(channel_nucleus)
+            channel_nucleus = channel_nucleus *nuclei_mask_extended
+
+            channel_nucleus = MinMax(channel_nucleus)
+            
+            """
+            if self.debug:
+                plot_image(channel_nucleus, size=(5,5), save_name=os.path.join(self.extraction_directory,"{}_2".format(index)))
+            """
+            
+                
+            # channel 3: cellmask
+            channel_wga = hdf_channels[1,window_y,window_x]
+            channel_wga = normalize(channel_wga)
+            channel_wga = channel_wga*cell_mask_extended
+            
+            
+            required_maps = [nuclei_mask, cell_mask, channel_nucleus, channel_wga]
+            
+            feature_channels = []
+            
+            for i in range(2,len(hdf_channels)):
+                feature_channel = hdf_channels[i,window_y,window_x]
+                feature_channel = normalize(feature_channel)
+                feature_channel = feature_channel*cell_mask_extended
+
+                feature_channel = MinMax(feature_channel)
+                
+                feature_channels.append(feature_channel)
+            
+           
+            channels = required_maps+feature_channels
+            stack = np.stack(channels, axis=0).astype("float16")
+            
+            if self.remap is not None:
+                stack = stack[self.remap]
+                
+            np.save(os.path.join(self.extraction_cache,"{}.npy".format(index)),stack)
+            
+        input_hdf.close()
 
 class SingleCellExtraction:
     
@@ -247,7 +541,7 @@ class SingleCellExtraction:
 
             np.save(os.path.join(self.extraction_data_directory,"{}.npy".format(index)),design)
             
-class HDF5CellExtraction:
+class HDF5CellExtractionOld:
     
     
     DEFAULT_LOG_NAME = "processing.log" 

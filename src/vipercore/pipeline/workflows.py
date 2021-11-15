@@ -71,7 +71,7 @@ class WGASegmentation(Segmentation):
          # segment dapi channels based on local tresholding
         if self.debug:
             #plt.style.use("dark_background")
-            plt.hist(self.maps["median"][2].flatten(),bins=100,log=False)
+            plt.hist(self.maps["median"][0].flatten(),bins=100,log=False)
             plt.xlabel("intensity")
             plt.ylabel("frequency")
             plt.savefig("nuclei_frequency.png")
@@ -82,7 +82,7 @@ class WGASegmentation(Segmentation):
             self.log("Started with nucleus segmentation map")
             
             
-            nucleus_map_tr = percentile_normalization(self.maps["median"][2],
+            nucleus_map_tr = percentile_normalization(self.maps["median"][0],
                                                       self.config["nucleus_segmentation"]["lower_quantile_normalization"],
                                                       self.config["nucleus_segmentation"]["upper_quantile_normalization"])
             plot_image(nucleus_map_tr)
@@ -136,8 +136,8 @@ class WGASegmentation(Segmentation):
             um_p_px = 665 / 1024
             um_2_px = um_p_px*um_p_px
             
-            visualize_class(classes_nuclei_unconnected, self.maps["nucleus_segmentation"], self.maps["normalized"][2])
-            visualize_class(classes_nuclei_filtered, self.maps["nucleus_segmentation"], self.maps["normalized"][2])
+            visualize_class(classes_nuclei_unconnected, self.maps["nucleus_segmentation"], self.maps["normalized"][0])
+            visualize_class(classes_nuclei_filtered, self.maps["nucleus_segmentation"], self.maps["normalized"][0])
 
   
             plt.hist(length,bins=50)
@@ -228,7 +228,7 @@ class WGASegmentation(Segmentation):
         if start_from <= 7:
             self.log("Started with watershed")   
             
-            marker = np.zeros_like(self.maps["median"][0])
+            marker = np.zeros_like(self.maps["median"][1])
             
             px_center = np.round(center_nuclei).astype(int)
             for i, center in enumerate(px_center):
@@ -255,9 +255,14 @@ class WGASegmentation(Segmentation):
             self.save_map("watershed")
             self.log("watershed finished")
             
-        channels = np.stack([self.maps["normalized"][2],
-                           self.maps["normalized"][0],
-                           self.maps["normalized"][1]]).astype("float16")
+        # The required maps are the nucelus channel and a membrane marker channel like WGA
+        required_maps = [self.maps["normalized"][0],
+                           self.maps["normalized"][1]]
+        
+        # Feature maps are all further channel which contain phenotypes needed for the classification
+        feature_maps = [element for element in self.maps["normalized"][2:]]
+            
+        channels = np.stack(required_maps+feature_maps).astype("float16")
                              
         segmentation = np.stack([self.maps["nucleus_segmentation"],
                            self.maps["watershed"]]).astype("int32")
