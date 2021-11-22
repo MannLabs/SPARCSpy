@@ -4,7 +4,7 @@ import csv
 from pathlib import Path
 import numpy as np
 import h5py
-from vipercore.processing.segmentation import selected_coords_fast
+from vipercore.processing.segmentation import selected_coords_fast, tps_greedy_solve, calc_len
 from functools import partial
 from tqdm import tqdm
 import multiprocessing
@@ -182,7 +182,21 @@ class LMDSelection(ProcessingStep):
                                                 ),
                                                  shapes), total=len(center)))
         
+        
         self.log("Polygon calculation finished")
+        
+        center = np.array(center)
+        unoptimized_length = calc_len(center)
+        self.log(f"Current path length: {unoptimized_length}")
+        
+        optimized_idx = tps_greedy_solve(center, k=self.config['tps_greedy_k'])
+        center = center[optimized_idx]
+        optimized_length = calc_len(center)
+        
+        self.log(f"Optimized path length: {optimized_length}")
+        
+        
+        shapes = [x for _, x in sorted(zip(optimized_idx, shapes))]
         
         # Plot coordinates if in debug mode
         if self.debug:
@@ -198,6 +212,9 @@ class LMDSelection(ProcessingStep):
                 shape.plot(ax, color="red",linewidth=1)
 
             ax.scatter(self.calibration_marker[:,1], self.calibration_marker[:,0], color="lime")
+            ax.plot(center[:,1],center[:,0], color="white")
+            
+            
 
             plt.show()
         

@@ -495,4 +495,120 @@ def mask_centroid(mask, class_range=None, debug=False):
     center = np.stack((y,x)).T
     return center,points_class,coords
   
+# return the first element not present in a list
+def _get_closest(used, choices, world_size):
+    for element in choices:
+        if element not in used:
+            # knn matrix contains -1 if the number of elements is smaller than k
+            if element == -1:
+                return None
+            else:
+                return element
+        
+    return None
+    # all choices have been taken, return closest free index due to local optimality
+    
+def _tps_greedy_solve(data, k=100):
+    samples = len(data)
+    
+    print(f"{samples} nodes left")
+    #recursive abort
+    if samples == 1:
+        return data
+    
+    import umap
+    knn_index, knn_dist, _ = umap.umap_.nearest_neighbors(data, n_neighbors=k, 
+                                       metric='euclidean', metric_kwds={},
+                                       angular=True, random_state=np.random.RandomState(42))
 
+    knn_index = knn_index[:,1:]
+    knn_dist = knn_dist[:,1:]
+
+    # follow greedy knn as long as a nearest neighbour is found in the current tree            
+    nodes = []
+    current_node = 0
+    while current_node is not None:
+        nodes.append(current_node)
+        #print(current_node, knn_index[current_node], next_node)
+        next_node = _get_closest(nodes, knn_index[current_node], samples)
+        
+        current_node = next_node
+
+    # as soon as no nearest neigbour can be found, create a new list of all elements still remeining
+    # nodes: [0, 2, 5], nodes_left: [1, 3, 4, 6, 7, 8, 9]
+    # add the last node assigned as starting point to the new list
+    # nodes: [0, 2], nodes_left: [5, 1, 3, 4, 6, 7, 8, 9]
+
+  
+    nodes_left = list(set(range(samples))-set(nodes))
+    
+
+    # add last node from nodes to nodes_left
+
+    nodes_left = [nodes.pop(-1)] + nodes_left
+    
+
+    node_data_left = data[nodes_left]
+    
+    # join lists
+    
+    return np.concatenate([data[nodes], _tps_greedy_solve(node_data_left, k=k)])
+
+# calculate the index array for a sorted 2d list based on an unsorted list
+@njit()
+def _get_nodes(data, sorted_data):
+    indexed_data = [(i,el) for i, el in enumerate(data)]
+
+    epsilon = 1e-10
+    nodes = []
+
+    print("start sorting")
+    for element in sorted_data:
+
+        for j, tup in enumerate(indexed_data):
+            i, el = tup
+
+            if np.array_equal(el, element):
+                nodes.append(i)
+                indexed_data.pop(j)
+    return nodes
+    
+def tps_greedy_solve(node_list, k=100, return_sorted=False):
+    """Find an approximation of the closest path through a list of coordinates
+    
+    Args:
+        node_list (np.array): Array of shape `(N, 2)` containing a list of coordinates
+        
+        k (int, default: 100): Number of Nearest Neighbours calculated for each Node.
+        
+        return_sorted: If set to False a list of indices is returned. If set to True the sorted coordinates are returned.
+    
+    """
+    
+    sorted_nodes = _tps_greedy_solve(node_list)
+    
+    if return_sorted:
+        return sorted_nodes
+        
+    else:
+        nodes_order = _get_nodes(node_list, sorted_nodes)
+        return nodes_order
+    
+def calc_len(data):
+    """calculate the length of a path based on a list of coordinates
+    
+    Args:
+        data (np.array): Array of shape `(N, 2)` containing a list of coordinates
+       
+    """
+
+    index = np.arange(len(data)).astype(int)
+    
+    not_shifted = data[index[:-1]]
+    shifted = data[index[1:]]
+    
+    diff = not_shifted-shifted
+    sq = np.square(diff)
+    dist = np.sum(np.sqrt(np.sum(sq, axis = 1)))
+    
+    return dist
