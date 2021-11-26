@@ -4,10 +4,11 @@ import csv
 from pathlib import Path
 import numpy as np
 import h5py
-from vipercore.processing.segmentation import selected_coords_fast, tps_greedy_solve, calc_len
+from vipercore.processing.segmentation import selected_coords_fast, tsp_greedy_solve, tsp_hilbert_solve, calc_len
 from functools import partial
 from tqdm import tqdm
 import multiprocessing
+
 
 from scipy import ndimage
 from scipy.signal import convolve2d
@@ -189,7 +190,33 @@ class LMDSelection(ProcessingStep):
         unoptimized_length = calc_len(center)
         self.log(f"Current path length: {unoptimized_length}")
         
-        optimized_idx = tps_greedy_solve(center, k=self.config['tps_greedy_k'])
+        print(self.config['path_optimization'])
+        # check if optimizer key has been set
+        if 'path_optimization' in self.config:
+        
+            # check if the optimizer is a valid option
+            if self.config['path_optimization'] in ["none", "hilbert", "greedy"]:
+                pathoptimizer = self.config['path_optimization']
+
+            else:
+                self.log("Path optimizer is no valid option, no optimization will be used.")
+                pathoptimizer = "none"
+                
+        else:
+            self.log("No path optimizer has been defined")
+            pathoptimizer = "none"
+            
+        if pathoptimizer == "greedy":
+            optimized_idx = tsp_greedy_solve(center, k=self.config['greedy_k'])
+            print(optimized_idx)
+    
+            
+        elif pathoptimizer == "hilbert":
+            optimized_idx = tsp_hilbert_solve(center, p=self.config['hilbert_p'])
+        
+        else:
+            optimized_idx = list(range(len(center)))
+            
         center = center[optimized_idx]
         optimized_length = calc_len(center)
         

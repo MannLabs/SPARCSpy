@@ -15,8 +15,9 @@ from skimage import filters
 from skimage.feature import peak_local_max
 from skimage.segmentation import watershed
 from skimage.morphology import dilation as sk_dilation
-
 from skimage.morphology import binary_erosion, disk
+
+from hilbertcurve.hilbertcurve import HilbertCurve
 
 from vipercore.processing.utils import plot_image
 
@@ -573,7 +574,7 @@ def _get_nodes(data, sorted_data):
                 indexed_data.pop(j)
     return nodes
     
-def tps_greedy_solve(node_list, k=100, return_sorted=False):
+def tsp_greedy_solve(node_list, k=100, return_sorted=False):
     """Find an approximation of the closest path through a list of coordinates
     
     Args:
@@ -593,6 +594,58 @@ def tps_greedy_solve(node_list, k=100, return_sorted=False):
     else:
         nodes_order = _get_nodes(node_list, sorted_nodes)
         return nodes_order
+    
+@njit()
+def assign_vertices(hilbert_points, data_rounded):
+
+    data_rounded = data_rounded.astype(np.int64)
+    hilbert_points = hilbert_points.astype(np.int64)
+
+
+    output_order = np.zeros(len(data_rounded)).astype(np.int64)
+    current_index = 0
+
+    for hilbert_point in hilbert_points:
+
+        for i, data_point in enumerate(data_rounded):
+            if np.array_equal(hilbert_point, data_point):
+                output_order[current_index] = i
+                current_index += 1
+
+    return output_order
+
+def tsp_hilbert_solve(data , p=3):
+
+    p=p; n=2
+    max_n = 2**(p*n)
+    hilbert_curve = HilbertCurve(p, n)
+    distances = list(range(max_n))
+    hilbert_points = hilbert_curve.points_from_distances(distances)
+    hilbert_points = np.array(hilbert_points)
+
+
+
+
+    data_min = np.min(data, axis=0)
+    data_max = np.max(data, axis=0)
+
+
+    hilbert_min = np.min(hilbert_points, axis=0)
+    hilbert_max = np.max(hilbert_points, axis=0)
+
+
+
+    data_scaled = data - data_min
+    data_scaled = data_scaled / (data_max-data_min) * (hilbert_max - hilbert_min)
+
+
+
+
+    data_rounded = np.round(data_scaled).astype(int)
+
+    order = assign_vertices(hilbert_points, data_rounded)
+    
+    return order
     
 def calc_len(data):
     """calculate the length of a path based on a list of coordinates
