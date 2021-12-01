@@ -117,7 +117,7 @@ class WGASegmentation(Segmentation):
 
 
         # ids of all nucleis which are unconnected and can be used for further analysis
-        labels_nuclei_unconnected = contact_filter(self.maps["nucleus_segmentation"], threshold=0.85, reindex=False)
+        labels_nuclei_unconnected = contact_filter(self.maps["nucleus_segmentation"], threshold=self.config["nucleus_segmentation"]["contact_filter"], reindex=False)
         classes_nuclei_unconnected = np.unique(labels_nuclei_unconnected)
 
         self.log("Filtered out due to contact limit: {} ".format(len(all_classes)-len(classes_nuclei_unconnected)))

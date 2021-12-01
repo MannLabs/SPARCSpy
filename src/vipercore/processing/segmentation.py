@@ -258,6 +258,7 @@ def contact_filter_lambda(label, background=0):
 
 @njit(parallel=True)
 def remove_classes(label_in, to_remove, background=0, reindex=False):
+    
     label = label_in.copy()
     # generate library which contains the new class for label x at library[x]
     remove_set = set(to_remove)
@@ -300,9 +301,14 @@ def contact_filter(inarr, threshold=1, reindex=False, background=0):
     to_remove = np.argwhere(background_contact<threshold).flatten()
 
     to_remove = np.delete(to_remove, np.where(to_remove == background))
-
-    # remove these classes
-    label = remove_classes(label,nb.typed.List(to_remove),reindex=reindex)
+    
+    # numba typed list fails to determine type for empty list
+    # return without removing classes if no classes should be removed
+    if len(to_remove) > 0:
+        # remove these classes
+        label = remove_classes(label,nb.typed.List(to_remove),reindex=reindex)
+    else:
+         pass
     
     return label
 
