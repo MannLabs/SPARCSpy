@@ -31,12 +31,12 @@ class MultilabelSupervisedModel(pl.LightningModule):
         
         self.train_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=self.hparams["num_classes"]), 
                                                             torchmetrics.Recall(average="none",num_classes=self.hparams["num_classes"]),
-                                                           torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"]),
-                                                           torchmetrics.ConfusionMatrix(num_classes=self.hparams["num_classes"], normalize="true")]) 
+                                                            torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"]),
+                                                            torchmetrics.ConfusionMatrix(num_classes=self.hparams["num_classes"], normalize="true")]) 
         
         self.val_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=self.hparams["num_classes"]), 
-                                                            torchmetrics.Recall(average="none",num_classes=self.hparams["num_classes"]),
-                                                         torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"])])
+                                                          torchmetrics.Recall(average="none",num_classes=self.hparams["num_classes"]),
+                                                          torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"])])
         
         
     def on_train_start(self):
@@ -47,7 +47,10 @@ class MultilabelSupervisedModel(pl.LightningModule):
         return self.network(x)
     
     def configure_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams["learning_rate"])
+    	if self.hparams["optimizer"] == 'SGD':
+        	optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams["learning_rate"])
+        elif self.hparams["optimizer"] == "Adam":
+        	optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams["learning_rate"])
         return optimizer
     
     def on_train_epoch_start(self):
