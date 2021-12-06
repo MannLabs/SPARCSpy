@@ -47,10 +47,10 @@ class MultilabelSupervisedModel(pl.LightningModule):
         return self.network(x)
     
     def configure_optimizers(self):
-    	if self.hparams["optimizer"] == 'SGD':
-        	optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams["learning_rate"])
+        if self.hparams["optimizer"] == 'SGD':
+            optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams["learning_rate"])
         elif self.hparams["optimizer"] == "Adam":
-        	optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams["learning_rate"])
+            optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams["learning_rate"])
         return optimizer
     
     def on_train_epoch_start(self):
