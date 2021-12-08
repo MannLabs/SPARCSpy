@@ -47,7 +47,6 @@ class MultilabelSupervisedModel(pl.LightningModule):
         return self.network(x)
     
     def configure_optimizers(self):
-        print(self.hparams["optimizer"])
         if self.hparams["optimizer"] == "SGD":
             optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams["learning_rate"])
         elif self.hparams["optimizer"] == "Adam":
