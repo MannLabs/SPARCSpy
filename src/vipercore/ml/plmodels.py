@@ -47,10 +47,13 @@ class MultilabelSupervisedModel(pl.LightningModule):
         return self.network(x)
     
     def configure_optimizers(self):
-        if self.hparams["optimizer"] == 'SGD':
+        print(self.hparams["optimizer"])
+        if self.hparams["optimizer"] == "SGD":
             optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams["learning_rate"])
         elif self.hparams["optimizer"] == "Adam":
             optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams["learning_rate"])
+        else:
+            raise ValueError("No optimizier specified in hparams")
         return optimizer
     
     def on_train_epoch_start(self):
@@ -164,9 +167,9 @@ class GeneralModel(pl.LightningModule):
                                                            torchmetrics.Accuracy()]) 
         
         self.val_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=hparams["num_classes"]), 
-                                                            torchmetrics.Recall(average="none",num_classes=hparams["num_classes"]),
+                                                          torchmetrics.Recall(average="none",num_classes=hparams["num_classes"]),
                                                           torchmetrics.AUROC(num_classes=hparams["num_classes"]),
-                                                         torchmetrics.Accuracy()])
+                                                          torchmetrics.Accuracy()])
         
         #
         

@@ -55,7 +55,7 @@ class GaussianBlur(object):
         sigma = random.choice(self.sigma)
 
         #return the corrected image
-        return T.GaussianBlur(torch, kernel_size, sigma)
+        return T.GaussianBlur(tensor, kernel_size, sigma)
     
 class ChannelReducer(object) :
     def __init__(self, channels=5):
