@@ -50,7 +50,10 @@ class MultilabelSupervisedModel(pl.LightningModule):
         if self.hparams["optimizer"] == "SGD":
             optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams["learning_rate"])
         elif self.hparams["optimizer"] == "Adam":
-            optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams["learning_rate"])
+            #set weight decay to 0 if not specified in hparams 
+            if self.hparams["weight_decay"] is None:
+                self.hparams["weight_decay"] = 0
+            optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams["learning_rate"], weight_decay=self.hparams["weight_decay"])
         else:
             raise ValueError("No optimizier specified in hparams")
         return optimizer
