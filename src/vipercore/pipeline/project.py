@@ -317,7 +317,7 @@ class Project(Logable):
             overwrite (bool, optional): Can be set when calling to override the project wide flag.
         """
             
-        input_extraction = self.extraction_f.get_output()
+        input_extraction = self.extraction_f.get_output_path()
         
 
         if not os.path.isdir(input_extraction):

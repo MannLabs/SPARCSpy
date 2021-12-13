@@ -3,7 +3,6 @@ from vipercore.processing.preprocessing import percentile_normalization
 from vipercore.processing.utils import plot_image, visualize_class
 from vipercore.processing.segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, shift_labels
 
-
 from datetime import datetime
 import os
 import numpy as np
@@ -68,7 +67,7 @@ class WGASegmentation(Segmentation):
             
             self.log("Median map created")
             
-         # segment dapi channels based on local tresholding
+        # segment dapi channels based on local tresholding
         if self.debug:
             #plt.style.use("dark_background")
             plt.hist(self.maps["median"][0].flatten(),bins=100,log=False)
@@ -146,6 +145,7 @@ class WGASegmentation(Segmentation):
             
             plt.savefig('size_dist.eps')
             plt.show()
+        
         # create background map based on WGA
         
         if start_from <= 4:
@@ -251,13 +251,43 @@ class WGASegmentation(Segmentation):
                 plt.savefig(os.path.join(self.directory, "watershed.png"))
 
                 plt.show()
+
+            # filter cells based on cytosol size
+            center_cell, length, coords = mask_centroid(self.maps["watershed"], debug=self.debug)
+            
+            #print(length[0:10], coords[0:10])
+            
+            all_classes_wga = np.unique(self.maps["watershed"])
+
+            labels_wga_filtered = size_filter(self.maps["watershed"],
+                                                 limits=[self.config["wga_segmentation"]["min_size"],self.config["wga_segmentation"]["max_size"]])
+            classes_wga_filtered = np.unique(labels_wga_filtered)
+            
+            self.log("Cells filtered out due to cytosol size limit: {} ".format(len(all_classes_wga)-len(classes_wga_filtered)))
+
+            filtered_classes_wga = set(classes_wga_filtered)
+            filtered_classes = set(filtered_classes).intersection(filtered_classes_wga)
+            self.log("Filtered out: {} ".format(len(all_classes)-len(filtered_classes)))
+            
+            if self.debug:
+                um_p_px = 665 / 1024
+                um_2_px = um_p_px*um_p_px
+                
+                visualize_class(classes_wga_filtered, self.maps["watershed"], self.maps["normalized"][1])
+                visualize_class(classes_wga_filtered, self.maps["watershed"], self.maps["normalized"][0])
+
+                plt.hist(length, bins=50)
+                plt.xlabel("px area")
+                plt.ylabel("number")
+                plt.savefig('size_dist_cytosol.eps')
+                plt.show()
             
             self.save_map("watershed")
             self.log("watershed finished")
             
         # The required maps are the nucelus channel and a membrane marker channel like WGA
         required_maps = [self.maps["normalized"][0],
-                           self.maps["normalized"][1]]
+                         self.maps["normalized"][1]]
         
         # Feature maps are all further channel which contain phenotypes needed for the classification
         feature_maps = [element for element in self.maps["normalized"][2:]]
@@ -265,7 +295,7 @@ class WGASegmentation(Segmentation):
         channels = np.stack(required_maps+feature_maps).astype("float16")
                              
         segmentation = np.stack([self.maps["nucleus_segmentation"],
-                           self.maps["watershed"]]).astype("int32")
+                                 self.maps["watershed"]]).astype("int32")
         
         self.save_segmentation(channels, segmentation, all_classes)
 

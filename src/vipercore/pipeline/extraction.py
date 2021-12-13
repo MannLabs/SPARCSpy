@@ -59,6 +59,7 @@ class HDF5CellExtraction(ProcessingStep):
             
         
     def get_output_path(self):
+        self.extraction_data_directory = os.path.join(self.directory, self.DEFAULT_DATA_DIR)
         return self.extraction_data_directory            
                 
         
