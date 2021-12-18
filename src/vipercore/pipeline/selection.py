@@ -247,7 +247,7 @@ class LMDSelection(ProcessingStep):
         
         self.log("Generate XML from polygons")
         
-        orientation_transform = np.array([[-1,0],[0,1]])
+        orientation_transform = np.array([[-100,0],[0,100]])
     
         #generate array of marker cross positions
         ds = LMD_object()
@@ -257,7 +257,7 @@ class LMDSelection(ProcessingStep):
             s = shape.get_poly() @ orientation_transform
             
             if "well" in cell_set:
-                ds.new_shape(s, well="well")
+                ds.new_shape(s, well=cell_set["well"])
             else:
                 ds.new_shape(s)
         
