@@ -22,9 +22,11 @@ from matplotlib.pyplot import figure
 from lmd.lmd import LMD_object, LMD_shape
 
 class LMDSelection(ProcessingStep):
-    """Select single cells from a segmented hdf5 file and generate cutting data for the LMD Microscope
+    """Select single cells from a segmented hdf5 file and generate cutting data for the Leica LMD microscope.
     
     """
+    # define all valid path optimization methods used with the "path_optimization" argument in the configuration
+    VALID_PATH_OPTIMIZERS = ["none", "hilbert", "greedy"]
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -41,7 +43,7 @@ class LMDSelection(ProcessingStep):
             
         Important:
         
-            If this class is used as part of a project processing workflow, the first argument will be provided by the ``Project`` class based on the previous segmentation. Therefore, only the second and third argument need to be provided. Under the hood, the Project class retrives the most recent segmentation and passes it forward together with the supplied parameters. The Implementation is similar to:
+            If this class is used as part of a project processing workflow, the first argument will be provided by the ``Project`` class based on the previous segmentation. Therefore, only the second and third argument need to be provided. The Project class will automaticly provide the most recent segmentation forward together with the supplied parameters. The Implementation is similar to:
             
             .. code-block:: python
                 
@@ -104,6 +106,29 @@ class LMDSelection(ProcessingStep):
 
                     # fold reduction of datapoints for compression
                     poly_compression_factor: 30
+
+                    # Optimization of the cutting path inbetween shapes
+                    # optimized paths improve the cutting time and the microscopes focus
+                    # valid options are ["none", "hilbert", "greedy"]
+                    path_optimization: "hilbert"
+
+                    # Paramter required for hilbert curve based path optimization.
+                    # Defines the order of the hilbert curve used, which needs to be tuned with the total cutting area.
+                    # For areas of 1 x 1 mm we recommend at least p = 4,  for whole slides we recommend p = 7.
+                    hilbert_p: 7
+
+                    # Parameter required for greedy path optimization. 
+                    # Instead of a global distance matrix, the k nearest neighbours are approximated. 
+                    # The optimization problem is then greedily solved for the known set of nearest neighbours until the first set of neighbours is exhausted.
+                    # Established edges are then removed and the nearest neighbour approximation is recursivly repeated.
+                    greedy_k: 20
+
+                    # The LMD reads coordinates as integers which leads to rounding of decimal places.
+                    # Points spread between two whole coordinates are therefore collapsed to whole coordinates.
+                    # This can be mitigated by scaling the entire coordinate system by a defined factor.
+                    # For a resolution of 0.6 um / px a factor of 100 is recommended.
+                    xml_decimal_transform: 100
+
 
         """
         
@@ -188,15 +213,20 @@ class LMDSelection(ProcessingStep):
         
         center = np.array(center)
         unoptimized_length = calc_len(center)
-        self.log(f"Current path length: {unoptimized_length}")
+        self.log(f"Current path length: {unoptimized_length:,.2f} units")
         
         print(self.config['path_optimization'])
+
         # check if optimizer key has been set
         if 'path_optimization' in self.config:
-        
+            
+
+            optimization_method = self.config['path_optimization']
+            self.log("Path optimizer defined in config: {optimization_method}")
+
             # check if the optimizer is a valid option
-            if self.config['path_optimization'] in ["none", "hilbert", "greedy"]:
-                pathoptimizer = self.config['path_optimization']
+            if optimization_method in VALID_PATH_OPTIMIZERS:
+                pathoptimizer = optimization_method
 
             else:
                 self.log("Path optimizer is no valid option, no optimization will be used.")
@@ -210,7 +240,6 @@ class LMDSelection(ProcessingStep):
             optimized_idx = tsp_greedy_solve(center, k=self.config['greedy_k'])
             print(optimized_idx)
     
-            
         elif pathoptimizer == "hilbert":
             optimized_idx = tsp_hilbert_solve(center, p=self.config['hilbert_p'])
         
@@ -218,11 +247,15 @@ class LMDSelection(ProcessingStep):
             optimized_idx = list(range(len(center)))
             
         center = center[optimized_idx]
+
+        # calculate optimized path length and optimization factor
         optimized_length = calc_len(center)
+        self.log(f"Optimized path length: {optimized_length:,.2f} units")
+
+        optimization_factor = unoptimized_length / optimized_length
+        self.log(f"Optimization factor: {optimization_factor:,.1f}x")
         
-        self.log(f"Optimized path length: {optimized_length}")
-        
-        
+        # order list of shapes by the optimized index array
         shapes = [x for _, x in sorted(zip(optimized_idx, shapes))]
         
         # Plot coordinates if in debug mode
@@ -247,15 +280,24 @@ class LMDSelection(ProcessingStep):
         
         self.log("Generate XML from polygons")
         
-        orientation_transform = np.array([[-100,0],[0,100]])
+        # check if decimal transform is defind 
+        if 'xml_decimal_transform' in self.config:
+            xml_decimal_transform = int(self.config["xml_decimal_transform"])
+        else:
+            xml_decimal_transform = 100
+
+        # The Orientation tranform is needed to convert the image (row, column) coordinate system to the LMD (x, y Coordinate system.
+        orientation_transform = np.array([[-1,0],[0,1]]) * xml_decimal_transform
     
-        #generate array of marker cross positions
+        # Generate array of marker cross positions
         ds = LMD_object()
         ds.calibration_points = self.calibration_marker @ orientation_transform
 
         for shape in shapes:
             s = shape.get_poly() @ orientation_transform
-            
+
+            # Check if well key is set in cell set definition
+
             if "well" in cell_set:
                 ds.new_shape(s, well=cell_set["well"])
             else:
@@ -272,36 +314,40 @@ class LMDSelection(ProcessingStep):
 
         
     def check_cell_set_sanity(self, cell_set):
-        """Check if cell_set dictionary contains the right fields
+        """Check if cell_set dictionary contains the right keys
 
         """
         if "name" in cell_set:
             if not isinstance(cell_set["name"], str):
                 self.log("No name of type str specified for cell set")
-                raise TypeError()
+                raise TypeError("No name of type str specified for cell set")
         else:
             self.log("No name of type str specified for cell set")
-            raise KeyError()
+            raise KeyError("No name of type str specified for cell set")
         
         if "classes" in cell_set:
             if not isinstance(cell_set["classes"], (list, str, np.ndarray)):
                 self.log("No list of classes specified for cell set")
-                raise TypeError()
+                raise TypeError("No list of classes specified for cell set")
         else:
             self.log("No classes specified for cell set")
-            raise KeyError()\
+            raise KeyError("No classes specified for cell set")
             
         if "well" in cell_set:
             if not isinstance(cell_set["well"], str):
                 self.log("No well of type str specified for cell set")
-                raise TypeError()
+                raise TypeError("No well of type str specified for cell set")
                 
     def load_classes(self, cell_set):
+        """Identify cell class definition and load classes
+        
+        Identify if cell classes are provided as list of integers or as path pointing to a csv file.
+        Depending on the type of the cell set, the classes are loaded and returned for selection.
+        """
         if isinstance(cell_set["classes"], list):
             return cell_set["classes"]
         
         if isinstance(cell_set["classes"], str):
-            
             # If the path is relative, it is interpreted relative to the project directory
             if os.path.isabs(cell_set["classes"]):
                 path = cell_set["classes"]
@@ -317,8 +363,12 @@ class LMDSelection(ProcessingStep):
                 return filtered_classes
             else:
      
-                self.log("path containing classes was not readable: " + path)
+                self.log("Path containing classes could not be read: {path}")
                 raise ValueError()
+
+        else:
+            self.log("classes argument for a cell set needs to be a list of integer ids or a path pointing to a csv of integer ids.")
+            raise TypeError("classes argument for a cell set needs to be a list of integer ids or a path pointing to a csv of integer ids.")
             
 class Shape:
     """
@@ -349,20 +399,18 @@ class Shape:
     def create_poly(self, 
                     smoothing_filter_size = 12,
                     poly_compression_factor = 8,
-                   dilation = 0):
-        
-        """
-        Converts a list of pixels into a polygon.
-        Parameters
-        ----------
-        smoothing_filter_size : int, default = 12
-            The smoothing filter is the circular convolution with a vector of length smoothing_filter_size and all elements 1 / smoothing_filter_size.
+                    dilation = 0):
+
+        """ Converts a list of pixels into a polygon.
+        Args
+            smoothing_filter_size (int, default = 12): The smoothing filter is the circular convolution with a vector of length smoothing_filter_size and all elements 1 / smoothing_filter_size.
             
-        poly_compression_factor : int, default = 8    
-            When compression is seeked, only every n-th element is kept for n = poly_compression_factor.
+            poly_compression_factor (int, default = 8 ): When compression is wanted, only every n-th element is kept for n = poly_compression_factor.
+
+            dilation (int, default = 0): Binary dilation used before polygon creation for increasing the mask size. This Dilation ignores potential neighbours. Neighbour aware dilation of segmentation mask needs to be defined during segmentation.
         """
         
-        
+        # safety boundary which extands the generated map size
         safety_offset = 3
         dilation_offset = dilation 
         
@@ -382,13 +430,15 @@ class Shape:
         self.offset_map[(y,x)] = 1
         self.offset_map = self.offset_map.astype(int)
         
-        plt.imshow(self.offset_map)
-        plt.show()
+        # debugging
+        # plt.imshow(self.offset_map)
+        # plt.show()
         
         self.offset_map = sk_dilation(self.offset_map , selem=disk(dilation))
         
-        plt.imshow(self.offset_map)
-        plt.show()
+        # debugging
+        # plt.imshow(self.offset_map)
+        # plt.show()
         
         # find polygon bounds from mask
         bounds = sk.segmentation.find_boundaries(self.offset_map, connectivity=1, mode="subpixel", background=0)
@@ -410,11 +460,11 @@ class Shape:
         mine = 0
         maxe= len(edges)-1
         
-        indices=np.linspace(mine,maxe,newlen).astype(int)
+        indices = np.linspace(mine,maxe,newlen).astype(int)
 
         self.poly = edges[indices]
         
-        # Useful for debuging
+        # debuging
         """
         print(self.poly.shape)
         fig = plt.figure(frameon=False)
@@ -434,8 +484,8 @@ class Shape:
     
         
     def sort_edges(self, edges):
-        """
-        greedy sorts the vertices of a graph.
+        """Sorts the vertices of the polygon.
+        Greedy sorting is performed, might have difficulties with complex shapes.
         
         """
 
@@ -459,9 +509,11 @@ class Shape:
         return(np.array(new))
     
     def plot(self, axis,  flip=True, **kwargs):
-        """
+        """ Plot a shape on a given matplotlib axis.
         Args
-            flip (bool, True): Shapes are still in the (row, col) format and need to bee flipped if plotted with a (x, y) coordinate system.
+            axis (matplotlib.axis): Axis for an existing matplotlib figure.
+
+            flip (bool, True): If shapes are still in the (row, col) format they need to bee flipped if plotted with a (x, y) coordinate system.
         """
         if flip:
             axis.plot(self.poly[:,1]+self.offset[1],self.poly[:,0]+self.offset[0], **kwargs)
