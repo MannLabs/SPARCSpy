@@ -26,3 +26,6 @@ jobs:
     - name: Install Dependencies with Mamba
       run: |
         mamba env update -n base --file .github/workflows/environment.yml
+    - name: Install Repository Module
+      run: |
+        pip install ./
