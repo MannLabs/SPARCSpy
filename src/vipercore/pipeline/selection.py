@@ -28,6 +28,7 @@ class LMDSelection(ProcessingStep):
     # define all valid path optimization methods used with the "path_optimization" argument in the configuration
     VALID_PATH_OPTIMIZERS = ["none", "hilbert", "greedy"]
     
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -222,10 +223,10 @@ class LMDSelection(ProcessingStep):
             
 
             optimization_method = self.config['path_optimization']
-            self.log("Path optimizer defined in config: {optimization_method}")
+            self.log(f"Path optimizer defined in config: {optimization_method}")
 
             # check if the optimizer is a valid option
-            if optimization_method in VALID_PATH_OPTIMIZERS:
+            if optimization_method in self.VALID_PATH_OPTIMIZERS:
                 pathoptimizer = optimization_method
 
             else:
