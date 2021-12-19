@@ -42,7 +42,7 @@ class GaussianNoise(object):
 
 class GaussianBlur(object):
     
-    def __init__(self, kernel_size = [5, 7, 9], sigma=[0.1, 0.2], channels=[]):
+    def __init__(self, kernel_size = [5, 7, 9], sigma=(0.1, 0.2), channels=[]):
         self.kernel_size = kernel_size
         self.sigma = sigma
         self.channels = channels
@@ -51,8 +51,9 @@ class GaussianBlur(object):
     def __call__(self, tensor):
         
         #randomly select a kernel size and sigma to add more variation
+        #pytorch randomly selects a value from a uniform distribution between (sigma_min, sigma_max)
         kernel_size = random.choice(self.kernel_size)
-        sigma = random.choice(self.sigma)
+        sigma = self.sigma 
         blur = T.GaussianBlur(kernel_size, sigma)
         
         #return the corrected image
