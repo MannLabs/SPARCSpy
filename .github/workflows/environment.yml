@@ -4,3 +4,12 @@ dependencies:
   - matplotlib
   - python
   - numba
+  - matplotlib
+  - tqdm
+  - scipy
+  - scikit-image
+  - sphinx_rtd_theme
+  - pip:
+    - scikit-fmm
+    - sphinx-argparse
+    - hilbertcurve
