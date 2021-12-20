@@ -256,8 +256,12 @@ def contact_filter_lambda(label, background=0):
     
     return pop
 
-@njit(parallel=True)
 def remove_classes(label_in, to_remove, background=0, reindex=False):
+    return _remove_classes(label_in, to_remove, background=background, reindex=reindex)
+
+
+@njit(parallel = True)
+def _remove_classes(label_in, to_remove, background=0, reindex=False):
     
     label = label_in.copy()
     # generate library which contains the new class for label x at library[x]
@@ -275,11 +279,11 @@ def remove_classes(label_in, to_remove, background=0, reindex=False):
                 carry -= 1
             
         else:
-            library[current_class] = current_class +carry
+            library[current_class] = current_class + carry
             
     # rewrite array based on library
-    for y in range(len(label)):
-        for x in range(len(label[0])):
+    for y in prange(len(label)):
+        for x in prange(len(label[0])):
             current_label = label[y,x]
             if current_label != background:
                 label[y,x] = library[current_label]
@@ -423,7 +427,7 @@ def selected_coords_fast(inarr, classes, debug=False):
     return center, length, coords_filtered
 
 @njit
-def selected_coords(segmentation, classes, debug=False):
+def _selected_coords(segmentation, classes, debug=False):
     num_classes = len(classes)
     
     #setup emtpy lists
@@ -459,6 +463,21 @@ def selected_coords(segmentation, classes, debug=False):
     y = center[:,1]/points_class
     center = np.stack((y,x)).T
     
+    return center, points_class, coords
+
+# calculate center, coordinates and number of pixel for a selected set of classes
+def selected_coords(segmentation, classes, debug=False):
+    center, points_class, coords = _selected_coords(segmentation, classes, debug=False)
+    
+    # ccoords array contains [0, 0] as first element.
+    # hack needed to tell numba the datatype
+    # folowing lines are needed for removal
+    out_l = []
+    for elem in coords:
+        if len(elem) > 1:
+            out_l.append(np.array(elem[1:]))
+    
+    coords = out_l
     return center, points_class, coords
 
 def mask_centroid(mask, class_range=None, debug=False):
