@@ -179,9 +179,12 @@ Depending on the type of the cell set, the classes are loaded and returned for s
     <span class="c1"># dilation of the cutting mask in pixel</span>
     <span class="nt">shape_dilation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
 
+    <span class="c1"># Cutting masks are transformed by binary dilation and erosion</span>
+    <span class="nt">binary_smoothing</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+
     <span class="c1"># number of datapoints which are averaged for smoothing</span>
     <span class="c1"># the number of datapoints over an distance of n pixel is 2*n</span>
-    <span class="nt">smoothing_filter_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+    <span class="nt">convolution_smoothing</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">25</span>
 
     <span class="c1"># fold reduction of datapoints for compression</span>
     <span class="nt">poly_compression_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30</span>
@@ -207,6 +210,10 @@ Depending on the type of the cell set, the classes are loaded and returned for s
     <span class="c1"># This can be mitigated by scaling the entire coordinate system by a defined factor.</span>
     <span class="c1"># For a resolution of 0.6 um / px a factor of 100 is recommended.</span>
     <span class="nt">xml_decimal_transform</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
+
+    <span class="c1"># Overlapping shapes are merged based on a nearest neighbour heuristic.</span>
+    <span class="c1"># All selected shapes closer than distance_heuristic pixel are checked for overlap.</span>
+    <span class="nt">distance_heuristic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">300</span>
 </pre></div>
 </div>
 </div>

@@ -150,7 +150,7 @@ class LMDSelection(ProcessingStep):
                     
                     # Overlapping shapes are merged based on a nearest neighbour heuristic.
                     # All selected shapes closer than distance_heuristic pixel are checked for overlap.
-                    distance_heuristic = 300
+                    distance_heuristic: 300
 
 
         """
