@@ -316,20 +316,6 @@ def contact_filter(inarr, threshold=1, reindex=False, background=0):
     
     return label
 
-def size_filter(label, limits=[0,100000], background=0, reindex=False):
-    center,points_class,coords = mask_centroid(label)
-    
-    below = np.argwhere(points_class < limits[0]).flatten()
-    above = np.argwhere(points_class > limits[1]).flatten()
-    
-    to_remove = list(below) + list(above)
-    
-    if len(to_remove) > 0:
-        label = remove_classes(label,nb.typed.List(to_remove),reindex=reindex)
-    
-    return label
-
-
 @njit
 def numba_mask_centroid(mask, debug=False, skip_background=True):
     
@@ -426,6 +412,45 @@ def selected_coords_fast(inarr, classes, debug=False):
     
     return center, length, coords_filtered
 
+def size_filter(label, limits=[0,100000], background=0, reindex=False):
+    center,points_class = _class_size(label)
+    
+    below = np.argwhere(points_class < limits[0]).flatten()
+    above = np.argwhere(points_class > limits[1]).flatten()
+    
+    to_remove = list(below) + list(above)
+    
+    if len(to_remove) > 0:
+        label = remove_classes(label,nb.typed.List(to_remove),reindex=reindex)
+    
+    return label
+
+@njit
+def _class_size(mask, debug=False, background=0):
+    
+    num_classes = np.max(mask)+1
+    
+    mean_sum = np.zeros((num_classes, 2))
+    length = np.zeros((num_classes, 1))
+    
+    
+    
+    rows, cols = mask.shape
+    
+    for row in range(rows):
+        if row % 10000 == 0:
+            print(row)
+        for col in range(cols):
+            return_id = mask[row, col]
+            if return_id != background:
+                mean_sum[return_id] += np.array([row, col], dtype="uint32") 
+                length[return_id][0] += 1
+                
+                
+    mean_arr = np.divide(mean_sum, length)
+
+    return mean_arr, length.flatten()
+
 @njit
 def _selected_coords(segmentation, classes, debug=False):
     num_classes = len(classes)
@@ -503,7 +528,6 @@ def mask_centroid(mask, class_range=None, debug=False):
 
     
     for y in tqdm(range(len(mask)), disable = not debug):
-   
         for x in range(len(mask[0])):
             class_id = mask[y,x]-1
             

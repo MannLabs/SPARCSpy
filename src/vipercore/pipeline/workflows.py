@@ -1,7 +1,7 @@
 from vipercore.pipeline.segmentation import Segmentation, ShardedSegmentation
 from vipercore.processing.preprocessing import percentile_normalization
 from vipercore.processing.utils import plot_image, visualize_class
-from vipercore.processing.segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, shift_labels
+from vipercore.processing.segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, shift_labels, _class_size
 
 from datetime import datetime
 import os
@@ -110,19 +110,27 @@ class WGASegmentation(Segmentation):
             
         
         # filter nuclei based on size and contact
-        center_nuclei, length, coords = mask_centroid(self.maps["nucleus_segmentation"], debug=self.debug)
+        center_nuclei, length = _class_size(self.maps["nucleus_segmentation"], debug=self.debug)
         
         all_classes = np.unique(self.maps["nucleus_segmentation"])
 
+        
+        
+
 
         # ids of all nucleis which are unconnected and can be used for further analysis
-        labels_nuclei_unconnected = contact_filter(self.maps["nucleus_segmentation"], threshold=self.config["nucleus_segmentation"]["contact_filter"], reindex=False)
+        labels_nuclei_unconnected = contact_filter(self.maps["nucleus_segmentation"], 
+                                    threshold=self.config["nucleus_segmentation"]["contact_filter"], 
+                                    reindex=False)
         classes_nuclei_unconnected = np.unique(labels_nuclei_unconnected)
 
         self.log("Filtered out due to contact limit: {} ".format(len(all_classes)-len(classes_nuclei_unconnected)))
 
         labels_nuclei_filtered = size_filter(self.maps["nucleus_segmentation"],
-                                             limits=[self.config["nucleus_segmentation"]["min_size"],self.config["nucleus_segmentation"]["max_size"]])
+                                             limits=[self.config["nucleus_segmentation"]["min_size"],
+                                                     self.config["nucleus_segmentation"]["max_size"]])
+        
+        
         classes_nuclei_filtered = np.unique(labels_nuclei_filtered)
         
         self.log("Filtered out due to size limit: {} ".format(len(all_classes)-len(classes_nuclei_filtered)))
@@ -143,7 +151,7 @@ class WGASegmentation(Segmentation):
             plt.xlabel("px area")
             plt.ylabel("number")
             
-            plt.savefig('size_dist.eps')
+            #plt.savefig('size_dist.eps')
             plt.show()
         
         # create background map based on WGA
@@ -210,7 +218,7 @@ class WGASegmentation(Segmentation):
             fmm_marker = np.ones_like(self.maps["median"][0])
             px_center = np.round(center_nuclei).astype(int)
             
-            for center in px_center:
+            for center in px_center[1:]:
                 fmm_marker[center[0],center[1]] = 0
                 
             fmm_marker  = np.ma.MaskedArray(fmm_marker, self.maps["wga_mask"])
@@ -231,8 +239,8 @@ class WGASegmentation(Segmentation):
             marker = np.zeros_like(self.maps["median"][1])
             
             px_center = np.round(center_nuclei).astype(int)
-            for i, center in enumerate(px_center):
-                marker[center[0],center[1]] = i+1
+            for i, center in enumerate(px_center[1:]):
+                marker[center[0],center[1]] = i
 
 
             wga_labels = watershed(self.maps["travel_time"], marker, mask=self.maps["wga_mask"]==0)
