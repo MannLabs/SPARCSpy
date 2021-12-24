@@ -105,7 +105,7 @@ def test_selected_coords_fast():
     
 def test_remove_classes():
     
-    imgsize = 10000
+    imgsize = 10
     maxclass = 20
     inarr = np.random.choice(maxclass, size=(imgsize*imgsize), replace=True).astype('int')
     inarr[0]=0

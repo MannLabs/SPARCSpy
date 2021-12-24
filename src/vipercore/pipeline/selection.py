@@ -8,8 +8,11 @@ from vipercore.processing.segmentation import selected_coords_fast, tsp_greedy_s
 from functools import partial
 from tqdm import tqdm
 import multiprocessing
+from scipy.spatial import cKDTree
+import networkx as nx
 
 
+import scipy
 from scipy import ndimage
 from scipy.signal import convolve2d
 
@@ -31,6 +34,18 @@ class LMDSelection(ProcessingStep):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        self.register_parameter('segmentation_channel', 0)
+        self.register_parameter('shape_dilation', 16)
+        self.register_parameter('binary_smoothing', 3)
+        self.register_parameter('convolution_smoothing', 25)
+        self.register_parameter('poly_compression_factor', 30)
+        self.register_parameter('path_optimization', 'hilbert')
+        self.register_parameter('greedy_k', 0)
+        self.register_parameter('segmentation_channel', 15)
+        self.register_parameter('hilbert_p', 7)
+        self.register_parameter('xml_decimal_transform', 100)
+        self.register_parameter('distance_heuristic', 300)
         
     def process(self, hdf_location, cell_sets, calibration_marker):
         """Process function for starting the processing
@@ -101,9 +116,12 @@ class LMDSelection(ProcessingStep):
                     # dilation of the cutting mask in pixel 
                     shape_dilation: 10
 
+                    # Cutting masks are transformed by binary dilation and erosion
+                    binary_smoothing: 3
+
                     # number of datapoints which are averaged for smoothing
                     # the number of datapoints over an distance of n pixel is 2*n
-                    smoothing_filter_size: 10
+                    convolution_smoothing: 25
 
                     # fold reduction of datapoints for compression
                     poly_compression_factor: 30
@@ -129,6 +147,10 @@ class LMDSelection(ProcessingStep):
                     # This can be mitigated by scaling the entire coordinate system by a defined factor.
                     # For a resolution of 0.6 um / px a factor of 100 is recommended.
                     xml_decimal_transform: 100
+                    
+                    # Overlapping shapes are merged based on a nearest neighbour heuristic.
+                    # All selected shapes closer than distance_heuristic pixel are checked for overlap.
+                    distance_heuristic = 300
 
 
         """
@@ -188,35 +210,40 @@ class LMDSelection(ProcessingStep):
         if zero_elements == 0:
             self.log("Check passed")
         else:
-            self.log("Check failed, returned coordinates contain empty elements. Please check if all classes specified are present in your segmentation")           
+            self.log("Check failed, returned coordinates contain empty elements. Please check if all classes specified are present in your segmentation")    
+            
+        center, length, coords = self.merge_dilated_shapes(center, length, coords, dilation = self.config['shape_dilation'])
         
-        self.log("Initializing shapes for polzgon creation")
+        self.log("Initializing shapes for polygon creation")
+        
         shapes = []
         for i in range(len(center)):
-            
+            s = Shape(center[i],length[i],coords[i])
             if i % 1000 == 0:
                 self.log(f"Initializing shape {i}")
-                
-            s = Shape(center[i],length[i],coords[i])
             shapes.append(s)
-
-        self.log("Calculating polygons")
-        with multiprocessing.Pool(processes=self.config['threads']) as pool:                                          
-            shapes = list(tqdm(pool.imap(partial(Shape.create_poly, 
-                                                 smoothing_filter_size = self.config['smoothing_filter_size'], 
-                                                 poly_compression_factor = self.config['poly_compression_factor'],
-                                                 dilation = self.config['shape_dilation'],
+        
+        self.log("Create shapes for merged cells")
+        with multiprocessing.Pool(processes=self.config['processes']) as pool:                                          
+            shapes = list(tqdm(pool.imap(partial(Shape.tranform_to_map, 
+                                                 erosion = self.config['binary_smoothing'] ,
+                                                 dilation = self.config['binary_smoothing']
                                                 ),
                                                  shapes), total=len(center)))
-        
+        self.log("Calculating polygons")
+        with multiprocessing.Pool(processes=self.config['processes']) as pool:      
+            shapes = list(tqdm(pool.imap(partial(Shape.create_poly, 
+                                                 smoothing_filter_size = self.config['convolution_smoothing'],
+                                                 poly_compression_factor = self.config['poly_compression_factor']
+                                                ),
+                                                 shapes), total=len(center)))
+         
         
         self.log("Polygon calculation finished")
         
         center = np.array(center)
         unoptimized_length = calc_len(center)
         self.log(f"Current path length: {unoptimized_length:,.2f} units")
-        
-        print(self.config['path_optimization'])
 
         # check if optimizer key has been set
         if 'path_optimization' in self.config:
@@ -239,7 +266,6 @@ class LMDSelection(ProcessingStep):
             
         if pathoptimizer == "greedy":
             optimized_idx = tsp_greedy_solve(center, k=self.config['greedy_k'])
-            print(optimized_idx)
     
         elif pathoptimizer == "hilbert":
             optimized_idx = tsp_hilbert_solve(center, p=self.config['hilbert_p'])
@@ -281,14 +307,8 @@ class LMDSelection(ProcessingStep):
         
         self.log("Generate XML from polygons")
         
-        # check if decimal transform is defind 
-        if 'xml_decimal_transform' in self.config:
-            xml_decimal_transform = int(self.config["xml_decimal_transform"])
-        else:
-            xml_decimal_transform = 100
-
         # The Orientation tranform is needed to convert the image (row, column) coordinate system to the LMD (x, y Coordinate system.
-        orientation_transform = np.array([[-1,0],[0,1]]) * xml_decimal_transform
+        orientation_transform = np.array([[-1,0],[0,1]]) * self.config['xml_decimal_transform']
     
         # Generate array of marker cross positions
         ds = LMD_object()
@@ -371,6 +391,90 @@ class LMDSelection(ProcessingStep):
             self.log("classes argument for a cell set needs to be a list of integer ids or a path pointing to a csv of integer ids.")
             raise TypeError("classes argument for a cell set needs to be a list of integer ids or a path pointing to a csv of integer ids.")
             
+    def merge_dilated_shapes(self,
+                        input_center, 
+                        input_length, 
+                        input_coords, 
+                        dilation = 0):
+    
+        # initialize all shapes and create dilated coordinates
+        # coordinates are created as complex numbers to facilitate comparison with np.isin
+        dilated_coords = []
+
+        for i in range(len(input_center)):
+            s = Shape(input_center[i],input_length[i],input_coords[i])
+            s.tranform_to_map(dilation = dilation)
+
+            dilated_coord = s.get_coords()
+            dilated_coord = np.apply_along_axis(lambda args: [complex(*args)], 1, dilated_coord).flatten()
+            dilated_coords.append(dilated_coord)
+
+        # number of shapes to merge
+        num_shapes = len(input_center)
+
+
+
+        # A sparse distance matrix is calculated for all cells which are closer than distance_heuristic
+        center_arr = np.array(input_center)
+        center_tree = cKDTree(center_arr)
+
+        sparse_distance = center_tree.sparse_distance_matrix(center_tree, self.config['distance_heuristic'])
+        sparse_distance = scipy.sparse.tril(sparse_distance)
+
+
+        # sparse intersection matrix is calculated based on the sparse distance matrix
+        intersect_data = []
+        for col, row in zip(sparse_distance.col, sparse_distance.row):
+
+            # diagonal entries are known to intersect
+            if col == row:
+                intersect_data.append(1)
+            else:
+
+                # np.isin is used with the two complex coordinate arrays
+                do_intersect = np.isin(dilated_coords[col], dilated_coords[row]).any()
+                # intersect_data uses the same columns and rows as sparse_distance
+                # if two shapes intersect, an edge is created otherwise, no edge is created.
+                # zero entries will be dropped later
+                intersect_data.append(1 if do_intersect else 0)
+
+        # create sparse intersection matrix and drop zero elements
+        sparse_intersect = scipy.sparse.coo_matrix((intersect_data, (sparse_distance.row, sparse_distance.col)))
+        sparse_intersect.eliminate_zeros()
+
+        # create networkx graph from sparse intersection matrix
+        g = nx.from_scipy_sparse_matrix(sparse_intersect)
+
+        # find unconnected subgraphs
+        # to_merge contains a list of lists with indexes pointing to shapes to be merged
+        to_merge = [list(g.subgraph(c).nodes()) for c in nx.connected_components(g)]
+
+        output_center = []
+        output_length = []
+        output_coords = []
+
+        # merge coords
+        for new_shape in to_merge:
+            coords = []
+
+            for idx in new_shape:
+                coords.append(dilated_coords[idx])
+
+            coords_complex = np.concatenate(coords)
+            coords_complex = np.unique(coords_complex)
+            coords_2d = np.array([coords_complex.real, coords_complex.imag], dtype=int).T
+
+            # calculate properties length and center from coords
+            new_center = np.mean(coords_2d ,axis=0)
+            new_len = len(coords_2d)
+
+            # append values to output lists
+            output_center.append(new_center)
+            output_length.append(new_len)
+            output_coords.append(coords_2d)
+
+        return output_center, output_length, output_coords
+            
 class Shape:
     """
     Helper class which is created for every segment. Can be used to convert a list of pixels into a polygon.
@@ -397,24 +501,13 @@ class Shape:
         ax.imshow(bounds)
         ax.plot(edges[:,1]*2,edges[:,0]*2)"""
         
-    def create_poly(self, 
-                    smoothing_filter_size = 12,
-                    poly_compression_factor = 8,
-                    dilation = 0):
-
-        """ Converts a list of pixels into a polygon.
-        Args
-            smoothing_filter_size (int, default = 12): The smoothing filter is the circular convolution with a vector of length smoothing_filter_size and all elements 1 / smoothing_filter_size.
-            
-            poly_compression_factor (int, default = 8 ): When compression is wanted, only every n-th element is kept for n = poly_compression_factor.
-
-            dilation (int, default = 0): Binary dilation used before polygon creation for increasing the mask size. This Dilation ignores potential neighbours. Neighbour aware dilation of segmentation mask needs to be defined during segmentation.
-        """
-        
+    def tranform_to_map(self, 
+                        dilation = 0,
+                        erosion = 0,
+                   debug = False):
         # safety boundary which extands the generated map size
         safety_offset = 3
         dilation_offset = dilation 
-        
         
         # top left offsett used for creating the offset map
         self.offset = np.min(self.coords,axis=0)-safety_offset-dilation_offset
@@ -431,15 +524,43 @@ class Shape:
         self.offset_map[(y,x)] = 1
         self.offset_map = self.offset_map.astype(int)
         
-        # debugging
-        # plt.imshow(self.offset_map)
-        # plt.show()
+        
+        
+        if debug:
+            plt.imshow(self.offset_map)
+            plt.show()
         
         self.offset_map = sk_dilation(self.offset_map , selem=disk(dilation))
+        self.offset_map = binary_erosion(self.offset_map , selem=disk(erosion))
+        self.offset_map = ndimage.binary_fill_holes(self.offset_map).astype(int)
         
-        # debugging
-        # plt.imshow(self.offset_map)
-        # plt.show()
+        if debug:
+            plt.imshow(self.offset_map)
+            plt.show()
+            
+        return self
+        
+    def get_coords(self):
+        if not hasattr(self, 'offset_map'):
+            return self.coords
+        else:
+            idx_local = np.argwhere(self.offset_map == 1)
+            idx_global = idx_local+self.offset
+            return(idx_global)
+        
+    def create_poly(self, 
+                    smoothing_filter_size = 12,
+                    poly_compression_factor = 8,
+                   debug = False):
+
+        """ Converts a list of pixels into a polygon.
+        Args
+            smoothing_filter_size (int, default = 12): The smoothing filter is the circular convolution with a vector of length smoothing_filter_size and all elements 1 / smoothing_filter_size.
+            
+            poly_compression_factor (int, default = 8 ): When compression is wanted, only every n-th element is kept for n = poly_compression_factor.
+
+            dilation (int, default = 0): Binary dilation used before polygon creation for increasing the mask size. This Dilation ignores potential neighbours. Neighbour aware dilation of segmentation mask needs to be defined during segmentation.
+        """
         
         # find polygon bounds from mask
         bounds = sk.segmentation.find_boundaries(self.offset_map, connectivity=1, mode="subpixel", background=0)

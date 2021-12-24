@@ -138,3 +138,17 @@ class ProcessingStep(Logable):
         else:
             warnings.warn("no process method defined")
             
+    def register_parameter(self, key, value):
+        
+        if isinstance(key, str):
+            config_handle = self.config
+            
+        elif isinstance(key, list):
+            raise NotImplementedError('registration of parameters is not yet supported for nested parameters')
+            
+        else:
+            raise TypeError('Key musst be of string or a list of strings')
+        
+        if not key in config_handle:
+            self.log(f'No configuration for {key} found, parameter will be set to {value}')
+            config_handle[key] = value
