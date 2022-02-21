@@ -20,14 +20,14 @@ base
  
 .. code-block:: python
     
-    project_location = "/mnt/dss_fast/datasets/2021_09_03_hdf5_extraction_developement/pipeline"
-
+    project_location = "/Users/georgwallmann/Documents/testdaten/viper_library_test"
 
     project = Project(project_location, 
-                      config_path="2021_11_13_pipeline_test.yml",
-                      segmentation_f=ShardedWGASegmentation,
-                      extraction_f=HDF5CellExtraction,
-                      selection_f=LMDSelection)
+                        config_path="settings.yaml",
+                        overwrite=True,
+                        segmentation_f=ShardedWGASegmentation,
+                        extraction_f=HDF5CellExtraction,
+                        selection_f=LMDSelection)
 
     project.load_input_from_file(location)
     project.segment()
@@ -40,8 +40,6 @@ base
         data = list(reader)
         data = np.array([int(el[0]) for el in data])
 
-    indices = np.random.randint(0,len(data), size=200)
-
     cells_to_select = [{"name": "dataset1", "classes": list(data), "well": "A1"}]
 
     # calibration marker should be defined as (row, column)
@@ -51,7 +49,7 @@ base
 
     calibration_marker = np.array([marker_0, marker_1, marker_2])
 
-    project.select(cells_to_select, calibration_marker, debug=True)
+    project.select(cells_to_select, calibration_marker)
     
 .. code-block:: yaml
     
@@ -62,7 +60,7 @@ base
     # Define remapping of channels. 
     # For example use 1, 0, 2 to change the order of the first and the second channel.
     channel_remap: 0,1
-
+    
     ShardedWGASegmentation:
         input_channels: 2
         # average number of pixel per shard. 
@@ -87,19 +85,25 @@ base
             # quantile normalization of dapi channel before local tresholding. 
             # strong normalization (0.05,0.95) can help with nuclear speckles.
             lower_quantile_normalization:   0.03 
-            upper_quantile_normalization:   0.97 
+            upper_quantile_normalization:   0.92 
 
             # Size of pixel disk used for median, should be uneven
-            median_block: 81 
+            median_block: 41
 
-            # threshold above local median for nuclear segmentation
-            threshold: 0.05 
+            # The image can be downsampled before calculating the median which speeds up calculation tremendously.
+            # If median step is set, only ever nth pixel is considered, similar to image[::median_step, ::median_step]
+            # Please note, that the median_block can be halved if a median_step of 2 is choosen. 
+            median_step: 3 
+
+            # Threshold above local median for nuclear segmentation.
+            # If threshold or median_block is missing, otsu global tresholding will be used
+            threshold: 0.10 
 
             # minimum distance between two nucleis in pixel
-            min_distance: 12 
+            min_distance: 10 
 
             # minimum distance between two nucleis in pixel
-            peak_footprint: 12 
+            peak_footprint: 7 
 
             # Erosion followed by Dilation to remove speckels, size in pixels, should be uneven
             speckle_kernel: 5 
@@ -119,17 +123,23 @@ base
         # parameters specific to the nucleus segmentation 
         wga_segmentation:
 
-        # treshold above median for which cytosol is detected
-            threshold: 0.10 
+            lower_quantile_normalization: 0.2
+            upper_quantile_normalization: 0.98
 
             # erosion and dilation are used for speckle removal and shrinking / dilation
             # for no change in size choose erosion = dilation, for larger masks, increase the mask erosion
-            erosion: 6 
-            dilation: 10 
+            erosion: 3 
+            dilation: 3 
 
+            # Threshold for wga segmentation.
+            # If threshold is missing, otsu global tresholding will be used
+            #threshold: 0.15 
 
             min_clip: 0.5
             max_clip: 0.9
+
+            min_size: 200
+            max_size: 4000
 
         # chunk size for chunked HDF5 storage. is needed for correct caching and high performance reading. should be left at 50.
         chunk_size: 50
@@ -142,7 +152,7 @@ base
 
         image_size: 128 # image size in pixel
 
-        cache: "/mnt/temp/cache"
+        cache: "/Users/georgwallmann/Documents/testdaten/temp"
 
         # Define remapping of channels. 
         # For example use 1, 0, 2 to change the order of the first and the second channel.
@@ -155,7 +165,7 @@ base
         hdf5_rdcc_nslots: 50000
 
     LMDSelection:
-        threads: 10
+        processes: 10
 
         # defines the channel used for generating cutting masks
         # segmentation.hdf5 => labels => segmentation_channel
@@ -165,7 +175,7 @@ base
         segmentation_channel: 0
 
         # dilation of the cutting mask in pixel 
-        shape_dilation: 10
+        shape_dilation: 2
 
         # number of datapoints which are averaged for smoothing
         # the number of datapoints over an distance of n pixel is 2*n
