@@ -1,59 +1,4 @@
-base
-########
-
-.. code-block:: python
-    
-    from vipercore.pipeline.project import Project
-    from vipercore.pipeline.workflows import ShardedWGASegmentation
-    from vipercore.pipeline.extraction import HDF5CellExtraction
-    from vipercore.pipeline.selection import LMDSelection
-    from vipercore.processing.utils import download_testimage
-
-    import numpy as np
-    import os
-    import csv
-    
-.. code-block:: python
-
-    location = download_testimage("/mnt/dss_fast/datasets/2021_09_03_hdf5_extraction_developement")
-    print(location)
- 
-.. code-block:: python
-    
-    project_location = "/Users/georgwallmann/Documents/testdaten/viper_library_test"
-
-    project = Project(project_location, 
-                        config_path="settings.yaml",
-                        overwrite=True,
-                        segmentation_f=ShardedWGASegmentation,
-                        extraction_f=HDF5CellExtraction,
-                        selection_f=LMDSelection)
-
-    project.load_input_from_file(location)
-    project.segment()
-    project.extract()
-
-    csv_location = os.path.join(project_location, "segmentation/classes.csv")
-
-    with open(csv_location) as f:
-        reader = csv.reader(f)
-        data = list(reader)
-        data = np.array([int(el[0]) for el in data])
-
-    cells_to_select = [{"name": "dataset1", "classes": list(data), "well": "A1"}]
-
-    # calibration marker should be defined as (row, column)
-    marker_0 = np.array([-10,-10])
-    marker_1 = np.array([-10,3010])
-    marker_2 = np.array([3010,1500])
-
-    calibration_marker = np.array([marker_0, marker_1, marker_2])
-
-    project.select(cells_to_select, calibration_marker)
-    
-.. code-block:: yaml
-    
-    ---
+---
     name: "WGA confluent segmentation"
     input_channels: 2
 
@@ -183,4 +128,3 @@ base
 
         # fold reduction of datapoints for compression
         poly_compression_factor: 30
-    

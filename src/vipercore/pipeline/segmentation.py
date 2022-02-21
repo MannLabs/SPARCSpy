@@ -11,6 +11,9 @@ from multiprocessing import Pool
 import shutil
 import warnings
 
+import traceback
+import sys
+from PIL import Image
 from skimage.filters import gaussian, median
 from skimage.morphology import binary_erosion, disk, dilation
 from skimage.segmentation import watershed
@@ -105,8 +108,13 @@ class Segmentation(ProcessingStep):
         hdf_input = hf.get('channels')
         input_image = hdf_input[:,self.window[0],self.window[1]]
         hf.close()
-            
-        super().__call__(input_image)
+
+        try:    
+            super().__call__(input_image)
+        except Exception:
+            self.log(traceback.format_exc())
+
+
 
     def save_segmentation(self, 
                           channels, 
@@ -228,19 +236,27 @@ class Segmentation(ProcessingStep):
                 
                 for i, channel in enumerate(self.maps[map_name]):
                     
-                    channel_name = "{}_{}_{}_map.png".format(map_index, map_name,i)
+                    channel_name = "{}_{}_{}_map".format(map_index, map_name,i)
                     channel_path = os.path.join(self.directory, channel_name)
                     
                     if self.debug and self.PRINT_MAPS_ON_DEBUG:
                         self.save_image(channel, save_name = channel_path)
             else:
-                channel_name = "{}_{}_map.png".format(map_index, map_name)
+                channel_name = "{}_{}_map".format(map_index, map_name)
                 channel_path = os.path.join(self.directory, channel_name)
                 
                 if self.debug and self.PRINT_MAPS_ON_DEBUG:
                     self.save_image(self.maps[map_name], save_name = channel_path)
                 
     def save_image(self, array, save_name="", cmap="magma",**kwargs):
+                
+        if np.issubdtype(array.dtype.type, np.integer):
+            
+            self.log(f"{save_name} will be saved as tif")
+            data = array.astype(np.uint16)
+            im = Image.fromarray(data)
+            im.save(f'{save_name}.tif')
+       
         fig = plt.figure(frameon=False)
         fig.set_size_inches((10, 10))
         ax = plt.Axes(fig, [0., 0., 1., 1.])
@@ -249,7 +265,7 @@ class Segmentation(ProcessingStep):
         ax.imshow(array, cmap=cmap,**kwargs)
 
         if save_name != "":
-            plt.savefig(save_name)
+            plt.savefig(f'{save_name}.png')
             plt.show()
             plt.close()
             

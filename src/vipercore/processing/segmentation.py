@@ -22,62 +22,87 @@ from hilbertcurve.hilbertcurve import HilbertCurve
 from vipercore.processing.utils import plot_image
 
 import skimage as sk
+from skimage.transform import resize
 import numpy as np
 import skfmm
 
-def segment_global_thresh(image, min_distance=8, min_size=20, dilation=0, threshold=3,peak_threshold=3, return_markers=False):
-    """This function takes a preprocessed image with low background noise and extracts and segments the foreground.
-    Extraction is performed based on global thresholding, therefore a preprocessed image with homogenous low noise background is needed.
+def segment_global_tresh(image, 
+                        dilation=4, 
+                        min_distance=10, 
+                        peak_footprint=7, 
+                        speckle_kernel=4, 
+                        debug=False):
     
-    :param image: 2D numpy array of type float containing the image. 
-    :type image: class:`numpy.array`
+    image_mask = image > global_otsu(image)
     
-    :param min_distance: Minimum distance between the centers of two cells. This value is applied before mask dilation. defaults to 10
-    :type min_distance: int, optional
+    if debug:
+        plot_image(image_mask, cmap="Greys_r")
+        
+    # removing speckles by binary erosion and dilation 
+    image_mask_clean = binary_erosion(image_mask, footprint=disk(speckle_kernel))
+    image_mask_clean = sk_dilation(image_mask_clean, footprint=disk(speckle_kernel-1))
     
-    :param min_size: Minimum number of pixels occupied by a single cell. This value is applied before mask dilation. defaults to 20
-    :type min_size: int, optional
+    #if debug:
+    #    plot_image(image_mask_clean)
+        
     
-    :param dilation: Dilation of the segmented masks in pixel. If no dilation is desired, set to zero. defaults to 0
-    :type dilation: int, optional
-    
-    :param threshold: Threshold for areas to be considered as cells. Areas are considered as if they are larger than threshold * standard_dev. defaults to 3
-    :type threshold: int, optional
-    """
-    
-    # calculate global standard deviation
-    std = np.std(image.flatten())
-    
-    image = image - np.median(image.flatten())
-    
-    # filter image for smoother shapes
-    image = gaussian(image, sigma=1, preserve_range=True)
-    peak_mask = np.where(image > peak_threshold * std, 1,0)
-    
-
-    distance = ndimage.distance_transform_edt(peak_mask)
     
     # find peaks based on distance transform
-    peak_idx  = peak_local_max(distance, min_distance=min_distance, footprint=np.ones((3, 3)))
-    local_maxi = np.zeros_like(image, dtype=bool)
+    distance = ndimage.distance_transform_edt(image_mask_clean)
+    
+    peak_idx  = peak_local_max(distance, min_distance=min_distance, footprint=disk(peak_footprint))
+    local_maxi = np.zeros_like(image_mask_clean, dtype=bool)
     local_maxi[tuple(peak_idx.T)] = True
     markers = ndimage.label(local_maxi)[0]
     
-    kernel = disk(dilation)
+    if debug:
+        fig = plt.figure(frameon=False)
+        fig.set_size_inches(10,10)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        ax.imshow(image_mask_clean,  cmap="Greys_r")
+        plt.scatter(peak_idx[:,1],peak_idx[:,0],color="red")
+        plt.show()
     
-    mask = np.where(image > threshold * std, 1,0)
+    
+    # segmentation by fast marching and watershed
+    
 
-    dilated_mask = sk_dilation(mask,selem=kernel)
-    dilated_distance = ndimage.distance_transform_edt(dilated_mask)
-    
+    dilated_mask = sk_dilation(image_mask_clean, footprint=disk(dilation))
 
-    labels = watershed(-dilated_distance,markers, mask=dilated_mask)
+
+    fmm_marker = np.ones_like(dilated_mask)
+    for center in peak_idx:
+        fmm_marker[center[0],center[1]] = 0
+
+
+    m = np.ma.masked_array(fmm_marker, np.logical_not(dilated_mask))
+    distance_2 = skfmm.distance(m)
     
-    
-    if return_markers:
-        return labels.astype(int), peak_idx
-    else:
-        return labels.astype(int)
+    if debug:
+        fig = plt.figure(frameon=False)
+        fig.set_size_inches(10,10)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        ax.imshow(distance_2,  cmap="viridis")
+        plt.scatter(peak_idx[:,1],peak_idx[:,0],color="red")
+        
+        
+
+    marker = np.zeros_like(image_mask_clean).astype(int)
+    for i, center in enumerate(peak_idx):
+        marker[center[0],center[1]] = i+1
+
+    labels = watershed(distance_2, marker, mask=dilated_mask)
+
+
+    if debug: 
+        image = label2rgb(labels,image/np.max(image),alpha=0.2, bg_label=0)
+        plot_image(image)
+
+    return labels
     
 def segment_local_tresh(image, 
                         dilation=4, 
@@ -86,6 +111,7 @@ def segment_local_tresh(image,
                         min_distance=10, 
                         peak_footprint=7, 
                         speckle_kernel=4, 
+                        median_step = 1,
                         debug=False):
     """This function takes a unprocessed image with low background noise and extracts and segments approximately round foreground objects based on intensity.
     Extraction is performed based on local median thresholding.
@@ -118,7 +144,14 @@ def segment_local_tresh(image,
     if speckle_kernel < 1:
         raise ValueError("speckle_kernel needs to be at least 1")
 
-    local_thresh = filters.threshold_local(image, block_size=median_block,method="median", offset=-thr)
+    downsampled_image = image[::median_step, ::median_step]
+
+    local_thresh = filters.threshold_local(downsampled_image, 
+                                            block_size=median_block,
+                                            method="median", 
+                                            offset=-thr)
+
+    local_thresh = resize(local_thresh, image.shape)
         
     image_mask = image > local_thresh
     
@@ -126,8 +159,8 @@ def segment_local_tresh(image,
         plot_image(image_mask, cmap="Greys_r")
         
     # removing speckles by binary erosion and dilation 
-    image_mask_clean = binary_erosion(image_mask, selem=disk(speckle_kernel))
-    image_mask_clean = sk_dilation(image_mask_clean, selem=disk(speckle_kernel-1))
+    image_mask_clean = binary_erosion(image_mask, footprint=disk(speckle_kernel))
+    image_mask_clean = sk_dilation(image_mask_clean, footprint=disk(speckle_kernel-1))
     
     #if debug:
     #    plot_image(image_mask_clean)
@@ -156,7 +189,7 @@ def segment_local_tresh(image,
     # segmentation by fast marching and watershed
     
 
-    dilated_mask = sk_dilation(image_mask_clean,selem=disk(dilation))
+    dilated_mask = sk_dilation(image_mask_clean,footprint=disk(dilation))
 
 
     fmm_marker = np.ones_like(dilated_mask)
@@ -190,6 +223,25 @@ def segment_local_tresh(image,
         plot_image(image)
         
     return labels
+
+def global_otsu(image):
+    counts, bin_edges = np.histogram(np.ravel(image), bins=512)
+    bin_centers = bin_edges[:-1] + np.diff(bin_edges)/2
+
+    weight1 = np.cumsum(counts)
+    weight2 = np.cumsum(counts[::-1])[::-1]
+    # class means for all possible thresholds
+    mean1 = np.cumsum(counts * bin_centers) / weight1
+    mean2 = (np.cumsum((counts * bin_centers)[::-1]) / weight2[::-1])[::-1]
+
+    # Clip ends to align class 1 and class 2 variables:
+    # The last value of ``weight1``/``mean1`` should pair with zero values in
+    # ``weight2``/``mean2``, which do not exist.
+    variance12 = weight1[:-1] * weight2[1:] * (mean1[:-1] - mean2[1:]) ** 2
+
+    idx = np.argmax(variance12)
+    threshold = bin_centers[idx]
+    return threshold
 
 def shift_labels(input_map, shift, return_shifted_labels=False):
     """Input is a segmentation in form of a 2d or 3d numpy array of type int representing a labeled map. All labels but the background are incremented and all classes in contact with the edges of the canvas are returned.
@@ -370,8 +422,6 @@ def _selected_coords_fast(mask, classes, debug=False, background=0):
     rows, cols = mask.shape
     
     for row in range(rows):
-        if row % 10000 == 0:
-            print(row)
         for col in range(cols):
             return_id = mask[row, col]
             if return_id != background:
@@ -396,18 +446,18 @@ def selected_coords_fast(inarr, classes, debug=False):
     # due to typing issues in numba, every list and sublist contains np.array([0.,0.], dtype="int32") as first element
     coords = _selected_coords_fast(inarr.astype("uint32"), nb.typed.List(classes))
     
-    print("start removal of zero vectors")
+    #print("start removal of zero vectors")
     # removal of np.array([0.,0.], dtype="int32")
     coords = [np.array(el[1:]) for el in coords[1:]]
     
-    print("start removal of out of class cells")
+    #print("start removal of out of class cells")
     # remove empty elements, not in class list
     coords_filtered = [np.array(el) for i, el in enumerate(coords) if i+1 in classes]
     
-    print("start center calculation")
+    #print("start center calculation")
     center = [np.mean(el, axis=0) for el in coords_filtered]
     
-    print("start length calculation")
+    #print("start length calculation")
     length = [len(el) for el in coords_filtered]
     
     return center, length, coords_filtered
@@ -537,7 +587,9 @@ def mask_centroid(mask, class_range=None, debug=False):
                 coords[translated_id].append([x,y]) # coords[translated_id].append(np.array([x,y]))
                 points_class[translated_id] +=1
                 center[translated_id] += np.array([x,y])
-            
+                
+    # empty classes 
+    points_class[points_class==0]=1       
         
     x = center[:,0]/points_class
     y = center[:,1]/points_class

@@ -300,8 +300,8 @@ class Shard(Logable):
             wga_mask = np.clip(wga_mask,0,1)
 
 
-            wga_mask = dilation(wga_mask, selem=disk(self.config["wga_segmentation"]["erosion"]))
-            self.maps["wga_mask"] = binary_erosion(wga_mask, selem=disk(self.config["wga_segmentation"]["dilation"]))
+            wga_mask = dilation(wga_mask, footprint=disk(self.config["wga_segmentation"]["erosion"]))
+            self.maps["wga_mask"] = binary_erosion(wga_mask, footprint=disk(self.config["wga_segmentation"]["dilation"]))
             
             self.save_map("wga_mask")
             self.log("WGA mask map created")
@@ -419,7 +419,8 @@ class Shard(Logable):
         
         self.log("============= Saved segmentation ============= ")
         
-        class ShardedWGASegmentation(Logable):
+class ShardedWGASegmentation(Logable):
+
     DEFAULT_LOG_NAME = "processing.log" 
     DEFAULT_OUTPUT_FILE = "segmentation.h5"
     DEFAULT_FILTER_FILE = "classes.csv"
@@ -956,8 +957,8 @@ class WGASegmentation:
             wga_mask = np.clip(wga_mask,0,1)
 
 
-            wga_mask = dilation(wga_mask, selem=disk(self.config["wga_segmentation"]["erosion"]))
-            self.maps["wga_mask"] = binary_erosion(wga_mask, selem=disk(self.config["wga_segmentation"]["dilation"]))
+            wga_mask = dilation(wga_mask, footprint=disk(self.config["wga_segmentation"]["erosion"]))
+            self.maps["wga_mask"] = binary_erosion(wga_mask, footprint=disk(self.config["wga_segmentation"]["dilation"]))
             
             self.save_map("wga_mask")
             self.log("WGA mask map created")

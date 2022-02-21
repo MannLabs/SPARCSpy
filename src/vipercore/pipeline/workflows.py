@@ -1,7 +1,7 @@
 from vipercore.pipeline.segmentation import Segmentation, ShardedSegmentation
 from vipercore.processing.preprocessing import percentile_normalization
 from vipercore.processing.utils import plot_image, visualize_class
-from vipercore.processing.segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, shift_labels, _class_size
+from vipercore.processing.segmentation import segment_local_tresh, segment_global_tresh, mask_centroid, contact_filter, size_filter, shift_labels, _class_size, global_otsu
 
 from datetime import datetime
 import os
@@ -35,6 +35,7 @@ class WGASegmentation(Segmentation):
         
         start_from = self.load_maps_from_disk()
         
+
         if self.identifier is not None:
             self.log(f"Segmentation started shard {self.identifier}, starting from checkpoint {start_from}")
             
@@ -69,30 +70,52 @@ class WGASegmentation(Segmentation):
             
         # segment dapi channels based on local tresholding
         if self.debug:
-            #plt.style.use("dark_background")
             plt.hist(self.maps["median"][0].flatten(),bins=100,log=False)
             plt.xlabel("intensity")
             plt.ylabel("frequency")
-            plt.savefig("nuclei_frequency.png")
+            plt.yscale('log')
+
+            plt.title("DAPI intensity distribution")
+            plt.savefig("dapi_intensity_dist.png")
+            plt.show()
+
+            plt.hist(self.maps["median"][1].flatten(),bins=100,log=False)
+            plt.xlabel("intensity")
+            plt.ylabel("frequency")
+            plt.yscale('log')
+
+            plt.title("WGA intensity distribution")
+            plt.savefig("wga_intensity_dist.png")
             plt.show()
             
        
         if start_from <= 2:
             self.log("Started with nucleus segmentation map")
             
-            
             nucleus_map_tr = percentile_normalization(self.maps["median"][0],
                                                       self.config["nucleus_segmentation"]["lower_quantile_normalization"],
                                                       self.config["nucleus_segmentation"]["upper_quantile_normalization"])
-            plot_image(nucleus_map_tr)
-            self.maps["nucleus_segmentation"] = segment_local_tresh(nucleus_map_tr, 
+
+            # Use manual threshold if defined in ["wga_segmentation"]["threshold"]
+            # If not, use global otsu
+            if 'threshold' in self.config["nucleus_segmentation"] and 'median_block' in self.config["nucleus_segmentation"]:
+                self.maps["nucleus_segmentation"] = segment_local_tresh(nucleus_map_tr, 
                                          dilation=self.config["nucleus_segmentation"]["dilation"], 
                                          thr=self.config["nucleus_segmentation"]["threshold"], 
                                          median_block=self.config["nucleus_segmentation"]["median_block"], 
                                          min_distance=self.config["nucleus_segmentation"]["min_distance"], 
                                          peak_footprint=self.config["nucleus_segmentation"]["peak_footprint"], 
                                          speckle_kernel=self.config["nucleus_segmentation"]["speckle_kernel"], 
+                                         median_step=self.config["nucleus_segmentation"]["median_step"],
                                          debug=self.debug)
+            else:
+                self.log('No treshold or median_block for nucleus segmentation defined, global otsu will be used.')
+                self.maps["nucleus_segmentation"] = segment_global_tresh(nucleus_map_tr, 
+                                         dilation=self.config["nucleus_segmentation"]["dilation"], 
+                                         min_distance=self.config["nucleus_segmentation"]["min_distance"], 
+                                         peak_footprint=self.config["nucleus_segmentation"]["peak_footprint"], 
+                                         speckle_kernel=self.config["nucleus_segmentation"]["speckle_kernel"], 
+                                         debug=self.debug)            
             
             del nucleus_map_tr
             self.save_map("nucleus_segmentation")
@@ -150,32 +173,36 @@ class WGASegmentation(Segmentation):
             plt.hist(length,bins=50)
             plt.xlabel("px area")
             plt.ylabel("number")
-            
-            #plt.savefig('size_dist.eps')
+            plt.title('Nucleus size distribution')
+            plt.savefig('nucleus_size_dist.png')
             plt.show()
         
         # create background map based on WGA
         
         if start_from <= 4:
             self.log("Started with WGA mask map")
-            
-            wga_mask_comp  = self.maps["median"][1] - np.quantile(self.maps["median"][1],0.02)
 
-            nn = np.quantile(self.maps["median"][1],0.98)
-            wga_mask_comp = wga_mask_comp / nn
-            wga_mask_comp = np.clip(wga_mask_comp, 0, 1)
+            # Perform percentile normalization
+            wga_mask_comp = percentile_normalization(self.maps["median"][1],
+                                                      self.config["wga_segmentation"]["lower_quantile_normalization"],
+                                                      self.config["wga_segmentation"]["upper_quantile_normalization"])
             
-            
-            
-            wga_mask = wga_mask_comp < self.config["wga_segmentation"]["threshold"]
+            # Use manual threshold if defined in ["wga_segmentation"]["threshold"]
+            # If not, use global otsu
+            if 'threshold' in self.config["wga_segmentation"]:
+                wga_mask = wga_mask_comp < self.config["wga_segmentation"]["threshold"]
+            else:
+                self.log('No treshold for cytosol segmentation defined, global otsu will be used.')
+                wga_mask = wga_mask_comp < global_otsu(wga_mask_comp)
+
+
             wga_mask = wga_mask.astype(float)
-   
             wga_mask -= self.maps["nucleus_mask"]
             wga_mask = np.clip(wga_mask,0,1)
 
-
-            wga_mask = dilation(wga_mask, selem=disk(self.config["wga_segmentation"]["erosion"]))
-            self.maps["wga_mask"] = binary_erosion(wga_mask, selem=disk(self.config["wga_segmentation"]["dilation"]))
+            # Apply dilation and erosion
+            wga_mask = dilation(wga_mask, footprint=disk(self.config["wga_segmentation"]["erosion"]))
+            self.maps["wga_mask"] = binary_erosion(wga_mask, footprint=disk(self.config["wga_segmentation"]["dilation"]))
             
             self.save_map("wga_mask")
             self.log("WGA mask map created")
@@ -190,6 +217,11 @@ class WGASegmentation(Segmentation):
             nn = np.quantile(self.maps["median"][1],0.98)
             wga_mask_comp = wga_mask_comp / nn
             wga_mask_comp = np.clip(wga_mask_comp, 0, 1)
+
+            
+
+
+            
             
             # substract golgi and dapi channel from wga
             diff = np.clip(wga_mask_comp-self.maps["median"][0],0,1)
@@ -207,7 +239,7 @@ class WGASegmentation(Segmentation):
 
             self.maps["wga_potential"] = diff
             
-            self.save_map("wga_potential")
+            #self.save_map("wga_potential")
             self.log("WGA mask potential created")
         
         # WGA cytosol segmentation by fast marching
@@ -262,13 +294,15 @@ class WGASegmentation(Segmentation):
 
             # filter cells based on cytosol size
             center_cell, length, coords = mask_centroid(self.maps["watershed"], debug=self.debug)
+        
             
-            #print(length[0:10], coords[0:10])
             
             all_classes_wga = np.unique(self.maps["watershed"])
 
             labels_wga_filtered = size_filter(self.maps["watershed"],
-                                                 limits=[self.config["wga_segmentation"]["min_size"],self.config["wga_segmentation"]["max_size"]])
+                                                 limits=[self.config["wga_segmentation"]["min_size"],
+                                                         self.config["wga_segmentation"]["max_size"]])
+            
             classes_wga_filtered = np.unique(labels_wga_filtered)
             
             self.log("Cells filtered out due to cytosol size limit: {} ".format(len(all_classes_wga)-len(classes_wga_filtered)))
@@ -276,6 +310,8 @@ class WGASegmentation(Segmentation):
             filtered_classes_wga = set(classes_wga_filtered)
             filtered_classes = set(filtered_classes).intersection(filtered_classes_wga)
             self.log("Filtered out: {} ".format(len(all_classes)-len(filtered_classes)))
+            self.log("Remaining: {} ".format(len(filtered_classes)))
+            
             
             if self.debug:
                 um_p_px = 665 / 1024
@@ -284,11 +320,14 @@ class WGASegmentation(Segmentation):
                 visualize_class(classes_wga_filtered, self.maps["watershed"], self.maps["normalized"][1])
                 visualize_class(classes_wga_filtered, self.maps["watershed"], self.maps["normalized"][0])
 
+                
                 plt.hist(length, bins=50)
                 plt.xlabel("px area")
                 plt.ylabel("number")
-                plt.savefig('size_dist_cytosol.eps')
+                plt.title('Cytosol size distribution')
+                plt.savefig('cytosol_size_dist.png')
                 plt.show()
+            
             
             self.save_map("watershed")
             self.log("watershed finished")
@@ -305,7 +344,7 @@ class WGASegmentation(Segmentation):
         segmentation = np.stack([self.maps["nucleus_segmentation"],
                                  self.maps["watershed"]]).astype("int32")
         
-        self.save_segmentation(channels, segmentation, all_classes)
+        self.save_segmentation(channels, segmentation, filtered_classes)
 
 class ShardedWGASegmentation(ShardedSegmentation):
     method = WGASegmentation    

@@ -225,8 +225,8 @@ def segment_wga(image, debug=False):
     wga_mask = np.clip(wga_mask,0,1)
 
 
-    wga_mask = binary_erosion(wga_mask, selem=disk(4))
-    wga_mask = dilation(wga_mask, selem=disk(4))
+    wga_mask = binary_erosion(wga_mask, footprint=disk(4))
+    wga_mask = dilation(wga_mask, footprint=disk(4))
     
     if debug:
         plot_image(wga_mask, cmap="Greys",save_name="wga_mask_smooth")
@@ -365,7 +365,7 @@ def extract_classes(center_list, layers, arg, debug=True, output_f="output/"):
         cell_mask = binary_fill_holes(cell_mask)
                 
                 
-        cell_mask_extended = dilation(cell_mask,selem=disk(6))
+        cell_mask_extended = dilation(cell_mask,footprint=disk(6))
 
         cell_mask = cell_mask[w[0]:w[1],w[2]:w[3]]
 

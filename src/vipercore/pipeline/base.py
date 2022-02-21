@@ -74,7 +74,7 @@ class ProcessingStep(Logable):
     Args:
         config (dict): Config file which is passed by the Project class when called. Is loaded from the project based on the name of the class.
         
-        directory (str): Directory which should be used by the processing step. The directory will be newly created if it does not exist yet. When used with the :ref:`Project` class, a subdirectory of the project directory is passed. 
+        directory (str): Directory which should be used by the processing step. The directory will be newly created if it does not exist yet. When used with the :class:`vipercore.pipeline.project.Project` class, a subdirectory of the project directory is passed. 
         
         intermediate_output (bool, default ``False``): When set to True intermediate outputs will be saved where applicable.
             

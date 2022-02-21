@@ -35,17 +35,7 @@ class LMDSelection(ProcessingStep):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.register_parameter('segmentation_channel', 0)
-        self.register_parameter('shape_dilation', 16)
-        self.register_parameter('binary_smoothing', 3)
-        self.register_parameter('convolution_smoothing', 25)
-        self.register_parameter('poly_compression_factor', 30)
-        self.register_parameter('path_optimization', 'hilbert')
-        self.register_parameter('greedy_k', 0)
-        self.register_parameter('segmentation_channel', 15)
-        self.register_parameter('hilbert_p', 7)
-        self.register_parameter('xml_decimal_transform', 100)
-        self.register_parameter('distance_heuristic', 300)
+        
         
     def process(self, hdf_location, cell_sets, calibration_marker):
         """Process function for starting the processing
@@ -154,6 +144,18 @@ class LMDSelection(ProcessingStep):
 
 
         """
+        
+        self.register_parameter('segmentation_channel', 0)
+        self.register_parameter('shape_dilation', 16)
+        self.register_parameter('binary_smoothing', 3)
+        self.register_parameter('convolution_smoothing', 25)
+        self.register_parameter('poly_compression_factor', 30)
+        self.register_parameter('path_optimization', 'hilbert')
+        self.register_parameter('greedy_k', 0)
+        self.register_parameter('segmentation_channel', 15)
+        self.register_parameter('hilbert_p', 7)
+        self.register_parameter('xml_decimal_transform', 100)
+        self.register_parameter('distance_heuristic', 300)
         
         self.log("Selection process started")
         self.hdf_location = hdf_location
@@ -289,8 +291,10 @@ class LMDSelection(ProcessingStep):
         if self.debug:
             
             center = np.array(center)
-            figure(figsize=(8, 8), dpi=120)
-            ax = plt.gca()
+            fig = figure(figsize=(8, 8), dpi=120)
+            ax = plt.Axes(fig, [0., 0., 1., 1.])
+            ax.set_axis_off()
+            fig.add_axes(ax)
 
             ax.imshow(hdf_labels[0], cmap="magma")
             ax.scatter(center[:,1],center[:,0], s=1)
@@ -479,8 +483,7 @@ class Shape:
     """
     Helper class which is created for every segment. Can be used to convert a list of pixels into a polygon.
     Reasonable results should only be expected for fully connected sets of coordinates. 
-    The resulting polygon has a baseline resolution of twice the pixel density.
-    
+    The resulting polygon has a resolution of twice the pixel density.
     """
     
     def __init__(self, center,length,coords):
@@ -509,10 +512,12 @@ class Shape:
         safety_offset = 3
         dilation_offset = dilation 
         
-        # top left offsett used for creating the offset map
-        self.offset = np.min(self.coords,axis=0)-safety_offset-dilation_offset
-        
-        
+
+        # top left offset used for creating the offset map
+        self.offset = np.min(self.coords, axis=0).astype(np.int16) - safety_offset - dilation_offset
+        mat = np.array([self.offset, [0,0]])
+        self.offset = np.max(mat, axis=0) 
+
         self.offset_coords = self.coords-self.offset
         
         self.offset_map = np.zeros(np.max(self.offset_coords,axis=0)+2*safety_offset+dilation_offset)
@@ -530,8 +535,8 @@ class Shape:
             plt.imshow(self.offset_map)
             plt.show()
         
-        self.offset_map = sk_dilation(self.offset_map , selem=disk(dilation))
-        self.offset_map = binary_erosion(self.offset_map , selem=disk(erosion))
+        self.offset_map = sk_dilation(self.offset_map , footprint=disk(dilation))
+        self.offset_map = binary_erosion(self.offset_map , footprint=disk(erosion))
         self.offset_map = ndimage.binary_fill_holes(self.offset_map).astype(int)
         
         if debug:
@@ -558,7 +563,6 @@ class Shape:
             smoothing_filter_size (int, default = 12): The smoothing filter is the circular convolution with a vector of length smoothing_filter_size and all elements 1 / smoothing_filter_size.
             
             poly_compression_factor (int, default = 8 ): When compression is wanted, only every n-th element is kept for n = poly_compression_factor.
-
             dilation (int, default = 0): Binary dilation used before polygon creation for increasing the mask size. This Dilation ignores potential neighbours. Neighbour aware dilation of segmentation mask needs to be defined during segmentation.
         """
         
@@ -634,7 +638,6 @@ class Shape:
         """ Plot a shape on a given matplotlib axis.
         Args
             axis (matplotlib.axis): Axis for an existing matplotlib figure.
-
             flip (bool, True): If shapes are still in the (row, col) format they need to bee flipped if plotted with a (x, y) coordinate system.
         """
         if flip:
