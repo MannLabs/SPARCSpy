@@ -159,6 +159,8 @@ class HDF5CellExtraction(ProcessingStep):
         self.log("Collect cells")
         # collect cells
         
+        
+        
         # create empty hdf5
         current_level_files = [ name for name in os.listdir(self.extraction_cache) if os.path.isfile(os.path.join(self.extraction_cache, name))]
         num_classes = len(current_level_files)
@@ -225,6 +227,7 @@ class HDF5CellExtraction(ProcessingStep):
             
         index = arg
         
+        
         px_center = center_list[index]
         
         input_hdf = h5py.File(input_segmentation_path, 'r', 
@@ -247,19 +250,23 @@ class HDF5CellExtraction(ProcessingStep):
         if width < px_center[0] and px_center[0] < image_width-width and width < px_center[1] and px_center[1] < image_height-width:
             # channel 0: nucleus mask
             nuclei_mask = hdf_labels[0,window_y,window_x]
+            #print(nuclei_mask[60:68,60:68])
+            
             
             nuclei_mask = np.where(nuclei_mask == index, 1,0)
 
             nuclei_mask_extended = gaussian(nuclei_mask,preserve_range=True,sigma=5)
             nuclei_mask = gaussian(nuclei_mask,preserve_range=True,sigma=1)
 
-            """
-            if self.debug:
-                plot_image(nuclei_mask, size=(5,5), save_name=os.path.join(self.extraction_directory,"{}_0".format(index)), cmap="Greys") 
-            """
+            
+            #if self.debug:
+            #    plot_image(nuclei_mask, size=(5,5)), save_name=os.path.join(self.directory,"{}_0".format(index)), cmap="Greys") 
+            
             # channel 1: cell mask
             
             cell_mask = hdf_labels[1,window_y,window_x]
+            #print(cell_mask[60:68,60:68])
+            plot_image(cell_mask, size=(5,5))
             cell_mask = np.where(cell_mask == index,1,0).astype(int)
             cell_mask = binary_fill_holes(cell_mask)
 
@@ -268,10 +275,10 @@ class HDF5CellExtraction(ProcessingStep):
             cell_mask =  gaussian(cell_mask,preserve_range=True,sigma=1)   
             cell_mask_extended = gaussian(cell_mask_extended,preserve_range=True,sigma=5)
 
-            """
-            if self.debug:
-                plot_image(cell_mask, size=(5,5), save_name=os.path.join(self.extraction_directory,"{}_1".format(index)), cmap="Greys") 
-            """
+        
+            #if self.debug:
+            #    plot_image(cell_mask, size=(5,5), save_name=os.path.join(self.directory,"{}_1".format(index)), cmap="Greys") 
+            
             
             # channel 2: nucleus
             channel_nucleus = hdf_channels[0,window_y,window_x]
@@ -280,10 +287,10 @@ class HDF5CellExtraction(ProcessingStep):
 
             channel_nucleus = MinMax(channel_nucleus)
             
-            """
-            if self.debug:
-                plot_image(channel_nucleus, size=(5,5), save_name=os.path.join(self.extraction_directory,"{}_2".format(index)))
-            """
+            
+            #if self.debug:
+            #    plot_image(channel_nucleus, size=(5,5), save_name=os.path.join(self.directory,"{}_2".format(index)))
+            
             
                 
             # channel 3: cellmask
