@@ -404,7 +404,15 @@ class ShardedSegmentation(ProcessingStep):
         output = os.path.join(self.directory,self.DEFAULT_OUTPUT_FILE)
         
         label_size = (2,self.image_size[0],self.image_size[1])
-        channel_size = (self.config["input_channels"],self.image_size[0],self.image_size[1])
+
+        #dirty fix to get this to run until we can impelement a better solution
+        if "wga_background_image" in self.config["wga_segmentation"]:
+            if self.config["wga_segmentation"]["wga_background_image"]:
+                channel_size = (self.config["input_channels"] -1 ,self.image_size[0],self.image_size[1])
+            else:
+                channel_size = (self.config["input_channels"],self.image_size[0],self.image_size[1])
+        else:
+            channel_size = (self.config["input_channels"],self.image_size[0],self.image_size[1])
 
         
         hf = h5py.File(output, 'w')
@@ -485,9 +493,6 @@ class ShardedSegmentation(ProcessingStep):
                 image = label2rgb(hdf_labels[i],hdf_channels[0].astype(np.float64)/np.max(hdf_channels[0].astype(np.float64)),alpha=0.2, bg_label=0)
                 plot_image(image)
             
-        
-        
-        
         
         hf.close()      
         
