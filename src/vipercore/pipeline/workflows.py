@@ -52,8 +52,7 @@ class WGASegmentation(Segmentation):
             self.save_map("normalized")
             
             self.log("Normalized map created")
-            
-            
+             
             
         # Median calculation
         if start_from <= 1:
@@ -181,11 +180,24 @@ class WGASegmentation(Segmentation):
         
         if start_from <= 4:
             self.log("Started with WGA mask map")
-
-            # Perform percentile normalization
-            wga_mask_comp = percentile_normalization(self.maps["median"][1],
-                                                      self.config["wga_segmentation"]["lower_quantile_normalization"],
-                                                      self.config["wga_segmentation"]["upper_quantile_normalization"])
+            
+            if "wga_background_image" in self.config["wga_segmentation"]:
+                    if self.config["wga_segmentation"]["wga_background_image"]:
+                        # Perform percentile normalization
+                        wga_mask_comp = percentile_normalization(self.maps["median"][-1],
+                                                                 self.config["wga_segmentation"]["lower_quantile_normalization"],
+                                                                 self.config["wga_segmentation"]["upper_quantile_normalization"])
+                    else:
+                        # Perform percentile normalization
+                        wga_mask_comp = percentile_normalization(self.maps["median"][1],
+                                                                 self.config["wga_segmentation"]["lower_quantile_normalization"],
+                                                                 self.config["wga_segmentation"]["upper_quantile_normalization"])
+            else:
+                # Perform percentile normalization
+                wga_mask_comp = percentile_normalization(self.maps["median"][1],
+                                                         self.config["wga_segmentation"]["lower_quantile_normalization"],
+                                                         self.config["wga_segmentation"]["upper_quantile_normalization"])
+                
             
             # Use manual threshold if defined in ["wga_segmentation"]["threshold"]
             # If not, use global otsu
@@ -217,10 +229,6 @@ class WGASegmentation(Segmentation):
             nn = np.quantile(self.maps["median"][1],0.98)
             wga_mask_comp = wga_mask_comp / nn
             wga_mask_comp = np.clip(wga_mask_comp, 0, 1)
-
-            
-
-
             
             
             # substract golgi and dapi channel from wga
@@ -296,7 +304,6 @@ class WGASegmentation(Segmentation):
             center_cell, length, coords = mask_centroid(self.maps["watershed"], debug=self.debug)
         
             
-            
             all_classes_wga = np.unique(self.maps["watershed"])
 
             labels_wga_filtered = size_filter(self.maps["watershed"],
@@ -337,7 +344,14 @@ class WGASegmentation(Segmentation):
                          self.maps["normalized"][1]]
         
         # Feature maps are all further channel which contain phenotypes needed for the classification
-        feature_maps = [element for element in self.maps["normalized"][2:]]
+        if "wga_background_image" in self.config["wga_segmentation"]:
+            if self.config["wga_segmentation"]["wga_background_image"]:
+                #remove last channel since this is a pseudo channel to perform the WGA background calculation on
+                feature_maps = [element for element in self.maps["normalized"][2:-1]]
+            else:
+                feature_maps = [element for element in self.maps["normalized"][2:]]
+        else:   
+            feature_maps = [element for element in self.maps["normalized"][2:]]
             
         channels = np.stack(required_maps+feature_maps).astype("float16")
                              
