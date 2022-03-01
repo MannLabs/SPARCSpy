@@ -24,7 +24,7 @@ def generate_parser():
     
     parser.add_argument("-t","--threads", type=int, default=8, help="number of threads")
     
-    parser.add_argument("-r","--recursion", type=int, default=5, help="levels of recursion")
+    parser.add_argument("-r","--recursion", type=int, default=10, help="levels of recursion")
 
     parser.add_argument("-n", "--dryrun", type=str, default = "True", help="Indicate if a dry run should be performed")
     
