@@ -31,6 +31,7 @@ def generate_parser():
     return parser
 
 def main():
+    print("Searching for intermediate files that can be deleted, this may take a moment...")
     parser = generate_parser()
     args = parser.parse_args()
     
@@ -64,7 +65,7 @@ def main():
             print('Rerun with -n False to remove these files')
 
         if dry_run == "False":
-            print("Deleting files")
+            print("Deleting files...")
 
             file_sizes = sum(file_sizes)
             dir_sizes = sum(dir_sizes)
