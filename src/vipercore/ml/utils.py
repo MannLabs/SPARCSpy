@@ -2,7 +2,7 @@ from scipy.sparse import csr_matrix
 import numpy as np
 import torch
 
-def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, test_per_class, val_per_class):
+def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, val_per_class, test_per_class,):
     
     elements = [len(el) for el in list_of_datasets]
     rows = np.arange(len(list_of_datasets))
@@ -37,4 +37,4 @@ def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, t
     test_dataset = torch.utils.data.ConcatDataset(test_dataset)
     val_dataset = torch.utils.data.ConcatDataset(val_dataset)
     
-    return train_dataset, test_dataset, val_dataset
+    return train_dataset, val_dataset, test_dataset
