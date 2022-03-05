@@ -163,15 +163,14 @@ class MultilabelSupervisedModel(pl.LightningModule):
 
         output = self.network(data)
         loss = F.nll_loss(output, label)
-        correct = torch.sum(output == label.data)
 
         non_log = torch.exp(output)    
         self.test_metrics(non_log, label)
         self.log('loss/test', loss, prog_bar=True)
 
-        return {'test_loss': loss, 'test_correct': correct}
+        return {'test_loss': loss}
 
-    def test_end(self, outputs):
+    def test_epoch_end(self, outputs):
         #use same metrics as in validation
         metrics = self.test_metrics.compute()
         
@@ -181,16 +180,16 @@ class MultilabelSupervisedModel(pl.LightningModule):
             self.log("accurac_test/{}".format(label), metrics["Accuracy"][i])
 
         avg_loss = torch.stack([x['test_loss'] for x in outputs]).mean()
-        avg_acc = torch.stack([x['test_correct'].float() for x in outputs]).sum() / len(self.test_dataloader().dataset)
-
-        logs = {'test_loss': avg_loss, 'test_acc': avg_acc}
+        logs = {'test_loss': avg_loss}
 
         for i, label in enumerate(self.hparams["class_labels"]):
             logs["precision_test/{}".format(label)] = metrics["Precision"][i]
             logs["recall_test/{}".format(label)] = metrics["Recall"][i]
             logs["accurac_test/{}".format(label)] = metrics["Accuracy"][i]
         
-        return {'avg_test_loss': avg_loss, 'avg_test_acc': avg_acc, 'log': logs, 'progress_bar': logs}
+        logs["log"] = logs
+        logs["progress_bar"] = logs
+        return logs
         
 class GeneralModel(pl.LightningModule):
 
