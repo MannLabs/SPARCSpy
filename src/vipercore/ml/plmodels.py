@@ -38,6 +38,9 @@ class MultilabelSupervisedModel(pl.LightningModule):
                                                           torchmetrics.Recall(average="none",num_classes=self.hparams["num_classes"]),
                                                           torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"])])
         
+        self.test_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=self.hparams["num_classes"]), 
+                                                          torchmetrics.Recall(average="none",num_classes=self.hparams["num_classes"]),
+                                                          torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"])])
         
     def on_train_start(self):
         self.logger.log_hyperparams(self.hparams, {"precision/train": 0,"recall/train": 0,"precision/val": 0,"recall/val": 0})
@@ -167,7 +170,7 @@ class MultilabelSupervisedModel(pl.LightningModule):
 
     def test_end(self):
         #use same metrics as in validation
-        metrics = self.val_metrics.compute()
+        metrics = self.test_metrics.compute()
         
         for i, label in enumerate(self.hparams["class_labels"]):
             self.log("precision_test/{}".format(label), metrics["Precision"][i])
@@ -175,7 +178,7 @@ class MultilabelSupervisedModel(pl.LightningModule):
             self.log("accurac_test/{}".format(label), metrics["Accuracy"][i])
         
         # Reseting internal state such that metric ready for new data
-        self.val_metrics.reset()
+        self.test_metrics.reset()
         
 class GeneralModel(pl.LightningModule):
 
@@ -225,8 +228,6 @@ class GeneralModel(pl.LightningModule):
         
         # Reseting internal state such that metric ready for new data
         self.train_metrics.reset()
-
- 
     
     def on_validation_epoch_end(self):
         
@@ -241,9 +242,6 @@ class GeneralModel(pl.LightningModule):
         self.val_metrics.reset()
     
     def training_step(self, batch, batch_idx):
-        
-        
-    
         data, label = batch
         
         data, label = data.cuda(), label.cuda()
@@ -266,9 +264,7 @@ class GeneralModel(pl.LightningModule):
         
         output = self.network(data)
         loss = F.nll_loss(output, label)
-        
-        
-        
+    
 
         #accuracy metrics
         non_log = torch.exp(output)    
