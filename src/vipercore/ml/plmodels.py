@@ -32,22 +32,11 @@ class MultilabelSupervisedModel(pl.LightningModule):
         self.train_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=self.hparams["num_classes"]), 
                                                             torchmetrics.Recall(average="none",num_classes=self.hparams["num_classes"]),
                                                             torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"]),
-                                                            torchmetrics.ConfusionMatrix(num_classes=self.hparams["num_classes"], normalize="true"),
-                                                            #torchmetrics.AUC(reorder = True),
-                                                            #torchmetrics.ROC(num_classes=self.hparams["num_classes"]),
-                                                            #torchmetrics.AUROC(num_classes=self.hparams["num_classes"]),
-                                                            #torchmetrics.F1Score(num_classes=self.hparams["num_classes"]),
-                                                            #torchmetrics.PrecisionRecallCurve(num_classes=self.hparams["num_classes"])
-                                                            ]) 
+                                                            torchmetrics.ConfusionMatrix(num_classes=self.hparams["num_classes"], normalize="true")]) 
         
         self.val_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=self.hparams["num_classes"]), 
                                                           torchmetrics.Recall(average="none",num_classes=self.hparams["num_classes"]),
-                                                          torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"]),
-                                                          torchmetrics.AUC(reorder = True),
-                                                          torchmetrics.ROC(num_classes=self.hparams["num_classes"]),
-                                                          torchmetrics.AUROC(num_classes=self.hparams["num_classes"]),
-                                                          #torchmetrics.F1Score(num_classes=self.hparams["num_classes"]),
-                                                          torchmetrics.PrecisionRecallCurve(num_classes=self.hparams["num_classes"])])
+                                                          torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"])])
         
         
     def on_train_start(self):
@@ -99,84 +88,40 @@ class MultilabelSupervisedModel(pl.LightningModule):
         data = np.expand_dims(data, axis=0)
         
         return data
-    
-    def precision_recall_curve(self, precision, recall, thresholds):
-        fig = plt.figure(10, 15)
-        ax = fig.add_subplot(111)
-        ax.plot(precision, recall)
-        ax.set_xlabel('Precision')
-        ax.set_ylabel('Recall')
-        
-        fig.tight_layout()
-
-        fig.canvas.draw()
-        
-        data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-        data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-        data = np.expand_dims(data, axis=0)
-
-        return data 
-
-    def roc_curve(self, fpr, tpr, thresholds):
-        fig = plt.figure(10, 15)
-        ax = fig.add_subplot(111)
-        ax.plot(fpr, tpr)
-        ax.set_xlabel("FPR")
-        ax.set_ylabel("TPR")
-
-        fig.tight_layout()
-
-        fig.canvas.draw()
-        
-        data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-        data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-        data = np.expand_dims(data, axis=0)
-        
-        return data 
-
         
     def on_train_epoch_end(self,outputs):
         
         metrics = self.train_metrics.compute()
+        
 
         img = self.confusion_plot(metrics["ConfusionMatrix"].detach().cpu())
-        self.logger.experiment.add_image('confusion', img ,self.current_epoch, dataformats="NHWC") 
+        self.logger.experiment.add_image('confusion', img,self.current_epoch, dataformats="NHWC") 
         
         for i, label in enumerate(self.hparams["class_labels"]):
         
             self.log("precision_train/{}".format(label), metrics["Precision"][i])
             self.log("recall_train/{}".format(label), metrics["Recall"][i])
             self.log("accurac_train/{}".format(label), metrics["Accuracy"][i])
-            #self.log("AUC_train/{}".format(label), metrics["AUC"][i])
-            #self.log("AUROC_train/{}".format(label), metrics["AUROC"][i])
-            #self.log("F1Score_train/{}".format(label), metrics["F1Score"][i])
-
+        
         # Reseting internal state such that metric ready for new data
         self.train_metrics.reset()
 
+         
     
     def on_validation_epoch_end(self):
         
         metrics = self.val_metrics.compute()
-
-        img_1 = self.precision_recall_curve(metrics["PrecisionRecallCurve"].detach().cpu())
-        self.logger.experiment.add_image("PrecisionRecallCurve", img_1, self.current_epoch, )
         
-        img_2 = self.roc_curve(metrics["ROC"].detach().cpu())
-        self.logger.experiment.add_image('ROC', img_2 , self.current_epoch, dataformats="NHWC") 
-
         for i, label in enumerate(self.hparams["class_labels"]):
         
             self.log("precision_val/{}".format(label), metrics["Precision"][i])
             self.log("recall_val/{}".format(label), metrics["Recall"][i])
             self.log("accurac_val/{}".format(label), metrics["Accuracy"][i])
-            self.log("AUC_val/{}".format(label), metrics["AUC"][i])
-            self.log("AUROC_val/{}".format(label), metrics["AUROC"][i])
-            #self.log("F1Score_val/{}".format(label), metrics["F1Score"][i])
         
         # Reseting internal state such that metric ready for new data
         self.val_metrics.reset()
         
+    
     def training_step(self, batch, batch_idx):
         data, label = batch
         
@@ -221,7 +166,7 @@ class GeneralModel(pl.LightningModule):
         self.train_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=hparams["num_classes"]), 
                                                             torchmetrics.Recall(average="none",num_classes=hparams["num_classes"]),
                                                             torchmetrics.AUROC(num_classes=hparams["num_classes"]),
-                                                            torchmetrics.Accuracy()]) 
+                                                           torchmetrics.Accuracy()]) 
         
         self.val_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=hparams["num_classes"]), 
                                                           torchmetrics.Recall(average="none",num_classes=hparams["num_classes"]),
