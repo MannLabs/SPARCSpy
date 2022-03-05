@@ -89,7 +89,7 @@ class MultilabelSupervisedModel(pl.LightningModule):
         
         return data
         
-    def on_train_epoch_end(self,outputs):
+    def on_train_epoch_end(self):
         
         metrics = self.train_metrics.compute()
         
