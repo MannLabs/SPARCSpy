@@ -163,11 +163,24 @@ class MLClusterClassifier:
         network_dir = self.config["network"]
         checkpoint_path = os.path.join(network_dir,"checkpoints")
         checkpoints = current_level_files = [ name for name in os.listdir(checkpoint_path) if os.path.isfile(os.path.join(checkpoint_path, name))]
+        checkpoints.sort()
 
         if len(checkpoints) < 1:
             raise ValueError(f"No model parameters found at: {self.config['network']}")
         
-        latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[0])
+        #ensure that the most recent version is used if more than one is saved
+        if len(checkpoints) > 1:
+            #get max epoch number 
+            epochs = [int(x.split("epoch=")[1].split("-")[0]) for x in checkpoints]
+            max_value = max(epochs)
+            max_index = epochs.index(max_value)
+            self.log(f"Maximum epoch number found {max_value}")
+
+            #get checkpoint with the max epoch number
+            latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[max_index])
+        else:
+            latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[0])
+
         hparam_path = os.path.join(network_dir,"hparams.yaml")
         
         model = MultilabelSupervisedModel.load_from_checkpoint(latest_checkpoint_path, hparams_file=hparam_path)
@@ -175,8 +188,6 @@ class MLClusterClassifier:
         model.to(self.config['inference_device'])
         
         self.log(f"model parameters loaded from {self.config['network']}")
-        
-        
         
         # generate project dataset dataloader
         # transforms like noise, random rotations, channel selection are still hardcoded
