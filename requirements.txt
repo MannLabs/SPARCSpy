@@ -3,8 +3,15 @@ numpy
 matplotlib
 h5py
 scikit-image
+scikit-learn
 datetime
 scikit-fmm
 pyYaml
 pillow
 torch
+hilbertcurve
+tqdm
+pytorch_lightning
+umap-learn
+multicore-tsne
+svgelements
