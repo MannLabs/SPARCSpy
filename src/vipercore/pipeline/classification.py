@@ -182,7 +182,7 @@ class MLClusterClassifier:
             latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[0])
         
         #add log message to ensure that it is always 100% transparent which classifier is being used
-        self.log(f("Using the following classifier checkpoint: {latest_checkpoint_path}"))
+        self.log(f"Using the following classifier checkpoint: {latest_checkpoint_path}")
         hparam_path = os.path.join(network_dir,"hparams.yaml")
         
         model = MultilabelSupervisedModel.load_from_checkpoint(latest_checkpoint_path, hparams_file=hparam_path)
