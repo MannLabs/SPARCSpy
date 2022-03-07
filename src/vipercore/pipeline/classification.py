@@ -172,12 +172,20 @@ class MLClusterClassifier:
         if len(checkpoints) > 1:
             #get max epoch number 
             epochs = [int(x.split("epoch=")[1].split("-")[0]) for x in checkpoints]
-            max_value = max(epochs)
-            max_index = epochs.index(max_value)
-            self.log(f"Maximum epoch number found {max_value}")
+            if self.config["epoch"] == "max":
+                max_value = max(epochs)
+                max_index = epochs.index(max_value)
+                self.log(f"Maximum epoch number found {max_value}")
 
-            #get checkpoint with the max epoch number
-            latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[max_index])
+                #get checkpoint with the max epoch number
+                latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[max_index])
+            elif isinstance(self.config["epoch"], int):
+                _index = epochs.index(self.config["epoch"])
+                self.log(f"Using epoch number {self.config['epoch']}")
+
+                #get checkpoint with the max epoch number
+                latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[_index])
+
         else:
             latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[0])
         
