@@ -1,5 +1,3 @@
-#! /Users/sophia/mambaforge/envs/viper-core/bin/python
-
 import sys, getopt
 import argparse
 import os
