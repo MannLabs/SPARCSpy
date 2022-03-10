@@ -90,7 +90,7 @@ def scan_directory_clean(levels_left, path, num_threads = 10):
             _to_delete = []
             _to_delete = _to_delete + glob.glob(os.path.join(path, "segmentation", "tiles", "*"))
             _to_delete = _to_delete + glob.glob(os.path.join(path, "segmentation", "shards", "*")) #for backward compatability with previous runs where it was still called shards
-            _to_delete.append(os.path.join(path, 'segmentation', 'input_image.h5'))
+            #_to_delete.append(os.path.join(path, 'segmentation', 'input_image.h5'))
 
             files = []
             dirs = []
