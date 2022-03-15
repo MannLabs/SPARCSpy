@@ -364,3 +364,129 @@ class GolgiVAE(nn.Module):
 
         loss = recons_loss + kld_weight * kld_loss
         return {'loss': loss, 'Reconstruction_Loss':recons_loss, 'KLD':-kld_loss}
+
+class AutophagyVGG(nn.Module):
+    
+    cfgs = {
+        'A': [64, "M", 128, "M", 256, 256, "M", 512, 512, "M", 512, 512, "M"],
+        'B': [64, "M", 128, "M", 256, 256, "M", 512, 512, "M", 512, 512, "M", 512, "M"],
+        'D': [64, 64, "M", 128, 128, "M", 256, 256, 256, "M", 512, 512, 512, "M", 512, 512, 512, "M"],
+        'E': [64, 64, "M", 128, 128, "M", 256, 256, 256, 256, "M", 512, 512, 512, 512, "M", 512, 512, 512, 512, "M"],
+    }
+    
+    
+    def __init__(self,
+                cfg = "B",
+                dimensions = 196,
+                in_channels = 5,
+                num_classes = 2,
+                 
+                ):
+        
+        super(GolgiVGG, self).__init__()
+        
+        self.norm = nn.BatchNorm2d(in_channels)
+        
+        #self.avgpool = nn.AdaptiveAvgPool2d((4, 4))
+        
+        self.softmax = nn.LogSoftmax(dim=1)
+        
+        self.features = self.make_layers(self.cfgs[cfg], in_channels)
+        
+        self.classifier_1 = nn.Sequential(
+            nn.Linear(512 * 2 * 2, 1024),
+        )
+        
+        self.classifier_2 = nn.Sequential(
+            nn.ReLU(True),
+            nn.Dropout(),
+            nn.Linear(1024, 512),
+        )
+            
+        self.classifier_3 = nn.Sequential( 
+            nn.ReLU(True),
+            nn.Dropout(),
+            nn.Linear(512, 256),
+        )
+
+        self.classifier_4 = nn.Sequential( 
+            nn.ReLU(True),
+            nn.Dropout(),
+            nn.Linear(256, 2),
+        )
+        
+
+    def forward(self, x):
+        x = self.norm(x)
+        x = self.features(x)
+        #x = self.avgpool(x)
+
+        x = torch.flatten(x, 1)
+        
+        x = self.classifier_1(x)
+        x = self.classifier_2(x)
+        x = self.classifier_3(x)
+        x = self.classifier_4(x)
+
+        x = self.softmax(x)
+        return x
+    
+    def encoder(self, x):
+        x = self.norm(x)
+        x = self.features(x)
+        return torch.flatten(x, 1)
+    
+    def encoder_c1(self, x):
+        x = self.norm(x)
+        x = self.features(x)
+        x = torch.flatten(x, 1)
+        x = self.classifier_1(x)
+        return x
+    
+    def encoder_c2(self, x):
+        x = self.norm(x)
+        x = self.features(x)
+        x = torch.flatten(x, 1)
+        x = self.classifier_1(x)
+        x = self.classifier_2(x)
+        return x
+    
+    def encoder_c3(self, x):
+        x = self.norm(x)
+        x = self.features(x)
+        x = torch.flatten(x, 1)
+        x = self.classifier_1(x)
+        x = self.classifier_2(x)
+        x = self.classifier_3(x)
+        return x
+    
+    def encoder_c4(self, x):
+        x = self.norm(x)
+        x = self.features(x)
+        x = torch.flatten(x, 1)
+        x = self.classifier_1(x)
+        x = self.classifier_2(x)
+        x = self.classifier_3(x)
+        x = self.classifier_4(x)
+        return x
+
+    
+    def make_layers(self, cfg, in_channels, batch_norm = True):
+        layers = []
+        for v in cfg:
+            if v == "M":
+                layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+            else:
+            
+                conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
+                if batch_norm:
+                    layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
+                else:
+                    layers += [conv2d, nn.ReLU(inplace=True)]
+                in_channels = v
+        return nn.Sequential(*layers)
+
+        
+    def vgg(cfg, in_channels,  **kwargs):
+        model = AutophagyVGG(make_layers(cfgs[cfg], in_channels), **kwargs)
+        return model
