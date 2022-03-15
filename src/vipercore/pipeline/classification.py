@@ -244,12 +244,20 @@ class MLClusterClassifier:
         
         self.log(f"log transfrom: {self.config['log_transform']}")
         
-        self.inference(dataloader, model.network.encoder_c2)
-        self.inference(dataloader, model.network.forward)
-        
-        
-        
-        
+        #extract which inferences to make from config file
+        encoders = self.config["encoders"]
+        for encoder in encoders:
+            if encoder == "forward":
+                self.inference(dataloader, model.network.forward)
+            if encoder == "encoder_c1":
+                self.inference(dataloader, model.network.encoder_c1)
+            if encoder == "encoder_c2":
+                self.inference(dataloader, model.network.encoder_c2)
+            if encoder == "encoder_c3":
+                self.inference(dataloader, model.network.encoder_c3)
+            if encoder == "encoder_c4":
+                self.inference(dataloader, model.network.encoder_c4)
+
     def inference(self, 
                   dataloader, 
                   model_fun):
