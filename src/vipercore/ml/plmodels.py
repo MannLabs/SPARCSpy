@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.ticker as ticker
 
 
-from vipercore.ml.models import GolgiVGG, GolgiCAE
+from vipercore.ml.models import GolgiVGG, GolgiCAE, AutophagyVGG
 
 import gc
     
@@ -23,7 +23,7 @@ class MultilabelSupervisedModel(pl.LightningModule):
         
         self.save_hyperparameters()
             
-        self.network = GolgiVGG(in_channels=self.hparams["num_in_channels"],
+        self.network = AutophagyVGG(in_channels=self.hparams["num_in_channels"],
                                 cfg = "B",
                                 dimensions=128,
                                 num_classes=self.hparams["num_classes"])

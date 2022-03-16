@@ -383,7 +383,7 @@ class AutophagyVGG(nn.Module):
                  
                 ):
         
-        super(GolgiVGG, self).__init__()
+        super(AutophagyVGG, self).__init__()
         
         self.norm = nn.BatchNorm2d(in_channels)
         
