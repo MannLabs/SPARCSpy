@@ -44,7 +44,7 @@ def main():
         except:
             print("search directory not a valid path")
         
-    table = scan_directory(args.recursion, search_directory)
+    table = scan_directory(args.recursion, search_directory, num_threads)
     
     # check if any projects were found
     if len(table) > 0:
@@ -83,7 +83,7 @@ def print_project(line):
 
     
 
-def scan_directory(levels_left, path):
+def scan_directory(levels_left, path, num_threads = 1):
     
     HDF_FILETYPES = ["hdf", "hf", "h5"]
 

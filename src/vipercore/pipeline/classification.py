@@ -163,11 +163,34 @@ class MLClusterClassifier:
         network_dir = self.config["network"]
         checkpoint_path = os.path.join(network_dir,"checkpoints")
         checkpoints = current_level_files = [ name for name in os.listdir(checkpoint_path) if os.path.isfile(os.path.join(checkpoint_path, name))]
+        checkpoints.sort()
 
         if len(checkpoints) < 1:
             raise ValueError(f"No model parameters found at: {self.config['network']}")
         
-        latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[0])
+        #ensure that the most recent version is used if more than one is saved
+        if len(checkpoints) > 1:
+            #get max epoch number 
+            epochs = [int(x.split("epoch=")[1].split("-")[0]) for x in checkpoints]
+            if self.config["epoch"] == "max":
+                max_value = max(epochs)
+                max_index = epochs.index(max_value)
+                self.log(f"Maximum epoch number found {max_value}")
+
+                #get checkpoint with the max epoch number
+                latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[max_index])
+            elif isinstance(self.config["epoch"], int):
+                _index = epochs.index(self.config["epoch"])
+                self.log(f"Using epoch number {self.config['epoch']}")
+
+                #get checkpoint with the max epoch number
+                latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[_index])
+
+        else:
+            latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[0])
+        
+        #add log message to ensure that it is always 100% transparent which classifier is being used
+        self.log(f"Using the following classifier checkpoint: {latest_checkpoint_path}")
         hparam_path = os.path.join(network_dir,"hparams.yaml")
         
         model = MultilabelSupervisedModel.load_from_checkpoint(latest_checkpoint_path, hparams_file=hparam_path)
@@ -175,8 +198,6 @@ class MLClusterClassifier:
         model.to(self.config['inference_device'])
         
         self.log(f"model parameters loaded from {self.config['network']}")
-        
-        
         
         # generate project dataset dataloader
         # transforms like noise, random rotations, channel selection are still hardcoded
@@ -223,12 +244,20 @@ class MLClusterClassifier:
         
         self.log(f"log transfrom: {self.config['log_transform']}")
         
-        self.inference(dataloader, model.network.encoder_c2)
-        self.inference(dataloader, model.network.forward)
-        
-        
-        
-        
+        #extract which inferences to make from config file
+        encoders = self.config["encoders"]
+        for encoder in encoders:
+            if encoder == "forward":
+                self.inference(dataloader, model.network.forward)
+            if encoder == "encoder_c1":
+                self.inference(dataloader, model.network.encoder_c1)
+            if encoder == "encoder_c2":
+                self.inference(dataloader, model.network.encoder_c2)
+            if encoder == "encoder_c3":
+                self.inference(dataloader, model.network.encoder_c3)
+            if encoder == "encoder_c4":
+                self.inference(dataloader, model.network.encoder_c4)
+
     def inference(self, 
                   dataloader, 
                   model_fun):
