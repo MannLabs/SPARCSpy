@@ -149,11 +149,19 @@ class HDF5SingleCellDataset(Dataset):
         
         # scan all directoreis
         for i, directory in enumerate(dir_list):
-            path = os.path.join(self.root_dir,directory)  
+            path = os.path.join(self.root_dir, directory)  
             current_label = self.dir_labels[i]
-            
-            # recursively scan for files
-            self.scan_directory(path, current_label, max_level)
+
+            #check if "directory" is a path to specific hdf5
+            filetype = directory.split(".")[-1]
+            filename = directory.split(".")[0]
+                
+            if filetype in self.HDF_FILETYPES:
+                self.add_hdf_to_index(current_label, directory)
+
+            else:
+                # recursively scan for files
+                self.scan_directory(path, current_label, max_level)
         
         # print dataset stats at the end
         
