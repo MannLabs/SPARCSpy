@@ -27,7 +27,7 @@ def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, v
         residual_size = len(dataset) - train_size - test_size - val_size
         
         if(residual_size < 0):
-            raise ValueError(f"Dataset with length {len(dataset)} is to small to be split into test set of size {test_size} and train set of size {train_size}. Use a smaller test and trainset.")
+            raise ValueError(f"Dataset with length {len(dataset)} is to small to be split into test set of size {test_size} and train set of size {train_size} and validation set of size {val_size}. Use a smaller test and trainset.")
         
         train, test, val, _ = torch.utils.data.random_split(dataset, [train_size, test_size, val_size, residual_size])
         train_dataset.append(train)
