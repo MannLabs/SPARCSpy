@@ -1,6 +1,7 @@
 from scipy.sparse import csr_matrix
 import numpy as np
 import torch
+from math import floor
 
 def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, val_per_class, test_per_class,):
     
@@ -19,9 +20,9 @@ def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, v
     
     for dataset, label, fraction in zip(list_of_datasets, class_labels, dataset_fraction):
         print(dataset, label, fraction)
-        train_size = np.round(train_per_class*fraction).astype(int)
-        test_size = np.round(test_per_class*fraction).astype(int)
-        val_size = np.round(val_per_class*fraction).astype(int)
+        train_size = floor(train_per_class*fraction).astype(int)
+        test_size = floor(test_per_class*fraction).astype(int)
+        val_size = floor(val_per_class*fraction).astype(int)
         
         residual_size = len(dataset) - train_size - test_size - val_size
         
