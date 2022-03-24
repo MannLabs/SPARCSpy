@@ -20,9 +20,9 @@ def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, v
     
     for dataset, label, fraction in zip(list_of_datasets, class_labels, dataset_fraction):
         print(dataset, label, fraction)
-        train_size = floor(train_per_class*fraction).astype(int)
-        test_size = floor(test_per_class*fraction).astype(int)
-        val_size = floor(val_per_class*fraction).astype(int)
+        train_size = floor(train_per_class*fraction)
+        test_size = floor(test_per_class*fraction)
+        val_size = floor(val_per_class*fraction)
         
         residual_size = len(dataset) - train_size - test_size - val_size
         
