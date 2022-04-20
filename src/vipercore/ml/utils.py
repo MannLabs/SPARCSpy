@@ -25,7 +25,6 @@ def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, v
         val_size = floor(val_per_class*fraction)
         
         residual_size = len(dataset) - train_size - test_size - val_size
-        print("residual size: ", str(residual_size))
         
         if(residual_size < 0):
             raise ValueError(f"Dataset with length {len(dataset)} is to small to be split into test set of size {test_size} and train set of size {train_size} and validation set of size {val_size}. Use a smaller test and trainset.")
