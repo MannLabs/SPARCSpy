@@ -369,9 +369,9 @@ class DAPISegmentation(Segmentation):
         
         self.maps = {"normalized": None,
                      "median": None,
-                    "nucleus_segmentation": None,
-                    "nucleus_mask": None,
-                    "travel_time":None}
+                     "nucleus_segmentation": None,
+                     "nucleus_mask": None,
+                     "travel_time":None}
         
         start_from = self.load_maps_from_disk()
         
@@ -535,14 +535,7 @@ class DAPISegmentation(Segmentation):
         required_maps = [self.maps["normalized"][0]]
         
         # Feature maps are all further channel which contain phenotypes needed for the classification
-        if "wga_background_image" in self.config["wga_segmentation"]:
-            if self.config["wga_segmentation"]["wga_background_image"]:
-                #remove last channel since this is a pseudo channel to perform the WGA background calculation on
-                feature_maps = [element for element in self.maps["normalized"][1:-1]]
-            else:
-                feature_maps = [element for element in self.maps["normalized"][1:]]
-        else:   
-            feature_maps = [element for element in self.maps["normalized"][1:]]
+        feature_maps = [element for element in self.maps["normalized"][1:]]
             
         channels = np.stack(required_maps+feature_maps).astype("float16")
                              
