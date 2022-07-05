@@ -362,3 +362,194 @@ class WGASegmentation(Segmentation):
 
 class ShardedWGASegmentation(ShardedSegmentation):
     method = WGASegmentation    
+
+class DAPISegmentation(Segmentation):
+    
+    def process(self, input_image):
+        
+        self.maps = {"normalized": None,
+                     "median": None,
+                    "nucleus_segmentation": None,
+                    "nucleus_mask": None,
+                    "travel_time":None}
+        
+        start_from = self.load_maps_from_disk()
+        
+
+        if self.identifier is not None:
+            self.log(f"Segmentation started shard {self.identifier}, starting from checkpoint {start_from}")
+            
+        else:
+            self.log(f"Segmentation started, starting from checkpoint {start_from}")
+        
+        # Normalization
+        if start_from <= 0:
+            self.log("Started with normalized map")
+            
+            self.maps["normalized"] = percentile_normalization(input_image, 
+                                                               self.config["lower_quantile_normalization"], 
+                                                               self.config["upper_quantile_normalization"])
+            self.save_map("normalized")
+            
+            self.log("Normalized map created")
+             
+            
+        # Median calculation
+        if start_from <= 1:
+            self.log("Started with median map")
+            
+            self.maps["median"] = np.copy(self.maps["normalized"])
+                                   
+            for i, channel in enumerate(self.maps["median"]):
+                self.maps["median"][i] = median(channel, disk(self.config["median_filter_size"]))
+            
+            self.save_map("median")
+            
+            self.log("Median map created")
+            
+        # segment dapi channels based on local tresholding
+        if self.debug:
+            plt.hist(self.maps["median"][0].flatten(),bins=100,log=False)
+            plt.xlabel("intensity")
+            plt.ylabel("frequency")
+            plt.yscale('log')
+
+            plt.title("DAPI intensity distribution")
+            plt.savefig("dapi_intensity_dist.png")
+            plt.show()
+
+            plt.hist(self.maps["median"][1].flatten(),bins=100,log=False)
+            plt.xlabel("intensity")
+            plt.ylabel("frequency")
+            plt.yscale('log')
+
+            plt.title("WGA intensity distribution")
+            plt.savefig("wga_intensity_dist.png")
+            plt.show()
+            
+       
+        if start_from <= 2:
+            self.log("Started with nucleus segmentation map")
+            
+            nucleus_map_tr = percentile_normalization(self.maps["median"][0],
+                                                      self.config["nucleus_segmentation"]["lower_quantile_normalization"],
+                                                      self.config["nucleus_segmentation"]["upper_quantile_normalization"])
+
+            # Use manual threshold if defined in ["wga_segmentation"]["threshold"]
+            # If not, use global otsu
+            if 'threshold' in self.config["nucleus_segmentation"] and 'median_block' in self.config["nucleus_segmentation"]:
+                self.maps["nucleus_segmentation"] = segment_local_tresh(nucleus_map_tr, 
+                                         dilation=self.config["nucleus_segmentation"]["dilation"], 
+                                         thr=self.config["nucleus_segmentation"]["threshold"], 
+                                         median_block=self.config["nucleus_segmentation"]["median_block"], 
+                                         min_distance=self.config["nucleus_segmentation"]["min_distance"], 
+                                         peak_footprint=self.config["nucleus_segmentation"]["peak_footprint"], 
+                                         speckle_kernel=self.config["nucleus_segmentation"]["speckle_kernel"], 
+                                         median_step=self.config["nucleus_segmentation"]["median_step"],
+                                         debug=self.debug)
+            else:
+                self.log('No treshold or median_block for nucleus segmentation defined, global otsu will be used.')
+                self.maps["nucleus_segmentation"] = segment_global_tresh(nucleus_map_tr, 
+                                         dilation=self.config["nucleus_segmentation"]["dilation"], 
+                                         min_distance=self.config["nucleus_segmentation"]["min_distance"], 
+                                         peak_footprint=self.config["nucleus_segmentation"]["peak_footprint"], 
+                                         speckle_kernel=self.config["nucleus_segmentation"]["speckle_kernel"], 
+                                         debug=self.debug)            
+            
+            del nucleus_map_tr
+            self.save_map("nucleus_segmentation")
+
+            self.log("Nucleus segmentation map created")
+        
+        # Calc nucleus map
+        
+        if start_from <= 3:
+            self.log("Started with nucleus mask map")
+            self.maps["nucleus_mask"] = np.clip(self.maps["nucleus_segmentation"], 0,1)
+            
+            self.save_map("nucleus_mask")
+            self.log("Nucleus mask map created with {} elements".format(np.max(self.maps["nucleus_segmentation"])))
+            
+        
+        # filter nuclei based on size and contact
+        center_nuclei, length = _class_size(self.maps["nucleus_segmentation"], debug=self.debug)
+        
+        all_classes = np.unique(self.maps["nucleus_segmentation"])
+
+        
+        
+
+
+        # ids of all nucleis which are unconnected and can be used for further analysis
+        labels_nuclei_unconnected = contact_filter(self.maps["nucleus_segmentation"], 
+                                    threshold=self.config["nucleus_segmentation"]["contact_filter"], 
+                                    reindex=False)
+        classes_nuclei_unconnected = np.unique(labels_nuclei_unconnected)
+
+        self.log("Filtered out due to contact limit: {} ".format(len(all_classes)-len(classes_nuclei_unconnected)))
+
+        labels_nuclei_filtered = size_filter(self.maps["nucleus_segmentation"],
+                                             limits=[self.config["nucleus_segmentation"]["min_size"],
+                                                     self.config["nucleus_segmentation"]["max_size"]])
+        
+        
+        classes_nuclei_filtered = np.unique(labels_nuclei_filtered)
+        
+        self.log("Filtered out due to size limit: {} ".format(len(all_classes)-len(classes_nuclei_filtered)))
+
+
+        filtered_classes = set(classes_nuclei_unconnected).intersection(set(classes_nuclei_filtered))
+        self.log("Filtered out: {} ".format(len(all_classes)-len(filtered_classes)))
+        
+        if self.debug:
+            um_p_px = 665 / 1024
+            um_2_px = um_p_px*um_p_px
+            
+            visualize_class(classes_nuclei_unconnected, self.maps["nucleus_segmentation"], self.maps["normalized"][0])
+            visualize_class(classes_nuclei_filtered, self.maps["nucleus_segmentation"], self.maps["normalized"][0])
+
+  
+            plt.hist(length,bins=50)
+            plt.xlabel("px area")
+            plt.ylabel("number")
+            plt.title('Nucleus size distribution')
+            plt.savefig('nucleus_size_dist.png')
+            plt.show()
+            
+            if self.debug:
+                um_p_px = 665 / 1024
+                um_2_px = um_p_px*um_p_px
+                
+                visualize_class(classes_nuclei_filtered, self.maps["watershed"], self.maps["normalized"][1])
+                visualize_class(classes_nuclei_filtered, self.maps["watershed"], self.maps["normalized"][0])
+
+                
+                plt.hist(length, bins=50)
+                plt.xlabel("px area")
+                plt.ylabel("number")
+                plt.title('Nucleus size distribution')
+                plt.savefig('nucleus_size_dist.png')
+                plt.show()
+            
+        # The required maps are the nucelus channel and a membrane marker channel like WGA
+        required_maps = [self.maps["normalized"][0]]
+        
+        # Feature maps are all further channel which contain phenotypes needed for the classification
+        if "wga_background_image" in self.config["wga_segmentation"]:
+            if self.config["wga_segmentation"]["wga_background_image"]:
+                #remove last channel since this is a pseudo channel to perform the WGA background calculation on
+                feature_maps = [element for element in self.maps["normalized"][1:-1]]
+            else:
+                feature_maps = [element for element in self.maps["normalized"][1:]]
+        else:   
+            feature_maps = [element for element in self.maps["normalized"][1:]]
+            
+        channels = np.stack(required_maps+feature_maps).astype("float16")
+                             
+        segmentation = np.stack([self.maps["nucleus_segmentation"]]).astype("int32")
+        
+        self.save_segmentation(channels, segmentation, filtered_classes)
+
+class ShardedDAPISegmentation(ShardedSegmentation):
+    method = DAPISegmentation    
+
