@@ -359,6 +359,7 @@ class WGASegmentation(Segmentation):
                                  self.maps["watershed"]]).astype("int32")
         
         self.save_segmentation(channels, segmentation, filtered_classes)
+        self.save_segmentation_zarr(channels, segmentation) #currently save both since we have not fully converted.
 
 class ShardedWGASegmentation(ShardedSegmentation):
     method = WGASegmentation    
@@ -542,6 +543,7 @@ class DAPISegmentation(Segmentation):
         segmentation = np.stack([self.maps["nucleus_segmentation"]]).astype("int32")
         
         self.save_segmentation(channels, segmentation, filtered_classes)
+        self.save_segmentation_zarr(channels, segmentation)
 
 class ShardedDAPISegmentation(ShardedSegmentation):
     method = DAPISegmentation    

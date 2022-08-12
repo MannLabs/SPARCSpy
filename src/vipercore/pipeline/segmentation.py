@@ -24,6 +24,12 @@ from vipercore.processing.utils import plot_image
 
 from vipercore.pipeline.base import ProcessingStep
 
+#for export to ome.zarr
+import zarr
+from ome_zarr.io import parse_url
+from ome_zarr.writer import write_image
+from ome_zarr.scale import Scaler
+
 class Segmentation(ProcessingStep):
     """Segmentation helper class used for creating segmentation workflows.
     Attributes:
@@ -60,8 +66,10 @@ class Segmentation(ProcessingStep):
                             
     """
     DEFAULT_OUTPUT_FILE = "segmentation.h5"
+    DEFAULT_OUTPUT_FILE_ZARR = "segmentation.ome.zarr"
     DEFAULT_FILTER_FILE = "classes.csv"
     PRINT_MAPS_ON_DEBUG = True
+    channel_colors = ["#e60049", "#0bb4ff", "#50e991", "#e6d800", "#9b19f5", "#ffa300", "#dc0ab4", "#b3d4ff", "#00bfa0"]
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -153,6 +161,55 @@ class Segmentation(ProcessingStep):
             myfile.write(to_write)
             
         self.log("=== finished segmentation ===")
+
+    def save_segmentation_zarr(self, channels, labels):
+        """Saves the results of a segemtnation at the end of the process to ome.zarr
+
+
+        """
+        self.log("saving segmentation to ome.zarr")
+        
+        # size (C, H, W) is expected
+        # dims are expanded in case (H, W) is passed
+
+        channels = np.expand_dims(channels, axis=0) if len(channels.shape) == 2 else channels
+        labels = np.expand_dims(labels, axis=0) if len(labels.shape) == 2 else labels
+        label_names = ["nuclei"] if labels.shape[0] == 1 else ["nuclei", "cytosol"]
+
+        #initialize ome.zarr
+        path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE_ZARR)
+        loc = parse_url(path, mode="w").store
+        group = zarr.group(store = loc)
+        axes = "cyx"
+
+        channels = [f'Channel_{i}' for i in range(1, channels.shape[0])]
+
+        group.attrs["omero"] = {
+            "name": self.DEFAULT_OUTPUT_FILE_ZARR,
+            "channels": [{"label":channel, "color":self.channel_colors[i], "active":True} for i, channel in enumerate(channels)]
+        }
+
+        write_image(channels, group = group, axes = axes, storage_options=dict(chunks=(1, self.config["chunk_size"], self.config["chunk_size"])))
+        self.log(f"added channel information to ome.zarr")
+
+        #add segmentation label
+        labels_grp = group.create_group("labels")
+        labels_grp.attrs["labels"] = label_names
+
+        for i, name in enumerate(label_names):
+        # write the labels to /labels
+            # the 'labels' .zattrs lists the named labels data
+            label_grp = labels_grp.create_group(name)
+            # need 'image-label' attr to be recognized as label
+            label_grp.attrs["image-label"] = {
+                "colors": [
+                    {"label-value": 0, "rgba": [0, 0, 0, 0]},
+                ]
+            }
+
+            write_image(labels[i, :, :], label_grp, axes="cyx")
+            self.log("added {} segmentation information to ome.zarr".format(name))
+
             
     def load_maps_from_disk(self):     
         
@@ -262,7 +319,7 @@ class Segmentation(ProcessingStep):
         ax = plt.Axes(fig, [0., 0., 1., 1.])
         ax.set_axis_off()
         fig.add_axes(ax)
-        ax.imshow(array, cmap=cmap,**kwargs)
+        ax.imshow(array, cmap=cmap, **kwargs)
 
         if save_name != "":
             plt.savefig(f'{save_name}.png')
@@ -272,7 +329,7 @@ class Segmentation(ProcessingStep):
     def get_output(self):
         return os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE)
     
-        
+
         
 class ShardedSegmentation(ProcessingStep):
     """object which can create log entries.
@@ -289,6 +346,7 @@ class ShardedSegmentation(ProcessingStep):
     DEFAULT_OUTPUT_FILE = "segmentation.h5"
     DEFAULT_FILTER_FILE = "classes.csv"
     DEFAULT_INPUT_IMAGE_NAME = "input_image.h5"
+    DEFAULT_INPUT_IMAGE_NAME_ZARR = "input_image.ome.zarr"
     DEFAULT_SHARD_FOLDER = "tiles"
     
     def __init__(self, *args, **kwargs):
@@ -306,9 +364,9 @@ class ShardedSegmentation(ProcessingStep):
             self.log("Created new shard directory " + self.shard_directory)
             
         self.save_input_image(input_image)
+        self.save_input_image_zarr(input_image) #until we can fully work with ome.zarr export both
+
         # calculate sharding plan
-        
-        
         self.image_size = input_image.shape[1:]
 
         if self.config["shard_size"] >= np.prod(self.image_size):
@@ -359,7 +417,23 @@ class ShardedSegmentation(ProcessingStep):
         hf.create_dataset('channels', data=input_image, chunks=(1, self.config["chunk_size"], self.config["chunk_size"]))
         hf.close()
         self.log(f"saved input_image: {path}")
-        
+
+    def save_input_image_zarr(self, input_image):
+        path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME_ZARR)
+        loc = parse_url(path, mode="w").store
+        group = zarr.group(store = loc)
+        axes = "cyx"
+
+        channels = [f'Channel_{i}' for i in range(1, self.config["input_channels"]+1)]
+
+        group.attrs["omero"] = {
+            "name":self.DEFAULT_INPUT_IMAGE_NAME_ZARR,
+            "channels": [{"label":channel, "color":self.channel_colors[i], "active":True} for i, channel in enumerate(channels)]
+        }
+
+        write_image(input_image, group = group, axes = axes, storage_options=dict(chunks=(1, self.config["chunk_size"], self.config["chunk_size"])))
+        self.log(f"saved input_image to ome.zarr: {path}")
+
     def calculate_sharding_plan(self, image_size):
         _sharding_plan = []
         side_size = np.floor(np.sqrt(int(self.config["shard_size"])))
