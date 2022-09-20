@@ -419,7 +419,7 @@ class TimecourseProject(Project):
         directories = os.listdir(input_dir)
         
         #create .h5 dataset to which all results are written
-        path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME)
+        path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, self.DEFAULT_INPUT_IMAGE_NAME)
         hf = h5py.File(path, 'w')
         dt = h5py.special_dtype(vlen=str)
         hf.create_dataset('label_names', (len(column_labels)), chunks=None, dtype = dt)
@@ -453,3 +453,23 @@ class TimecourseProject(Project):
 
         #close hdf5 file    
         hf.close()
+    
+    def segment(self, 
+                *args, 
+                **kwargs):
+        
+        """segment project with the defined segmentation under segmentation_f.
+        
+        Args:
+            intermediate_output (bool, optional): Can be set when calling to override the project wide flag.
+
+            debug (bool, optional):Can be set when calling to override the project wide flag.
+
+            overwrite (bool, optional): Can be set when calling to override the project wide flag.
+        """
+        
+        if self.segmentation_f == None:
+            raise ValueError("No segmentation method defined")
+            
+        else:
+            self.segmentation_f(*args, **kwargs)

@@ -584,14 +584,10 @@ class TimecourseSegmentation(ProcessingStep):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.identifier = None
         self.index = None
-        self.input_path = None
         
     def initialize_as_shard(self, 
-                            identifier, 
-                            index,
-                            input_path):
+                            index):
         """Initialize Segmentation Step with further parameters needed for federated segmentation. 
         
         Important:
@@ -606,10 +602,7 @@ class TimecourseSegmentation(ProcessingStep):
             input_path (str): Location of the input hdf5 file. During sharded segmentation the :class:`ShardedSegmentation` derived helper class will save the input image in form of a hdf5 file. This makes the input image available for parallel reading by the segmentation processes.
         
         """
-        
-        self.identifier = identifier
         self.index = index
-        self.input_path = input_path
         
     def call_as_shard(self):
         """Wrapper function for calling a sharded segmentation.
@@ -707,7 +700,7 @@ class MultithreadedSegmentation(ProcessingStep):
         self.log("Segmentation Plan generated with {} elements. Segmentation with {} threads begins.").format(self.n_files, self.config["threads"])
         
         #add segmentation structure to h5 file
-        hf.create_dataset('segmentation', (input_images.shape[0], self.config["output_channels"], self.img_size, self.img_size) , chunks=(1, self.img_size, self.img_size), dtype = "int32")
+        hf.create_dataset('segmentation', (input_images.shape[0], self.config["output_masks"], self.img_size, self.img_size) , chunks=(1, self.img_size, self.img_size), dtype = "int32")
         dt = h5py.special_dtype(vlen=np.dtype('int32'))
         hf.create_dataset("classes", shape=(input_images.shape[0]), maxshape=(None), chunks= None, dtype = dt)
 
@@ -733,7 +726,8 @@ class MultithreadedSegmentation(ProcessingStep):
 
         path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME)
         hf = h5py.File(path, 'r')
-        hdf_labels = hf.get("labels")
+        hdf_labels = hf.get("segmentation")
+        hdf_classes = hf.get("classes")
 
         class_id_shift = 0
         filtered_classes_combined = []
@@ -741,18 +735,24 @@ class MultithreadedSegmentation(ProcessingStep):
                           
         for i in range(0, hdf_labels.shape[0]):
             
-            individual_hdf_labels = hdf_labels[i, :, :]
-            num_shapes = np.max(local_hdf_labels)
-            cr = np.unique(individual_hdf_labels)           
+            individual_hdf_labels = hdf_labels[i,:, :, :]
+            num_shapes = np.max(individual_hdf_labels)
+            cr = hdf_classes[i]
+
             filtered_classes = [int(el[0]) for el in list(cr)]
-            filtered_classes_combined += [class_id + class_id_shift for class_id in filtered_classes if class_id != 0]
-            
             shifted_map, edge_labels = shift_labels(individual_hdf_labels, class_id_shift, return_shifted_labels=True)
+            final_classes = [item for item in filtered_classes if item not in edge_labels]
             
             hdf_labels[i, :, :] = shifted_map
+            hdf_classes[i] = np.array(final_classes, dtype = "int32").reshape(1, 1, -1)
+            
+            #save all cells in general
+            filtered_classes_combined += [class_id + class_id_shift for class_id in filtered_classes if class_id != 0]
             edge_classes_combined += edge_labels
+
+            #adjust class_id shift
             class_id_shift += num_shapes
-        
+
         classes_after_edges = [item for item in filtered_classes_combined if item not in edge_classes_combined]
 
         self.log("Number of filtered classes combined after segmentation:")
@@ -778,13 +778,6 @@ class MultithreadedSegmentation(ProcessingStep):
                 self.log("Sharding sanity check: edge classes are a full subset of all classes")
             else:
                 self.log("Sharding sanity check: edge classes are NOT a full subset of all classes.")
-            
-            for i in range(len(hdf_channels)):
-                plot_image(hdf_channels[i].astype(np.float64))
-            
-            for i in range(len(hdf_labels)):
-                image = label2rgb(hdf_labels[i],hdf_channels[0].astype(np.float64)/np.max(hdf_channels[0].astype(np.float64)),alpha=0.2, bg_label=0)
-                plot_image(image)
         
         hf.close()      
         

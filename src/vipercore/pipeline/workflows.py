@@ -1,4 +1,4 @@
-from vipercore.pipeline.segmentation import Segmentation, ShardedSegmentation
+from vipercore.pipeline.segmentation import Segmentation, ShardedSegmentation, TimecourseSegmentation, MultithreadedSegmentation
 from vipercore.processing.preprocessing import percentile_normalization
 from vipercore.processing.utils import plot_image, visualize_class
 from vipercore.processing.segmentation import segment_local_tresh, segment_global_tresh, mask_centroid, contact_filter, size_filter, shift_labels, _class_size, global_otsu
@@ -357,9 +357,6 @@ class WGASegmentation(Segmentation):
 class ShardedWGASegmentation(ShardedSegmentation):
     method = WGASegmentation 
 
-class TimecourseSegmentation(ShardedSegmentation):
-    method = WGASegmentation   
-
 class DAPISegmentation(Segmentation):
     
     def process(self, input_image):
@@ -542,7 +539,7 @@ class DAPISegmentation(Segmentation):
         self.save_segmentation_zarr(channels, segmentation)
 
 class ShardedDAPISegmentation(ShardedSegmentation):
-    method = DAPISegmentation    
+    method = DAPISegmentation  
 
 class WGATimecourseSegmentation(TimecourseSegmentation):
     """
@@ -550,9 +547,7 @@ class WGATimecourseSegmentation(TimecourseSegmentation):
     No intermediate results are saved and everything is written to one .hdf5 file.
     """
     
-    def process(self, input_image, index):
-        
-        self.index = index
+    def process(self, input_image):
         
         self.maps = {"normalized": None,
                      "median": None,
@@ -824,7 +819,6 @@ class WGATimecourseSegmentation(TimecourseSegmentation):
             self.log("Filtered out: {} ".format(len(all_classes)-len(filtered_classes)))
             self.log("Remaining: {} ".format(len(filtered_classes)))
             
-            
             if self.debug:
                 um_p_px = 665 / 1024
                 um_2_px = um_p_px*um_p_px
@@ -861,3 +855,5 @@ class WGATimecourseSegmentation(TimecourseSegmentation):
                                  self.maps["watershed"]]).astype("int32")
         
         self.save_segmentation(segmentation, filtered_classes, self.index)
+class MultithreadedWGATimecourseSegmentation(MultithreadedSegmentation):
+    method = WGATimecourseSegmentation  
