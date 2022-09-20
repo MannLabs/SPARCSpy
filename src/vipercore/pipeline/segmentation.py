@@ -1,5 +1,6 @@
 
 from datetime import datetime
+from multiprocessing.dummy import Process
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -329,8 +330,6 @@ class Segmentation(ProcessingStep):
     def get_output(self):
         return os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE)
     
-
-        
 class ShardedSegmentation(ProcessingStep):
     """object which can create log entries.
         
@@ -574,3 +573,219 @@ class ShardedSegmentation(ProcessingStep):
         
     def get_output(self):
         return os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE)
+
+class TimecourseSegmentation(ProcessingStep):
+    """Segmentation helper class used for creating segmentation workflows working with timecourse data.                     
+    """
+    DEFAULT_OUTPUT_FILE = "input_segmentation.h5"
+    PRINT_MAPS_ON_DEBUG = True
+    channel_colors = ["#e60049", "#0bb4ff", "#50e991", "#e6d800", "#9b19f5", "#ffa300", "#dc0ab4", "#b3d4ff", "#00bfa0"]
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.identifier = None
+        self.index = None
+        self.input_path = None
+        
+    def initialize_as_shard(self, 
+                            identifier, 
+                            index,
+                            input_path):
+        """Initialize Segmentation Step with further parameters needed for federated segmentation. 
+        
+        Important:
+        
+            This function is intented for internal use by the :class:`ShardedSegmentation` helper class. In most cases it is not relevant to the creation of custom segmentation workflows.
+            
+        Args:
+            identifier (int): Unique index of the shard.
+            
+            window (list(tuple)): Defines the window which is assigned to the shard. The window will be applied to the input. The first element refers to the first dimension of the image and so on. For example use ``[(0,1000),(0,2000)]`` To crop the image to `1000 px height` and `2000 px width` from the top left corner.
+            
+            input_path (str): Location of the input hdf5 file. During sharded segmentation the :class:`ShardedSegmentation` derived helper class will save the input image in form of a hdf5 file. This makes the input image available for parallel reading by the segmentation processes.
+        
+        """
+        
+        self.identifier = identifier
+        self.index = index
+        self.input_path = input_path
+        
+    def call_as_shard(self):
+        """Wrapper function for calling a sharded segmentation.
+        
+        Important:
+        
+            This function is intented for internal use by the :class:`ShardedSegmentation` helper class. In most cases it is not relevant to the creation of custom segmentation workflows.
+        
+        """
+        
+        hf = h5py.File(self.input_path, 'r')
+        hdf_input = hf.get('input_images')
+        input_image = hdf_input[self.index, :, :, :]
+        hf.close()
+        
+        try:    
+            super().__call__(input_image)
+        except Exception:
+            self.log(traceback.format_exc())
+            
+
+    def save_segmentation(self, 
+                          labels, 
+                          classes,
+                          index):
+        
+        """Saves the results of a segmentation at the end of the process.
+        
+        Args:
+            labels (np.array): Numpy array of shape ``(height, width)``. Labels are all data which are saved as integer values. These are mostly segmentation maps with integer values corresponding to the labels of cells.
+            classes (list(int)): List of all classes in the labels array, which have passed the filtering step. All classes contained in this list will be extracted.
+        
+        """
+        
+        # size (C, H, W) is expected
+        # dims are expanded in case (H, W) is passed
+        labels = np.expand_dims(labels, axis=0) if len(labels.shape) == 2 else labels
+        classes = np.array(classes, dtype = "int32").reshape(1, 1, -1)
+        
+        map_path = os.path.join(self.input_path)
+        hf = h5py.File(map_path, 'w')
+        
+        h5_segmentation = hf.get("segmentation")
+        h5_segmentation[index, :, :, :] = labels
+        
+        h5_classes = hf.get("classes")
+        h5_classes[index] = classes
+
+        hf.close()
+
+    def save_image(self, array, save_name="", cmap="magma",**kwargs):
+                
+        if np.issubdtype(array.dtype.type, np.integer):
+            
+            self.log(f"{save_name} will be saved as tif")
+            data = array.astype(np.uint16)
+            im = Image.fromarray(data)
+            im.save(f'{save_name}.tif')
+       
+        fig = plt.figure(frameon=False)
+        fig.set_size_inches((10, 10))
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        ax.imshow(array, cmap=cmap, **kwargs)
+
+        if save_name != "":
+            plt.savefig(f'{save_name}.png')
+            plt.show()
+            plt.close()
+
+class MultithreadedSegmentation(ProcessingStep):
+    
+    DEFAULT_OUTPUT_FILE = "input_segmentation.h5"
+    DEFAULT_FILTER_FILE = "classes.csv"
+    DEFAULT_INPUT_IMAGE_NAME = "input_segmentation.h5"
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        if not hasattr(self, "method"):
+            raise AttributeError("No Segmentation method defined, please set attribute ``method``")
+    
+    def process(self):
+        
+        #get access to segmentation file
+        path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME)
+        hf = h5py.File(path, 'r')
+        label_names = hf.get("label_names")
+        labels = hf.get("labels")
+        input_images = hf.get("input_images")
+        
+        #get number of files that need to be segmented
+        self.n_files = input_images.shape[0]
+        self.log("Segmentation Plan generated with {} elements. Segmentation with {} threads begins.").format(self.n_files, self.config["threads"])
+        
+        #add segmentation structure to h5 file
+        hf.create_dataset('segmentation', (input_images.shape[0], self.config["output_channels"], self.img_size, self.img_size) , chunks=(1, self.img_size, self.img_size), dtype = "int32")
+        dt = h5py.special_dtype(vlen=np.dtype('int32'))
+        hf.create_dataset("classes", shape=(input_images.shape[0]), maxshape=(None), chunks= None, dtype = dt)
+
+        #example code of how to save classes in correct shape!
+        # class1 = np.array([1,2,3,4,5,6,7,8,9,10], dtype= "int32").reshape(1, 1, -1)
+        # class2 = np.array([1,2,3,4,5], dtype= "int32").reshape(1, 1, -1)
+        
+        with Pool(processes=self.config["threads"]) as pool:
+            x = pool.map(self.method.call_as_shard, range(1, self.n_files))  
+        self.log("Finished parallel segmentation")
+
+        self.adjust_segmentation_indexes()
+        self.log("Adjusted Indexes.")
+
+    def adjust_segmentation_indexes(self):
+        """
+        The function iterates over all present segmented files and adjusts the indexes so that they are unique throughout.
+        """
+        
+        self.log("resolve segmentation indexes")
+        
+        output = os.path.join(self.directory,self.DEFAULT_OUTPUT_FILE)
+
+        path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME)
+        hf = h5py.File(path, 'r')
+        hdf_labels = hf.get("labels")
+
+        class_id_shift = 0
+        filtered_classes_combined = []
+        edge_classes_combined = []
+                          
+        for i in range(0, hdf_labels.shape[0]):
+            
+            individual_hdf_labels = hdf_labels[i, :, :]
+            num_shapes = np.max(local_hdf_labels)
+            cr = np.unique(individual_hdf_labels)           
+            filtered_classes = [int(el[0]) for el in list(cr)]
+            filtered_classes_combined += [class_id + class_id_shift for class_id in filtered_classes if class_id != 0]
+            
+            shifted_map, edge_labels = shift_labels(individual_hdf_labels, class_id_shift, return_shifted_labels=True)
+            
+            hdf_labels[i, :, :] = shifted_map
+            edge_classes_combined += edge_labels
+            class_id_shift += num_shapes
+        
+        classes_after_edges = [item for item in filtered_classes_combined if item not in edge_classes_combined]
+
+        self.log("Number of filtered classes combined after segmentation:")
+        self.log(len(filtered_classes_combined))
+        
+        self.log("Number of classes in contact with image edges:")
+        self.log(len(edge_classes_combined))
+        
+        self.log("Number of classes after removing image edges:")
+        self.log(len(classes_after_edges))
+        
+        # save newly generated class list
+        # print filtered classes
+        filtered_path = os.path.join(self.directory, self.DEFAULT_FILTER_FILE)
+        to_write = "\n".join([str(i) for i in list(classes_after_edges)])
+        with open(filtered_path, 'w') as myfile:
+            myfile.write(to_write)
+            
+        # sanity check of class reconstruction   
+        if self.debug:    
+            all_classes = set(hdf_labels[:].flatten())
+            if set(edge_classes_combined).issubset(set(all_classes)):
+                self.log("Sharding sanity check: edge classes are a full subset of all classes")
+            else:
+                self.log("Sharding sanity check: edge classes are NOT a full subset of all classes.")
+            
+            for i in range(len(hdf_channels)):
+                plot_image(hdf_channels[i].astype(np.float64))
+            
+            for i in range(len(hdf_labels)):
+                image = label2rgb(hdf_labels[i],hdf_channels[0].astype(np.float64)/np.max(hdf_channels[0].astype(np.float64)),alpha=0.2, bg_label=0)
+                plot_image(image)
+        
+        hf.close()      
+        
+        self.log("resolved segmentation list")    

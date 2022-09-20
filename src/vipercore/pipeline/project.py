@@ -9,6 +9,13 @@ from PIL import Image
 import PIL
 import numpy as np
 
+#packages for timecourse project
+import pandas as pd
+from cv2 import imread
+import re
+import h5py
+from tqdm import tqdm
+
 from vipercore.pipeline.base import Logable
 
 class Project(Logable):
@@ -187,9 +194,7 @@ class Project(Logable):
             
             self.remap = [int(el.strip()) for el in char_list]
             
-            
-        
-                
+          
     def _load_config_from_file(self, file_path):
         """
         loads config from file and writes it to self.config
@@ -350,3 +355,101 @@ class Project(Logable):
         self.segment()
         self.extract()
         self.classify()
+
+class TimecourseProject(Project):
+    DEFAULT_INPUT_IMAGE_NAME = "input_segmentation.h5"
+    
+    def load_input_from_files(self, input_dir, channels, timepoints, plate_layout, img_size = 1080):    
+        """
+        Function to load timecourse experiments recorded with opera phenix into .h5 dataformat for further processing.
+        """
+        
+        self.img_size = img_size
+        
+        def _read_write_images(dir, indexes, h5py_path):
+            
+            #unpack indexes
+            index_start, index_end = indexes
+            
+            #get information on directory
+            well = re.match("^Row._Well[0-9]", dir).group()
+            region = re.search("r..._c...$", dir).group()
+            
+            #list all images within directory
+            path = os.path.join(input_dir, dir)
+            files = os.listdir(path)
+
+            #filter to only contain the timepoints of interest
+            files = np.sort([x for x in files if x.startswith(tuple(timepoints))])
+            
+            #read images for that region
+            imgs = np.empty((n_timepoints, n_channels, img_size, img_size), dtype='uint16')
+            for ix, channel in enumerate(channels):
+                images = [x for x in files if channel in x]
+                for id, im in enumerate(images):
+                    imgs[id, ix, :, :] = imread(os.path.join(path, im), 0)
+
+            #create labelling 
+            column_values = []
+            for column in plate_layout.columns:
+                column_values.append(plate_layout.loc[well, column])
+
+            list_input = [list(range(index_start, index_end)), [dir] * n_timepoints, timepoints, [well]*n_timepoints, [region]*n_timepoints]
+            list_input = [np.array(x) for x in list_input]
+
+            for x in column_values:
+                list_input.append(np.array([x]*n_timepoints))
+
+            labelling = np.array(list_input).T
+
+            input_images[index_start:index_end, :, :, :] = imgs
+            labels[index_start:index_end] = labelling
+            
+        #read plate layout
+        plate_layout = pd.read_csv(plate_layout, sep = "\s+|;|,", engine = "python")
+        plate_layout = plate_layout.set_index("Well")
+        
+        column_labels = ["index", "ID", "timepoint", "well", "region"] + plate_layout.columns.tolist()
+        
+        #get information on number of timepoints and number of channels
+        n_timepoints = len(timepoints)
+        n_channels = len(channels)
+        
+        #get all directories contained within the input dir
+        directories = os.listdir(input_dir)
+        
+        #create .h5 dataset to which all results are written
+        path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME)
+        hf = h5py.File(path, 'w')
+        dt = h5py.special_dtype(vlen=str)
+        hf.create_dataset('label_names', (len(column_labels)), chunks=None, dtype = dt)
+        hf.create_dataset('labels', (len(directories)*n_timepoints, len(column_labels)), chunks=None, dtype = dt)
+        hf.create_dataset('input_images', (len(directories)*n_timepoints, n_channels, img_size, img_size), chunks=(1, 1, img_size, img_size))
+        
+        label_names = hf.get("label_names")
+        labels = hf.get("labels")
+        input_images = hf.get("input_images")
+        
+        label_names[:]= column_labels
+
+        #------------------
+        #start reading data
+        #------------------
+        
+        indexes = []
+        #create indexes
+        start_index = 0
+        for i, _ in enumerate(directories):
+            stop_index = start_index + n_timepoints
+            indexes.append((start_index, stop_index))
+            start_index = stop_index
+        
+        #iterate through all directories and add to .h5
+        #this is not implemented with multithreaded processing because writing multi-threaded to hdf5 is hard
+        #multithreaded reading is easier
+
+        for dir, index in tqdm(zip(directories, indexes), total = len(directories)):
+            _read_write_images(dir, index, h5py_path = path)
+
+        #close hdf5 file    
+        hf.close()
