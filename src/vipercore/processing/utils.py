@@ -46,3 +46,6 @@ def download_testimage(folder):
         print(f"Successfully downloaded {name} from {url}")
         returns.append(path)
     return returns
+
+def flatten(l):
+    return [item for sublist in l for item in sublist]

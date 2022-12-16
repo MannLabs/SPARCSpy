@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 import warnings
 import shutil
 import os
@@ -8,6 +6,7 @@ import yaml
 from PIL import Image
 import PIL
 import numpy as np
+import sys
 
 #packages for timecourse project
 import pandas as pd
@@ -306,7 +305,7 @@ class Project(Logable):
             
         input_segmentation = self.segmentation_f.get_output()
         
-        input_dir = os.path.join(self.project_location,self.DEFAULT_SEGMENTATION_DIR_NAME, "classes.csv")
+        input_dir = os.path.join(self.project_location, self.DEFAULT_SEGMENTATION_DIR_NAME, "classes.csv")
         self.extraction_f(input_segmentation,  input_dir, *args, **kwargs)
         
     def classify(self, 
@@ -359,102 +358,151 @@ class Project(Logable):
 class TimecourseProject(Project):
     DEFAULT_INPUT_IMAGE_NAME = "input_segmentation.h5"
     
-    def load_input_from_files(self, input_dir, channels, timepoints, plate_layout, img_size = 1080):    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def load_input_from_array(self, img, label, overwrite = False):
+        #check if already exists if so throw error message
+        if not os.path.isdir(os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME)):
+            os.makedirs(os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME))
+            
+        path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, self.DEFAULT_INPUT_IMAGE_NAME)
+        
+        if not overwrite:
+            if os.path.isfile(path):
+                sys.exit("File already exists")
+            else:
+                overwrite = True
+        
+        if overwrite:
+            #column labels
+            column_labels = ["label"]
+
+            #create .h5 dataset to which all results are written
+            path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, self.DEFAULT_INPUT_IMAGE_NAME)
+            hf = h5py.File(path, 'w')
+            dt = h5py.special_dtype(vlen=str)
+            hf.create_dataset('label_names', data = column_labels, chunks=None, dtype = dt)
+            hf.create_dataset('labels', data = label, chunks=None, dtype = dt)
+            hf.create_dataset('input_images', data = img, chunks=(1, 1, img.shape[2], img.shape[2]))
+
+            print(hf.keys())
+            hf.close()
+
+    def load_input_from_files(self, input_dir, channels, timepoints, plate_layout, img_size = 1080, overwrite = False):    
         """
         Function to load timecourse experiments recorded with opera phenix into .h5 dataformat for further processing.
         """
-        
-        self.img_size = img_size
-        
-        def _read_write_images(dir, indexes, h5py_path):
-            
-            #unpack indexes
-            index_start, index_end = indexes
-            
-            #get information on directory
-            well = re.match("^Row._Well[0-9]", dir).group()
-            region = re.search("r..._c...$", dir).group()
-            
-            #list all images within directory
-            path = os.path.join(input_dir, dir)
-            files = os.listdir(path)
 
-            #filter to only contain the timepoints of interest
-            files = np.sort([x for x in files if x.startswith(tuple(timepoints))])
-            
-            #read images for that region
-            imgs = np.empty((n_timepoints, n_channels, img_size, img_size), dtype='uint16')
-            for ix, channel in enumerate(channels):
-                images = [x for x in files if channel in x]
-                for id, im in enumerate(images):
-                    imgs[id, ix, :, :] = imread(os.path.join(path, im), 0)
+        #check if already exists if so throw error message
+        if not os.path.isdir(os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME)):
+            os.makedirs(os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME))
 
-            #create labelling 
-            column_values = []
-            for column in plate_layout.columns:
-                column_values.append(plate_layout.loc[well, column])
-
-            list_input = [list(range(index_start, index_end)), [dir] * n_timepoints, timepoints, [well]*n_timepoints, [region]*n_timepoints]
-            list_input = [np.array(x) for x in list_input]
-
-            for x in column_values:
-                list_input.append(np.array([x]*n_timepoints))
-
-            labelling = np.array(list_input).T
-
-            input_images[index_start:index_end, :, :, :] = imgs
-            labels[index_start:index_end] = labelling
-            
-        #read plate layout
-        plate_layout = pd.read_csv(plate_layout, sep = "\s+|;|,", engine = "python")
-        plate_layout = plate_layout.set_index("Well")
-        
-        column_labels = ["index", "ID", "timepoint", "well", "region"] + plate_layout.columns.tolist()
-        
-        #get information on number of timepoints and number of channels
-        n_timepoints = len(timepoints)
-        n_channels = len(channels)
-        
-        #get all directories contained within the input dir
-        directories = os.listdir(input_dir)
-        
-        #create .h5 dataset to which all results are written
         path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, self.DEFAULT_INPUT_IMAGE_NAME)
-        hf = h5py.File(path, 'w')
-        dt = h5py.special_dtype(vlen=str)
-        hf.create_dataset('label_names', (len(column_labels)), chunks=None, dtype = dt)
-        hf.create_dataset('labels', (len(directories)*n_timepoints, len(column_labels)), chunks=None, dtype = dt)
-        hf.create_dataset('input_images', (len(directories)*n_timepoints, n_channels, img_size, img_size), chunks=(1, 1, img_size, img_size))
         
-        label_names = hf.get("label_names")
-        labels = hf.get("labels")
-        input_images = hf.get("input_images")
+        if not overwrite:
+            if os.path.isfile(path):
+                sys.exit("File already exists")
+            else:
+                overwrite = True
         
-        label_names[:]= column_labels
+        if overwrite:
+            self.img_size = img_size
+            
+            def _read_write_images(dir, indexes, h5py_path):
+                
+                #unpack indexes
+                index_start, index_end = indexes
+                
+                #get information on directory
+                well = re.match("^Row._Well[0-9]", dir).group()
+                region = re.search("r..._c...$", dir).group()
+                
+                #list all images within directory
+                path = os.path.join(input_dir, dir)
+                files = os.listdir(path)
 
-        #------------------
-        #start reading data
-        #------------------
-        
-        indexes = []
-        #create indexes
-        start_index = 0
-        for i, _ in enumerate(directories):
-            stop_index = start_index + n_timepoints
-            indexes.append((start_index, stop_index))
-            start_index = stop_index
-        
-        #iterate through all directories and add to .h5
-        #this is not implemented with multithreaded processing because writing multi-threaded to hdf5 is hard
-        #multithreaded reading is easier
+                #filter to only contain the timepoints of interest
+                files = np.sort([x for x in files if x.startswith(tuple(timepoints))])
 
-        for dir, index in tqdm(zip(directories, indexes), total = len(directories)):
-            _read_write_images(dir, index, h5py_path = path)
+                #filter to only contain the files listes in the plate layout
+                
+                #read images for that region
+                imgs = np.empty((n_timepoints, n_channels, img_size, img_size), dtype='uint16')
+                for ix, channel in enumerate(channels):
+                    images = [x for x in files if channel in x]
+                    for id, im in enumerate(images):
+                        imgs[id, ix, :, :] = imread(os.path.join(path, im), 0)
 
-        #close hdf5 file    
-        hf.close()
+                #create labelling 
+                column_values = []
+                for column in plate_layout.columns:
+                    column_values.append(plate_layout.loc[well, column])
+
+                list_input = [list(range(index_start, index_end)), [dir + "_"+ x for x in timepoints], [dir] * n_timepoints, timepoints, [well]*n_timepoints, [region]*n_timepoints]
+                list_input = [np.array(x) for x in list_input]
+
+                for x in column_values:
+                    list_input.append(np.array([x]*n_timepoints))
+
+                labelling = np.array(list_input).T
+
+                input_images[index_start:index_end, :, :, :] = imgs
+                labels[index_start:index_end] = labelling
+                
+            #read plate layout
+            plate_layout = pd.read_csv(plate_layout, sep = "\s+|;|,", engine = "python")
+            plate_layout = plate_layout.set_index("Well")
+            
+            column_labels = ["index", "ID", "location", "timepoint", "well", "region"] + plate_layout.columns.tolist()
+            
+            #get information on number of timepoints and number of channels
+            n_timepoints = len(timepoints)
+            n_channels = len(channels)
+            wells = np.unique(plate_layout.index.tolist())
+            
+            #get all directories contained within the input dir
+            directories = os.listdir(input_dir)
+
+            #filter directories to only contain those listed in the plate layout
+            directories = [_dir for _dir in directories if re.match("^Row._Well[0-9]", _dir).group() in wells ]
+            
+            #create .h5 dataset to which all results are written
+            path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, self.DEFAULT_INPUT_IMAGE_NAME)
+            
+            with h5py.File(path, 'w') as hf:
+                dt = h5py.special_dtype(vlen=str)
+                hf.create_dataset('label_names', (len(column_labels)), chunks=None, dtype = dt)
+                hf.create_dataset('labels', (len(directories)*n_timepoints, len(column_labels)), chunks=None, dtype = dt)
+                hf.create_dataset('input_images', (len(directories)*n_timepoints, n_channels, img_size, img_size), chunks=(1, 1, img_size, img_size))
+                
+                label_names = hf.get("label_names")
+                labels = hf.get("labels")
+                input_images = hf.get("input_images")
+                
+                label_names[:]= column_labels
+
+                #------------------
+                #start reading data
+                #------------------
+                
+                indexes = []
+                #create indexes
+                start_index = 0
+                for i, _ in enumerate(directories):
+                    stop_index = start_index + n_timepoints
+                    indexes.append((start_index, stop_index))
+                    start_index = stop_index
+                
+                #iterate through all directories and add to .h5
+                #this is not implemented with multithreaded processing because writing multi-threaded to hdf5 is hard
+                #multithreaded reading is easier
+
+                for dir, index in tqdm(zip(directories, indexes), total = len(directories)):
+                    _read_write_images(dir, index, h5py_path = path)
     
     def segment(self, 
+                overwrite = False,
                 *args, 
                 **kwargs):
         
@@ -467,9 +515,51 @@ class TimecourseProject(Project):
 
             overwrite (bool, optional): Can be set when calling to override the project wide flag.
         """
-        
+
+        #add possibility to delete only segmentation while preserving input_images already written to hdf5
+
+        if overwrite == True:
+
+            #delete segmentation and classes from .hdf5 to be able to create new again
+            path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, self.DEFAULT_INPUT_IMAGE_NAME)
+            with h5py.File(path, 'a') as hf:
+                if "segmentation" in hf.keys():
+                    del hf["segmentation"]
+                if "classes" in hf.keys():
+                    del hf["classes"]
+
+            #delete generated files to make clean
+            classes_path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, "classes.csv")
+            log_path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, "processing.log")
+            if os.path.isfile(classes_path):
+                os.remove(classes_path)
+            if os.path.isfile(log_path):
+                os.remove(log_path)
+            
+            print("If Segmentation already existed removed.")
+
         if self.segmentation_f == None:
             raise ValueError("No segmentation method defined")
             
         else:
             self.segmentation_f(*args, **kwargs)
+
+    def extract(self, 
+                *args, 
+                **kwargs):
+        """extract single cells with the defined extraction at extraction_f.
+        
+        Args:
+            intermediate_output (bool, optional): Can be set when calling to override the project wide flag.
+
+            debug (bool, optional):Can be set when calling to override the project wide flag.
+
+            overwrite (bool, optional): Can be set when calling to override the project wide flag.
+        """
+        
+        if self.extraction_f == None:
+            raise ValueError("No extraction method defined")
+            
+        input_segmentation = self.segmentation_f.get_output()
+        input_dir = os.path.join(self.project_location, self.DEFAULT_SEGMENTATION_DIR_NAME, "classes.csv")
+        self.extraction_f(input_segmentation,  input_dir, *args, **kwargs)

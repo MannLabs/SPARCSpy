@@ -20,8 +20,6 @@ class Logable(object):
     DEFAULT_FORMAT = "%d/%m/%Y %H:%M:%S"
     
     def __init__(self, debug=False):
-        
-        
         self.debug = debug
         
     def log(self, message):
@@ -92,8 +90,7 @@ class ProcessingStep(Logable):
                  overwrite=True):
         
         super().__init__()
-        
-        
+    
         self.debug = debug
         self.overwrite = overwrite
         self.intermediate_output = intermediate_output
@@ -152,3 +149,6 @@ class ProcessingStep(Logable):
         if not key in config_handle:
             self.log(f'No configuration for {key} found, parameter will be set to {value}')
             config_handle[key] = value
+
+    def get_directory(self):
+        return(self.directory)

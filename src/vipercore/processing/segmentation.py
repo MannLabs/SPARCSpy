@@ -369,19 +369,40 @@ def contact_filter(inarr, threshold=1, reindex=False, background=0):
     return label
 
 @njit
+def _numba_subtract(array1, min_number):
+    for i in range(array1.shape[0]):     # parallel --> for i in nb.prange(c.shape[0]):
+        for j in range(array1.shape[1]):
+            if array1[i, j] != 0:
+                array1[i, j] = array1[i, j] - min_number
+
+    return array1
+
+@njit
 def numba_mask_centroid(mask, debug=False, skip_background=True):
     
-    
-    num_classes = np.max(mask)+1
-    class_range = [0,np.max(mask)]
+    # need to perform this adjustment here so that we can also work with segmentations that do not start with a seg index of 1!
+    # this is relevant when working with segmentations that have been reindexed over different tiles
+    cell_ids = list(np.unique(mask).flatten())
+    if 0 in cell_ids: cell_ids.remove(0)
+    cell_ids = np.array(cell_ids)
+    min_cell_id = np.min(cell_ids) #need to convert to array since numba min functions requires array as input not list
+    if min_cell_id != 1:
+        mask = _numba_subtract(mask, min_cell_id)
+
+    num_classes = np.max(mask)
+    class_range = [0, np.max(mask)]
         
     if class_range[1] > np.max(mask):
         raise ValueError("upper class range limit exceeds total classes")
         return
+    
+    #add check to make sure that not run when there is only background
+    if class_range[1] == 0:
+        raise ValueError("no cells in image.")
+        return
 
     points_class = np.zeros((num_classes,), dtype="uint32")
-    
-    center = np.zeros((num_classes,2,))
+    center = np.zeros((num_classes, 2, ))
     
     if skip_background:
         points_class[0] = 1
@@ -402,12 +423,11 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
                 points_class[class_id] +=1
                 center[class_id] += np.array([x,y])
                     
-        
     x = center[:,0]/points_class
     y = center[:,1]/points_class
     
     center = np.stack((y,x)).T
-    return center, points_class
+    return center, points_class, cell_ids
 
 @njit
 def _selected_coords_fast(mask, classes, debug=False, background=0):

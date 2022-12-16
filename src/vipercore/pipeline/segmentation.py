@@ -31,6 +31,9 @@ from ome_zarr.io import parse_url
 from ome_zarr.writer import write_image
 from ome_zarr.scale import Scaler
 
+#to show progress
+from tqdm import tqdm  
+
 class Segmentation(ProcessingStep):
     """Segmentation helper class used for creating segmentation workflows.
     Attributes:
@@ -79,7 +82,6 @@ class Segmentation(ProcessingStep):
         self.window = None
         self.input_path = None
         
-    
     def initialize_as_shard(self, 
                             identifier, 
                             window,
@@ -103,7 +105,6 @@ class Segmentation(ProcessingStep):
         self.window = window
         self.input_path = input_path
         
-
     def call_as_shard(self):
         """Wrapper function for calling a sharded segmentation.
         
@@ -113,17 +114,14 @@ class Segmentation(ProcessingStep):
         
         """
         
-        hf = h5py.File(self.input_path, 'r')
-        hdf_input = hf.get('channels')
-        input_image = hdf_input[:,self.window[0],self.window[1]]
-        hf.close()
+        with h5py.File(self.input_path, 'r') as hf:
+            hdf_input = hf.get('channels')
+            input_image = hdf_input[:,self.window[0],self.window[1]]
 
         try:    
             super().__call__(input_image)
         except Exception:
             self.log(traceback.format_exc())
-
-
 
     def save_segmentation(self, 
                           channels, 
@@ -183,11 +181,11 @@ class Segmentation(ProcessingStep):
         group = zarr.group(store = loc)
         axes = "cyx"
 
-        channels = [f'Channel_{i}' for i in range(1, channels.shape[0])]
+        channel_names = [f'Channel_{i}' for i in range(1, channels.shape[0])]
 
         group.attrs["omero"] = {
             "name": self.DEFAULT_OUTPUT_FILE_ZARR,
-            "channels": [{"label":channel, "color":self.channel_colors[i], "active":True} for i, channel in enumerate(channels)]
+            "channels": [{"label":channel_name, "color":self.channel_colors[i], "active":True} for i, channel_name in enumerate(channel_names)]
         }
 
         write_image(channels, group = group, axes = axes, storage_options=dict(chunks=(1, self.config["chunk_size"], self.config["chunk_size"])))
@@ -223,10 +221,13 @@ class Segmentation(ProcessingStep):
         
         if not hasattr(self, "maps"):
             raise AttributeError("No maps have been defined. Therefore saving and loading of maps as checkpoints is not supported. Initialize maps in the process method of the segmentation like self.maps = {'map1': None,'map2': None}")
-            
+        
+        if not hasattr(self, "directory"):
+            self.directory = self.get_directory(self)
+            #raise AttributeError("No directory is defined where maps should be saved. Therefore saving and loading of maps as checkpoints is not supported.")
+
         # iterating over all maps
         for map_index, map_name in enumerate(self.maps.keys()):
-
             
             try:
                 map_path = os.path.join(self.directory, "{}_{}_map.npy".format(map_index, map_name))
@@ -330,7 +331,7 @@ class Segmentation(ProcessingStep):
     def get_output(self):
         return os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE)
     
-class ShardedSegmentation(ProcessingStep):
+class ShardedSegmentation(Segmentation):
     """object which can create log entries.
         
     Attributes:
@@ -347,6 +348,8 @@ class ShardedSegmentation(ProcessingStep):
     DEFAULT_INPUT_IMAGE_NAME = "input_image.h5"
     DEFAULT_INPUT_IMAGE_NAME_ZARR = "input_image.ome.zarr"
     DEFAULT_SHARD_FOLDER = "tiles"
+
+    channel_colors = ["#e60049", "#0bb4ff", "#50e991", "#e6d800", "#9b19f5", "#ffa300", "#dc0ab4", "#b3d4ff", "#00bfa0"]
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -363,7 +366,8 @@ class ShardedSegmentation(ProcessingStep):
             self.log("Created new shard directory " + self.shard_directory)
             
         self.save_input_image(input_image)
-        self.save_input_image_zarr(input_image) #until we can fully work with ome.zarr export both
+        #self.save_input_
+        # (input_image) #until we can fully work with ome.zarr export both
 
         # calculate sharding plan
         self.image_size = input_image.shape[1:]
@@ -378,10 +382,9 @@ class ShardedSegmentation(ProcessingStep):
             
         shard_list = self.initialize_shard_list(sharding_plan)
         self.log(f"sharding plan with {len(sharding_plan)} elements generated, sharding with {self.config['threads']} threads begins")
-        
-        
+
         with Pool(processes=self.config["threads"]) as pool:
-            x = pool.map(self.method.call_as_shard, shard_list)  
+            tqdm(pool.map(self.method.call_as_shard, shard_list), total = len(shard_list))
         self.log("Finished parallel segmentation")
         
         self.resolve_sharding(sharding_plan)
@@ -395,14 +398,14 @@ class ShardedSegmentation(ProcessingStep):
         input_path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME)
         
         for i, window in enumerate(sharding_plan):
-            local_shard_directory = os.path.join(self.shard_directory,str(i))
+            local_shard_directory = os.path.join(self.shard_directory, str(i))
             
             current_shard = self.method(
                  self.config,
                  local_shard_directory,
                  debug=self.debug,
                  overwrite = self.overwrite,
-                intermediate_output = self.intermediate_output
+                 intermediate_output = self.intermediate_output
             )
             
             current_shard.initialize_as_shard(i, window, input_path)
@@ -419,6 +422,12 @@ class ShardedSegmentation(ProcessingStep):
 
     def save_input_image_zarr(self, input_image):
         path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME_ZARR)
+        
+        #check if file already exists if so delete with warning
+        if os.path.exists(path):
+            shutil.rmtree(path)
+            self.log("Warning: .zarr file already existed. Will be removed and overwritten.")
+        
         loc = parse_url(path, mode="w").store
         group = zarr.group(store = loc)
         axes = "cyx"
@@ -574,7 +583,7 @@ class ShardedSegmentation(ProcessingStep):
     def get_output(self):
         return os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE)
 
-class TimecourseSegmentation(ProcessingStep):
+class TimecourseSegmentation(Segmentation):
     """Segmentation helper class used for creating segmentation workflows working with timecourse data.                     
     """
     DEFAULT_OUTPUT_FILE = "input_segmentation.h5"
@@ -585,9 +594,12 @@ class TimecourseSegmentation(ProcessingStep):
         super().__init__(*args, **kwargs)
         
         self.index = None
-        
-    def initialize_as_shard(self, 
-                            index):
+        self.input_path = None
+
+        if not hasattr(self, "method"):
+            raise AttributeError("No BaseSegmentationType defined, please set attribute ``BaseSegmentationMethod``")
+    
+    def initialize_as_shard(self, index, input_path, _tmp_seg, _tmp_classes):
         """Initialize Segmentation Step with further parameters needed for federated segmentation. 
         
         Important:
@@ -595,14 +607,14 @@ class TimecourseSegmentation(ProcessingStep):
             This function is intented for internal use by the :class:`ShardedSegmentation` helper class. In most cases it is not relevant to the creation of custom segmentation workflows.
             
         Args:
-            identifier (int): Unique index of the shard.
-            
-            window (list(tuple)): Defines the window which is assigned to the shard. The window will be applied to the input. The first element refers to the first dimension of the image and so on. For example use ``[(0,1000),(0,2000)]`` To crop the image to `1000 px height` and `2000 px width` from the top left corner.
-            
+            index (int): Unique indexes of the elements that need to be segmented.
+
             input_path (str): Location of the input hdf5 file. During sharded segmentation the :class:`ShardedSegmentation` derived helper class will save the input image in form of a hdf5 file. This makes the input image available for parallel reading by the segmentation processes.
-        
         """
         self.index = index
+        self.input_path = input_path
+        self._tmp_seg = _tmp_seg
+        self._tmp_classes = _tmp_classes
         
     def call_as_shard(self):
         """Wrapper function for calling a sharded segmentation.
@@ -612,22 +624,26 @@ class TimecourseSegmentation(ProcessingStep):
             This function is intented for internal use by the :class:`ShardedSegmentation` helper class. In most cases it is not relevant to the creation of custom segmentation workflows.
         
         """
-        
-        hf = h5py.File(self.input_path, 'r')
-        hdf_input = hf.get('input_images')
-        input_image = hdf_input[self.index, :, :, :]
-        hf.close()
-        
-        try:    
-            super().__call__(input_image)
-        except Exception:
-            self.log(traceback.format_exc())
+
+        with h5py.File(self.input_path, 'r') as hf:
+            hdf_input = hf.get('input_images')
             
+            if type(self.index) == int:
+                self.index = [self.index]
+
+            for index in self.index:
+                self.current_index = index
+                input_image = hdf_input[index, :, :, :]
+                print("Segmentation on index", index, "started.")
+                try:   
+                    super().__call__(input_image)
+                except Exception:
+                    self.log(traceback.format_exc()) 
 
     def save_segmentation(self, 
+                          input_image,
                           labels, 
-                          classes,
-                          index):
+                          classes,):
         
         """Saves the results of a segmentation at the end of the process.
         
@@ -636,22 +652,45 @@ class TimecourseSegmentation(ProcessingStep):
             classes (list(int)): List of all classes in the labels array, which have passed the filtering step. All classes contained in this list will be extracted.
         
         """
-        
+        global _tmp_seg, _tmp_classes 
         # size (C, H, W) is expected
         # dims are expanded in case (H, W) is passed
         labels = np.expand_dims(labels, axis=0) if len(labels.shape) == 2 else labels
-        classes = np.array(classes, dtype = "int32").reshape(1, 1, -1)
+        classes = np.array(list(classes))
+        _tmp_seg[self.current_index] = labels
         
-        map_path = os.path.join(self.input_path)
-        hf = h5py.File(map_path, 'w')
-        
-        h5_segmentation = hf.get("segmentation")
-        h5_segmentation[index, :, :, :] = labels
-        
-        h5_classes = hf.get("classes")
-        h5_classes[index] = classes
+        #self._tmp_classes[self.current_index] = classes
 
-        hf.close()
+    def _initialize_tempmmap_array(self):
+        global _tmp_seg, _tmp_classes
+        #import tempmmap module and reset temp folder location
+        from alphabase.io import tempmmap
+        TEMP_DIR_NAME = tempmmap.redefine_temp_location(self.config["cache"])
+
+        #get shape of array that needs to be produced
+        _tmp_seg = tempmmap.array(self.shape_segmentation,dtype = np.int32)
+
+        #dt = h5py.special_dtype(vlen=np.int32)
+        _tmp_classes  = tempmmap.array(self.shape_classes, dtype = np.int32)
+        self.TEMP_DIR_NAME = TEMP_DIR_NAME
+
+    def _transfer_tempmmap_to_hdf5(self):
+        global _tmp_seg, _tmp_classes
+        input_path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE )
+        
+        #create hdf5 datasets with temp_arrays as input
+        with h5py.File(input_path, 'a') as hf:
+            hf.create_dataset('segmentation',  shape = _tmp_seg.shape, chunks=(1, 2, self.shape_input_images[2], self.shape_input_images[3]), dtype = "int32")
+            dt = h5py.special_dtype(vlen=np.dtype('int32'))
+            hf.create_dataset("classes", shape = _tmp_classes.shape, maxshape=(None), chunks= None, dtype = dt)
+            hf["segmentation"][:] = _tmp_seg
+            hf["classes"][:] = _tmp_classes
+
+        #delete tempobjects (to cleanup directory)
+        self.log(f"Tempmmap Folder location {self.TEMP_DIR_NAME} will now be removed.")
+        shutil.rmtree(self.TEMP_DIR_NAME, ignore_errors=True)
+
+        del _tmp_seg, _tmp_classes, self.TEMP_DIR_NAME
 
     def save_image(self, array, save_name="", cmap="magma",**kwargs):
                 
@@ -666,6 +705,7 @@ class TimecourseSegmentation(ProcessingStep):
         fig.set_size_inches((10, 10))
         ax = plt.Axes(fig, [0., 0., 1., 1.])
         ax.set_axis_off()
+        
         fig.add_axes(ax)
         ax.imshow(array, cmap=cmap, **kwargs)
 
@@ -674,7 +714,115 @@ class TimecourseSegmentation(ProcessingStep):
             plt.show()
             plt.close()
 
-class MultithreadedSegmentation(ProcessingStep):
+    def adjust_segmentation_indexes(self):
+        """
+        The function iterates over all present segmented files and adjusts the indexes so that they are unique throughout.
+        """
+        
+        self.log("resolve segmentation indexes")
+        
+        output = os.path.join(self.directory,self.DEFAULT_OUTPUT_FILE)
+
+        path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME)
+
+        with h5py.File(path, 'a') as hf:
+            hdf_labels = hf.get("segmentation")
+            hdf_classes = hf.get("classes")
+
+            class_id_shift = 0
+            filtered_classes_combined = []
+            edge_classes_combined = []
+                          
+            for i in range(0, hdf_labels.shape[0]):
+                
+                individual_hdf_labels = hdf_labels[i,:, :, :]
+                num_shapes = np.max(individual_hdf_labels)
+                cr = np.unique(individual_hdf_labels)
+
+                filtered_classes = [int(el) for el in list(cr)]
+                shifted_map, edge_labels = shift_labels(individual_hdf_labels, class_id_shift, return_shifted_labels=True)
+                filtered_classes = np.unique(shifted_map)
+                final_classes = [item for item in filtered_classes if item not in edge_labels]
+                
+                hdf_labels[i, :, :] = shifted_map
+                hdf_classes[i] = np.array(final_classes, dtype = "int32").reshape(1, 1, -1)
+                
+                #save all cells in general
+                filtered_classes_combined += [class_id + class_id_shift for class_id in filtered_classes if class_id != 0]
+                edge_classes_combined += edge_labels
+
+                #adjust class_id shift
+                class_id_shift += num_shapes
+
+            classes_after_edges = [item for item in filtered_classes_combined if item not in edge_classes_combined]
+
+            self.log("Number of filtered classes combined after segmentation:")
+            self.log(len(filtered_classes_combined))
+            
+            self.log("Number of classes in contact with image edges:")
+            self.log(len(edge_classes_combined))
+            
+            self.log("Number of classes after removing image edges:")
+            self.log(len(classes_after_edges))
+            
+            # save newly generated class list
+            # print filtered classes
+            filtered_path = os.path.join(self.directory, self.DEFAULT_FILTER_FILE)
+            to_write = "\n".join([str(i) for i in list(classes_after_edges)])
+            
+            with open(filtered_path, 'w') as myfile:
+                myfile.write(to_write)
+                
+            # sanity check of class reconstruction   
+            if self.debug:    
+                all_classes = set(hdf_labels[:].flatten())
+                if set(edge_classes_combined).issubset(set(all_classes)):
+                    self.log("Sharding sanity check: edge classes are a full subset of all classes")
+                else:
+                    self.log("Sharding sanity check: edge classes are NOT a full subset of all classes.")
+              
+        self.log("resolved segmentation list")
+
+    def process(self):
+        
+        global _tmp_seg, _tmp_classes
+
+        input_path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE )
+
+        with h5py.File(self.input_path, 'r') as hf:
+            input_images = hf.get('input_images')
+            indexes = list(range(0, input_images.shape[0]))
+
+            #initialize segmentation dataset
+            self.shape_input_images = input_images.shape
+            self.shape_segmentation = (input_images.shape[0], self.config["output_masks"], input_images.shape[2], input_images.shape[3])
+            self.shape_classes = (input_images.shape[0])
+
+        #initialize temp object to write segmentations too
+        self._initialize_tempmmap_array()
+
+        #initialize segmentation object
+        current_seg = self.method(
+                 self.config,
+                 self.directory,
+                 debug=self.debug,
+                 overwrite = self.overwrite,
+                 intermediate_output = self.intermediate_output,
+            )
+
+        current_seg.initialize_as_shard(index = indexes, 
+                                        input_path = input_path, 
+                                        _tmp_seg = _tmp_seg,
+                                        _tmp_classes = _tmp_classes)
+
+        self.method.call_as_shard(current_seg)
+
+        #save results to hdf5
+        self.log("Writing segmentation results to .hdf5 file.")
+        self._transfer_tempmmap_to_hdf5()
+        self.adjust_segmentation_indexes()
+
+class MultithreadedSegmentation(TimecourseSegmentation):
     
     DEFAULT_OUTPUT_FILE = "input_segmentation.h5"
     DEFAULT_FILTER_FILE = "classes.csv"
@@ -688,97 +836,66 @@ class MultithreadedSegmentation(ProcessingStep):
     
     def process(self):
         
-        #get access to segmentation file
-        path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME)
-        hf = h5py.File(path, 'r')
-        label_names = hf.get("label_names")
-        labels = hf.get("labels")
-        input_images = hf.get("input_images")
-        
-        #get number of files that need to be segmented
-        self.n_files = input_images.shape[0]
-        self.log("Segmentation Plan generated with {} elements. Segmentation with {} threads begins.").format(self.n_files, self.config["threads"])
-        
-        #add segmentation structure to h5 file
-        hf.create_dataset('segmentation', (input_images.shape[0], self.config["output_masks"], self.img_size, self.img_size) , chunks=(1, self.img_size, self.img_size), dtype = "int32")
-        dt = h5py.special_dtype(vlen=np.dtype('int32'))
-        hf.create_dataset("classes", shape=(input_images.shape[0]), maxshape=(None), chunks= None, dtype = dt)
+        global _tmp_seg, _tmp_classes
 
+        input_path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE )
+
+        with h5py.File(input_path, 'r') as hf:
+            input_images = hf.get('input_images')
+            indexes = list(range(0, input_images.shape[0]))
+
+            #initialize segmentation dataset
+            self.shape_input_images = input_images.shape
+            self.shape_segmentation = (input_images.shape[0], self.config["output_masks"], input_images.shape[2], input_images.shape[3])
+            self.shape_classes = (input_images.shape[0])
+
+        #initialize temp object to write segmentations too
+        self._initialize_tempmmap_array()
+        
+        #self.log("Segmentation Plan generated with {} elements. Segmentation with {} threads begins.").format(self.n_files, self.config["threads"])
+        
         #example code of how to save classes in correct shape!
         # class1 = np.array([1,2,3,4,5,6,7,8,9,10], dtype= "int32").reshape(1, 1, -1)
         # class2 = np.array([1,2,3,4,5], dtype= "int32").reshape(1, 1, -1)
         
+        segmentation_list = self.initialize_shard_list(indexes, 
+                                                       input_path = input_path, 
+                                                       _tmp_seg = _tmp_seg, 
+                                                       _tmp_classes = _tmp_classes)
+        print("Segmentation with", self.config["threads"], "beginns.")
+        
         with Pool(processes=self.config["threads"]) as pool:
-            x = pool.map(self.method.call_as_shard, range(1, self.n_files))  
+            x = pool.map(self.method.call_as_shard, segmentation_list)
+            # for _ in tqdm(pool.imap(self.method.call_as_shard, segmentation_list), total = len(indexes)):
+            #     pass
+            pool.close()
+            pool.join()
+            print('All segmentations are done.', flush=True)
+        
         self.log("Finished parallel segmentation")
+
+        self._transfer_tempmmap_to_hdf5()
 
         self.adjust_segmentation_indexes()
         self.log("Adjusted Indexes.")
 
-    def adjust_segmentation_indexes(self):
-        """
-        The function iterates over all present segmented files and adjusts the indexes so that they are unique throughout.
-        """
-        
-        self.log("resolve segmentation indexes")
-        
-        output = os.path.join(self.directory,self.DEFAULT_OUTPUT_FILE)
+    def initialize_shard_list(self, segmentation_list, input_path, _tmp_seg, _tmp_classes):
+        _shard_list = []
 
-        path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME)
-        hf = h5py.File(path, 'r')
-        hdf_labels = hf.get("segmentation")
-        hdf_classes = hf.get("classes")
+        for i  in tqdm(segmentation_list, total = len(segmentation_list), desc="Generating Shards"):
 
-        class_id_shift = 0
-        filtered_classes_combined = []
-        edge_classes_combined = []
-                          
-        for i in range(0, hdf_labels.shape[0]):
+            current_shard = self.method(
+                 self.config,
+                 self.directory,
+                 debug=self.debug,
+                 overwrite = self.overwrite,
+                 intermediate_output = self.intermediate_output
+            )
             
-            individual_hdf_labels = hdf_labels[i,:, :, :]
-            num_shapes = np.max(individual_hdf_labels)
-            cr = hdf_classes[i]
+            current_shard.initialize_as_shard(i, input_path, _tmp_seg, _tmp_classes)
+            _shard_list.append(current_shard)
 
-            filtered_classes = [int(el[0]) for el in list(cr)]
-            shifted_map, edge_labels = shift_labels(individual_hdf_labels, class_id_shift, return_shifted_labels=True)
-            final_classes = [item for item in filtered_classes if item not in edge_labels]
-            
-            hdf_labels[i, :, :] = shifted_map
-            hdf_classes[i] = np.array(final_classes, dtype = "int32").reshape(1, 1, -1)
-            
-            #save all cells in general
-            filtered_classes_combined += [class_id + class_id_shift for class_id in filtered_classes if class_id != 0]
-            edge_classes_combined += edge_labels
+        return _shard_list
 
-            #adjust class_id shift
-            class_id_shift += num_shapes
-
-        classes_after_edges = [item for item in filtered_classes_combined if item not in edge_classes_combined]
-
-        self.log("Number of filtered classes combined after segmentation:")
-        self.log(len(filtered_classes_combined))
-        
-        self.log("Number of classes in contact with image edges:")
-        self.log(len(edge_classes_combined))
-        
-        self.log("Number of classes after removing image edges:")
-        self.log(len(classes_after_edges))
-        
-        # save newly generated class list
-        # print filtered classes
-        filtered_path = os.path.join(self.directory, self.DEFAULT_FILTER_FILE)
-        to_write = "\n".join([str(i) for i in list(classes_after_edges)])
-        with open(filtered_path, 'w') as myfile:
-            myfile.write(to_write)
-            
-        # sanity check of class reconstruction   
-        if self.debug:    
-            all_classes = set(hdf_labels[:].flatten())
-            if set(edge_classes_combined).issubset(set(all_classes)):
-                self.log("Sharding sanity check: edge classes are a full subset of all classes")
-            else:
-                self.log("Sharding sanity check: edge classes are NOT a full subset of all classes.")
-        
-        hf.close()      
-        
-        self.log("resolved segmentation list")    
+    def get_output(self):
+        return os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE)    

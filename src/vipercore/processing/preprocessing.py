@@ -40,12 +40,13 @@ def _percentile_norm(im, lower_percentile, upper_percentile):
 
 
     out_im = im - lower_value 
-    out_im = out_im / IPR
+    #add check to make sure IPR is not 0
+    if IPR != 0:
+        out_im = out_im / IPR
     out_im = np.clip(out_im, 0, 1)
             
     return out_im
     
-
 @jit(nopython=True, parallel = True) # Set "nopython" mode for best performance, equivalent to @njit
 def rolling_window_mean(array,size,scaling = False):
     overlap=0

@@ -89,7 +89,7 @@ class MLClusterClassifier:
         runs = [int(i) for i in current_level_directories if self.is_Int(i)]
         
         self.current_run = max(runs) +1 if len(runs) > 0 else 0
-        self.run_path = os.path.join(self.directory, str(self.current_run))
+        self.run_path = os.path.join(self.directory, str(self.current_run) + "_" + self.config["screen_label"] ) #to ensure that you can tell by directory name what is being classified
         
         if not os.path.isdir(self.run_path):
             os.makedirs(self.run_path)
@@ -162,7 +162,9 @@ class MLClusterClassifier:
         # Load model and parameters
         network_dir = self.config["network"]
         checkpoint_path = os.path.join(network_dir,"checkpoints")
-        checkpoints = current_level_files = [ name for name in os.listdir(checkpoint_path) if os.path.isfile(os.path.join(checkpoint_path, name))]
+        self.log(f"Checkpoints being read from path: {checkpoint_path}")
+        checkpoints = [name for name in os.listdir(checkpoint_path) if os.path.isfile(os.path.join(checkpoint_path, name))]
+        checkpoints = [x for x in checkpoints if x.endswith(".ckpt")] #ensure we only have actualy checkpoint files
         checkpoints.sort()
 
         if len(checkpoints) < 1:
@@ -299,46 +301,52 @@ class MLClusterClassifier:
         result_labels = [f"result_{i}" for i in range(result.shape[1])]
         
         # ===== dimension reduction =====
-        
         if self.config["standard_scale"]:
             result = StandardScaler().fit_transform(result)
 
-        self.log(f"start first pca")
-        d1, d2 = result.shape
-        pca = PCA(n_components=min(d2, self.config["pca_dimensions"]))
-        embedding_pca = pca.fit_transform(result)
-        
-        # save pre dimension reduction pca results
-        pca_labels = [f"hd_pca_{i}" for i in range(embedding_pca.shape[1])]
-        
-        
-        print(result.shape)
-        print(embedding_pca.shape)
-        
-        design_labels = result_labels + pca_labels
-        design = np.concatenate((result, embedding_pca), axis=1)
+        if self.config["pca_dimensions"] == 0:
+            print("skipping dimension_reduction")
+            dataframe = pd.DataFrame(data=result, columns=result_labels)
+            dataframe["label"] = label
+            dataframe["cell_id"] = class_id.astype("int")
 
-        embedding_2_pca = PCA(n_components=2).fit_transform(result)
+        else:
+            print("performing dimensionality reduction")
 
-        #self.log(f"start umap")        
-        #reducer = umap.UMAP(n_neighbors=self.config["umap_neighbours"], min_dist=self.config["umap_min_dist"], n_components=2,metric='cosine')
-        #embedding_umap = reducer.fit_transform(embedding_pca)
+            self.log(f"start first pca")
+            d1, d2 = result.shape
+            pca = PCA(n_components=min(d2, self.config["pca_dimensions"]))
+            embedding_pca = pca.fit_transform(result)
+            
+            # save pre dimension reduction pca results
+            pca_labels = [f"hd_pca_{i}" for i in range(embedding_pca.shape[1])]
         
-        #self.log(f"start tsne")
-        #embedding_tsne = TSNE(n_jobs=self.config["threads"]).fit_transform(embedding_pca)
+            #print(result.shape)
+            #print(embedding_pca.shape)
+            
+            design = np.concatenate((result, embedding_pca), axis=1)
+            design_labels = result_labels + pca_labels
         
-        dataframe = pd.DataFrame(data=design, columns=design_labels)
-        
-        self.log(f"finished processing")
+            dataframe = pd.DataFrame(data=design, columns=design_labels)
+            dataframe["label"] = label
+            dataframe["cell_id"] = class_id.astype("int")
+            
+            embedding_2_pca = PCA(n_components=min(2, d2)).fit_transform(result)
 
-        dataframe["label"] = label
-        dataframe["cell_id"] = class_id.astype("int")
-        dataframe["pca_0"] = embedding_2_pca[:,0]
-        dataframe["pca_1"] = embedding_2_pca[:,1]
-        #dataframe["umap_0"] = embedding_umap[:,0]
-        #dataframe["umap_1"] = embedding_umap[:,1]
-        #dataframe["tsne_0"] = embedding_tsne[:,0]
-        #dataframe["tsne_1"] = embedding_tsne[:,1]
-        
+            #self.log(f"start umap")        
+            #reducer = umap.UMAP(n_neighbors=self.config["umap_neighbours"], min_dist=self.config["umap_min_dist"], n_components=2,metric='cosine')
+            #embedding_umap = reducer.fit_transform(embedding_pca)
+            
+            #self.log(f"start tsne")
+            #embedding_tsne = TSNE(n_jobs=self.config["threads"]).fit_transform(embedding_pca)
+
+            self.log(f"finished processing")
+            dataframe["pca_0"] = embedding_2_pca[:,0]
+            dataframe["pca_1"] = embedding_2_pca[:,1]
+            #dataframe["umap_0"] = embedding_umap[:,0]
+            #dataframe["umap_1"] = embedding_umap[:,1]
+            #dataframe["tsne_0"] = embedding_tsne[:,0]
+            #dataframe["tsne_1"] = embedding_tsne[:,1]
+            
         path = os.path.join(self.run_path,f"dimension_reduction_{model_fun.__name__}.tsv")
         dataframe.to_csv(path)
