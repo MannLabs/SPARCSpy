@@ -20,6 +20,9 @@ from skimage.morphology import binary_erosion, disk, dilation
 from skimage.segmentation import watershed
 from skimage.color import label2rgb
 
+#for cellpose segmentation
+from cellpose import models
+
 class BaseSegmentation(Segmentation):
 
     def __init__(self, *args, **kwargs):
@@ -426,7 +429,6 @@ class DAPISegmentation(BaseSegmentation):
         return(channels, segmentation)
     
     def process(self, input_image):
-        
         self.maps = {"normalized": None,
                      "median": None,
                      "nucleus_segmentation": None,
@@ -472,7 +474,60 @@ class ShardedDAPISegmentation(ShardedSegmentation):
 
     # def __init__(self, *args, **kwargs):
     #     super().__init__(*args, **kwargs)
-    
+
+class DAPISegmentationCellpose(BaseSegmentation):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _finalize_segmentation_results(self):
+        # The required maps are only nucleus channel
+        required_maps = [self.maps["normalized"][0]]
+        
+        # Feature maps are all further channel which contain phenotypes needed for the classification
+        if self.maps["input_image"].shape[0] > 1:
+            feature_maps = [element for element in self.maps["normalized"][1:]]
+            channels = np.stack(required_maps+feature_maps).astype("float16")
+        else:
+            channels = np.stack(required_maps).astype("float16")
+                    
+        segmentation = np.stack([self.maps["nucleus_segmentation"]]).astype("int32")
+        return(channels, segmentation)
+
+    def cellpose_segmentation(self, input_image):
+        #check that image is int
+        input_image = input_image.as_int(input_image)
+
+        #load correct segmentation model
+        model = models.Cellpose(model_type='nuclei')
+        masks, _, _, _ = model.eval([input_image], diameter = None, channels = [0,0]) 
+
+        self.maps["nucleus_segmentation"] = masks
+
+    def process(self, input_image):
+
+        #initialize location to save masks to
+        self.maps = {"normalized":None,
+                     "nucleus_segmentation": None}
+
+        #could add a normalization step here if so desired
+        self.maps["normalized"] = input_image
+
+        self.log("Starting Cellpose DAPI Segmentation.")
+        self.cellpose_segmentation(input_image)
+        
+        #currently no implemented filtering steps to remove nuclei outside of specific thresholds
+        all_classes = np.unique(self.maps["nucleus_segmentation"])
+
+        channels, segmentation = self._finalize_segmentation_results()
+        self.save_segmentation(channels, segmentation, all_classes)
+
+class ShardedDAPISegmentationCellpose(ShardedSegmentation): 
+    method = DAPISegmentationCellpose
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+
 class WGATimecourseSegmentation(TimecourseSegmentation):
     """
     Specialized Processing for Timecourse segmentation (i.e. smaller tiles not stitched together from many different wells and or timepoints).
