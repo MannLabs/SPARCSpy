@@ -488,15 +488,17 @@ class ShardedSegmentation(Segmentation):
         label_size = (2,self.image_size[0],self.image_size[1])
 
         #dirty fix to get this to run until we can impelement a better solution
-        if "wga_background_image" in self.config["wga_segmentation"]:
-            if self.config["wga_segmentation"]["wga_background_image"]:
-                channel_size = (self.config["input_channels"] -1 ,self.image_size[0],self.image_size[1])
+        if "wga_segmentation" in self.config: #need to add this check because otherwise it sometimes throws errors need better solution
+            if "wga_background_image" in self.config["wga_segmentation"]:
+                if self.config["wga_segmentation"]["wga_background_image"]:
+                    channel_size = (self.config["input_channels"] -1 ,self.image_size[0],self.image_size[1])
+                else:
+                    channel_size = (self.config["input_channels"],self.image_size[0],self.image_size[1])
             else:
                 channel_size = (self.config["input_channels"],self.image_size[0],self.image_size[1])
         else:
             channel_size = (self.config["input_channels"],self.image_size[0],self.image_size[1])
 
-        
         hf = h5py.File(output, 'w')
         
         hdf_labels = hf.create_dataset('labels', 
@@ -529,7 +531,6 @@ class ShardedSegmentation(Segmentation):
             local_hf = h5py.File(local_output, 'r')
             local_hdf_channels = local_hf.get('channels')
             local_hdf_labels = local_hf.get('labels')
-            
             
             shifted_map, edge_labels = shift_labels(local_hdf_labels, class_id_shift, return_shifted_labels=True)
             
@@ -599,7 +600,7 @@ class TimecourseSegmentation(Segmentation):
         if not hasattr(self, "method"):
             raise AttributeError("No BaseSegmentationType defined, please set attribute ``BaseSegmentationMethod``")
     
-    def initialize_as_shard(self, index, input_path, _tmp_seg, _tmp_classes):
+    def initialize_as_shard(self, index, input_path, _tmp_seg):
         """Initialize Segmentation Step with further parameters needed for federated segmentation. 
         
         Important:
@@ -614,7 +615,6 @@ class TimecourseSegmentation(Segmentation):
         self.index = index
         self.input_path = input_path
         self._tmp_seg = _tmp_seg
-        self._tmp_classes = _tmp_classes
         
     def call_as_shard(self):
         """Wrapper function for calling a sharded segmentation.
@@ -652,17 +652,16 @@ class TimecourseSegmentation(Segmentation):
             classes (list(int)): List of all classes in the labels array, which have passed the filtering step. All classes contained in this list will be extracted.
         
         """
-        global _tmp_seg, _tmp_classes 
+        global _tmp_seg
         # size (C, H, W) is expected
         # dims are expanded in case (H, W) is passed
         labels = np.expand_dims(labels, axis=0) if len(labels.shape) == 2 else labels
         classes = np.array(list(classes))
         _tmp_seg[self.current_index] = labels
-        
-        #self._tmp_classes[self.current_index] = classes
+        #_tmp_classes[self.current_index] = [classes]
 
     def _initialize_tempmmap_array(self):
-        global _tmp_seg, _tmp_classes
+        global _tmp_seg
         #import tempmmap module and reset temp folder location
         from alphabase.io import tempmmap
         TEMP_DIR_NAME = tempmmap.redefine_temp_location(self.config["cache"])
@@ -671,26 +670,35 @@ class TimecourseSegmentation(Segmentation):
         _tmp_seg = tempmmap.array(self.shape_segmentation,dtype = np.int32)
 
         #dt = h5py.special_dtype(vlen=np.int32)
-        _tmp_classes  = tempmmap.array(self.shape_classes, dtype = np.int32)
+        #_tmp_classes  = tempmmap.array(, dtype = np.int32)
         self.TEMP_DIR_NAME = TEMP_DIR_NAME
 
     def _transfer_tempmmap_to_hdf5(self):
-        global _tmp_seg, _tmp_classes
+        global _tmp_seg
         input_path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE )
         
         #create hdf5 datasets with temp_arrays as input
         with h5py.File(input_path, 'a') as hf:
+
+            #check if dataset already exists if so delete and overwrite
+            if "segmentation" in hf.keys():
+                del hf["segmentation"]
+                self.log("segmentation dataset already existe in hdf5, deleted and overwritten.")
             hf.create_dataset('segmentation',  shape = _tmp_seg.shape, chunks=(1, 2, self.shape_input_images[2], self.shape_input_images[3]), dtype = "int32")
             dt = h5py.special_dtype(vlen=np.dtype('int32'))
-            hf.create_dataset("classes", shape = _tmp_classes.shape, maxshape=(None), chunks= None, dtype = dt)
+            
+            if "classes" in hf.keys():
+                del hf["classes"]
+                self.log("classes dataset already existed in hdf5, deleted and overwritten.")
+            
+            hf.create_dataset("classes", shape = self.shape_classes, maxshape=(None), chunks= None, dtype = dt)
             hf["segmentation"][:] = _tmp_seg
-            hf["classes"][:] = _tmp_classes
 
         #delete tempobjects (to cleanup directory)
         self.log(f"Tempmmap Folder location {self.TEMP_DIR_NAME} will now be removed.")
         shutil.rmtree(self.TEMP_DIR_NAME, ignore_errors=True)
 
-        del _tmp_seg, _tmp_classes, self.TEMP_DIR_NAME
+        del _tmp_seg, self.TEMP_DIR_NAME
 
     def save_image(self, array, save_name="", cmap="magma",**kwargs):
                 
@@ -746,9 +754,9 @@ class TimecourseSegmentation(Segmentation):
                 
                 hdf_labels[i, :, :] = shifted_map
                 hdf_classes[i] = np.array(final_classes, dtype = "int32").reshape(1, 1, -1)
-                
+
                 #save all cells in general
-                filtered_classes_combined += [class_id + class_id_shift for class_id in filtered_classes if class_id != 0]
+                filtered_classes_combined += [class_id for class_id in filtered_classes if class_id != 0]
                 edge_classes_combined += edge_labels
 
                 #adjust class_id shift
@@ -785,7 +793,7 @@ class TimecourseSegmentation(Segmentation):
 
     def process(self):
         
-        global _tmp_seg, _tmp_classes
+        global _tmp_seg
 
         input_path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE )
 
@@ -812,8 +820,7 @@ class TimecourseSegmentation(Segmentation):
 
         current_seg.initialize_as_shard(index = indexes, 
                                         input_path = input_path, 
-                                        _tmp_seg = _tmp_seg,
-                                        _tmp_classes = _tmp_classes)
+                                        _tmp_seg = _tmp_seg)
 
         self.method.call_as_shard(current_seg)
 
@@ -836,7 +843,7 @@ class MultithreadedSegmentation(TimecourseSegmentation):
     
     def process(self):
         
-        global _tmp_seg, _tmp_classes
+        global _tmp_seg
 
         input_path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE )
 
@@ -860,8 +867,8 @@ class MultithreadedSegmentation(TimecourseSegmentation):
         
         segmentation_list = self.initialize_shard_list(indexes, 
                                                        input_path = input_path, 
-                                                       _tmp_seg = _tmp_seg, 
-                                                       _tmp_classes = _tmp_classes)
+                                                       _tmp_seg = _tmp_seg)
+        
         print("Segmentation with", self.config["threads"], "beginns.")
         
         with Pool(processes=self.config["threads"]) as pool:
@@ -879,7 +886,7 @@ class MultithreadedSegmentation(TimecourseSegmentation):
         self.adjust_segmentation_indexes()
         self.log("Adjusted Indexes.")
 
-    def initialize_shard_list(self, segmentation_list, input_path, _tmp_seg, _tmp_classes):
+    def initialize_shard_list(self, segmentation_list, input_path, _tmp_seg):
         _shard_list = []
 
         for i  in tqdm(segmentation_list, total = len(segmentation_list), desc="Generating Shards"):
@@ -892,7 +899,7 @@ class MultithreadedSegmentation(TimecourseSegmentation):
                  intermediate_output = self.intermediate_output
             )
             
-            current_shard.initialize_as_shard(i, input_path, _tmp_seg, _tmp_classes)
+            current_shard.initialize_as_shard(i, input_path, _tmp_seg)
             _shard_list.append(current_shard)
 
         return _shard_list

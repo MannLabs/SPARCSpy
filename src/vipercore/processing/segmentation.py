@@ -379,13 +379,25 @@ def _numba_subtract(array1, min_number):
 
 @njit
 def numba_mask_centroid(mask, debug=False, skip_background=True):
+    """
+    returns
+    center
+        numpy array containing the y, x coordinates of each element
+    points_class
+        the number of pixels associated with each class
+    class_id
+        the id number of each class
+    """
     
     # need to perform this adjustment here so that we can also work with segmentations that do not start with a seg index of 1!
     # this is relevant when working with segmentations that have been reindexed over different tiles
     cell_ids = list(np.unique(mask).flatten())
+    
     if 0 in cell_ids: cell_ids.remove(0)
+    
     cell_ids = np.array(cell_ids)
     min_cell_id = np.min(cell_ids) #need to convert to array since numba min functions requires array as input not list
+    
     if min_cell_id != 1:
         mask = _numba_subtract(mask, min_cell_id)
 
@@ -403,31 +415,36 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
 
     points_class = np.zeros((num_classes,), dtype="uint32")
     center = np.zeros((num_classes, 2, ))
-    
+    ids = np.zeros((num_classes,))
+
     if skip_background:
-        points_class[0] = 1
         for y in range(len(mask)):
             for x in range(len(mask[0])):
 
                 class_id = mask[y,x]
                 if class_id > 0:
-
+                    class_id -= 1
                     points_class[class_id] +=1
                     center[class_id] += np.array([x,y])
+                    ids[class_id] = class_id + 1
                     
     else:
         for y in range(len(mask)):
             for x in range(len(mask[0])):
-
                 class_id = mask[y,x]
-                points_class[class_id] +=1
+                points_class[class_id] += 1
                 center[class_id] += np.array([x,y])
+                ids[class_id] = class_id
                     
     x = center[:,0]/points_class
     y = center[:,1]/points_class
     
     center = np.stack((y,x)).T
-    return center, points_class, cell_ids
+    
+    if min_cell_id != 1:
+        ids += min_cell_id
+
+    return center, points_class, ids.astype("int32")
 
 @njit
 def _selected_coords_fast(mask, classes, debug=False, background=0):

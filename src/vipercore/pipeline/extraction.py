@@ -7,13 +7,15 @@ import csv
 from functools import partial
 from multiprocessing import Pool
 import h5py
+from tqdm import tqdm
+from itertools import compress
 
 from skimage.filters import gaussian
 from skimage.morphology import disk, dilation
 
 from scipy.ndimage import binary_fill_holes
 
-from vipercore.processing.segmentation import numba_mask_centroid
+from vipercore.processing.segmentation import numba_mask_centroid, _return_edge_labels
 from vipercore.processing.utils import plot_image, flatten
 from vipercore.processing.deprecated import normalize, MinMax
 from vipercore.pipeline.base import ProcessingStep
@@ -23,7 +25,6 @@ import shutil
 import timeit
 
 import _pickle as cPickle
-
 class HDF5CellExtraction(ProcessingStep):
 
     DEFAULT_LOG_NAME = "processing.log" 
@@ -55,7 +56,6 @@ class HDF5CellExtraction(ProcessingStep):
         #extract required information for generating datasets
         self.get_compression_type()
         self.get_classes_path()
-        self.get_channel_info()
         
         """class can be initiated to create a WGA extraction workfow
 
@@ -198,7 +198,6 @@ class HDF5CellExtraction(ProcessingStep):
         """
         Processing for each invidual cell that needs to be run for each center.
         """
-        print(arg)
         save_index, index, image_index, label_info = self._get_label_info(arg) #label_info not used in base case but relevant for flexibility for other classes
         
         #generate some progress output every 10000 cells
@@ -229,7 +228,7 @@ class HDF5CellExtraction(ProcessingStep):
                 if image_index is None:
                     nuclei_mask = hdf_labels[0, window_y, window_x]
                 else:
-                    nuclei_mask = hdf_labels[image_index, 0,window_y, window_x]
+                    nuclei_mask = hdf_labels[image_index, 0, window_y, window_x]
                 #print(nuclei_mask[60:68,60:68])
                 
                 nuclei_mask = np.where(nuclei_mask == index, 1,0)
@@ -246,7 +245,7 @@ class HDF5CellExtraction(ProcessingStep):
                     cell_mask = hdf_labels[image_index, 1,window_y,window_x]
 
                 #print(cell_mask[60:68,60:68])
-                plot_image(cell_mask, size=(5,5))
+                #plot_image(cell_mask, size=(5,5))
                 cell_mask = np.where(cell_mask == index,1,0).astype(int)
                 cell_mask = binary_fill_holes(cell_mask)
 
@@ -283,28 +282,29 @@ class HDF5CellExtraction(ProcessingStep):
                 
                 required_maps = [nuclei_mask, cell_mask, channel_nucleus, channel_wga]
                 
-                
                 feature_channels = []
 
                 if image_index is None:
-                    if hdf_channels.shape[0] > 2:
-                        for i in range(2, len(hdf_channels)):
-                            feature_channel = hdf_channels[i,window_y,window_x]
+                    if hdf_channels.shape[0] > 2:  
+                        for i in range(2, hdf_channels.shape[0]):
+                            feature_channel = hdf_channels[i, window_y, window_x]   
                             feature_channel = normalize(feature_channel)
                             feature_channel = feature_channel*cell_mask_extended
                             feature_channel = MinMax(feature_channel)
                             
                             feature_channels.append(feature_channel)
+        
                 else:
-                    if hdf_channels.shape[1] > 2:  
-                        feature_channel = hdf_channels[image_index, i,window_y,window_x]   
-                        feature_channel = normalize(feature_channel)
-                        feature_channel = feature_channel*cell_mask_extended
-                        feature_channel = MinMax(feature_channel)
-                        
-                        feature_channels.append(feature_channel)  
+                    if hdf_channels.shape[1] > 2:
+                        for i in range(2, hdf_channels.shape[1]):
+                            feature_channel = hdf_channels[image_index, i, window_y, window_x]
+                            feature_channel = normalize(feature_channel)
+                            feature_channel = feature_channel*cell_mask_extended
+                            feature_channel = MinMax(feature_channel)
+                            
+                            feature_channels.append(feature_channel)
                 
-                channels = required_maps+feature_channels
+                channels = required_maps + feature_channels
                 stack = np.stack(channels, axis=0).astype("float16")
                 
                 if self.remap is not None:
@@ -315,6 +315,7 @@ class HDF5CellExtraction(ProcessingStep):
     def process(self, input_segmentation_path, filtered_classes_path):
         # is called with the path to the segmented image
         
+        self.get_channel_info() # needs to be called here after the segmentation is completed
         self.setup_output()
         self.parse_remapping()
         
@@ -415,7 +416,6 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
                  **kwargs):
         
         super().__init__(*args, **kwargs)
-        self.get_labelling()
 
     def get_labelling(self):
         with h5py.File(self.input_segmentation_path, 'r') as hf:
@@ -426,8 +426,8 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         #need to extract ID for each cellnumber
         #generate lookuptable where we have all cellids for each tile id
         with h5py.File(self.input_segmentation_path, "r") as hf:
-            labels = hf.get("labels")[:].astype("U13")
-            segmentation = hf.get(self.segmentation_label)
+            labels = hf.get("labels").asstr()[:]
+            classes = hf.get("classes")
 
             results = pd.DataFrame(columns = ["tileids", "cellids"], index = range(labels.shape[0]))
         
@@ -436,15 +436,16 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
             # currently not working because of issue with datatypes
             
             for i, tile_id in zip(labels.T[0], labels.T[1]):
-                cellids = list(np.unique(segmentation[int(i)][0]))
-                cellids.remove(0)
+                cellids =list(classes[int(i)])
+                if 0 in cellids:
+                    cellids.remove(0)
                 results.loc[int(i), "cellids"] = cellids
                 results.loc[int(i), "tileids"] = tile_id
 
         #map each cell id to tile id and generate a tuple which can be passed to later functions
-        return_results = [[(cellid, i, results.loc[i, "tileids"]) for i, xset in enumerate(results.cellids) if cellid in set(xset)] for cellid in class_list]
+        return_results = [[(xset, i, results.loc[i, "tileids"]) for i, xset in enumerate(results.cellids)]]
         return_results = flatten(return_results)
-        #required output format: [(class_id, image_index, label_id), (class_id, image_index, label_id)]
+        #required output format: [(class_ids, image_index1, label_id), (class_ids, image_index2, label_id)]
         return(return_results)
 
     def _get_label_info(self, arg):
@@ -468,7 +469,6 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
             
             #generate index data container
             self.single_cell_index_shape =  (self.num_classes, len(column_labels))
-            print(column_labels)
             hf.create_dataset('single_cell_index', self.single_cell_index_shape , chunks=None, dtype = dt)
             
             #generate datacontainer for the single cell images
@@ -498,7 +498,7 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
 
         #generate container for single_cell_index
         #cannot be a temmmap array with object type as this doesnt work for memory mapped arrays
-        dt = h5py.special_dtype(vlen=str)
+        #dt = h5py.special_dtype(vlen=str)
         _tmp_single_cell_index  = np.empty(self.single_cell_index_shape, dtype = "<U32")
         
         #_tmp_single_cell_index  = tempmmap.array(self.single_cell_index_shape, dtype = "<U32")
@@ -506,12 +506,20 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         self.TEMP_DIR_NAME = TEMP_DIR_NAME
 
     def _transfer_tempmmap_to_hdf5(self):
-        global _tmp_single_cell_data, _tmp_single_cell_index
-
+        global _tmp_single_cell_data, _tmp_single_cell_index   
+        
         self.log(f"Transferring exracted single cells to .hdf5")
         with h5py.File(self.output_path, 'a') as hf:
-            hf["single_cell_indexes"][:] = _tmp_single_cell_index
+            hf["single_cell_index"][:] = _tmp_single_cell_index
             hf["single_cell_data"][:] = _tmp_single_cell_data
+
+
+            # import matplotlib.pyplot as plt
+            # for i in hf["single_cell_data"][0]:
+            #     plt.figure()
+            #     plt.imshow(i)
+            
+            # print(hf["single_cell_index"][0])
 
         #delete tempobjects (to cleanup directory)
         self.log(f"Tempmmap Folder location {self.TEMP_DIR_NAME} will now be removed.")
@@ -520,17 +528,31 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         del _tmp_single_cell_data, _tmp_single_cell_index, self.TEMP_DIR_NAME 
 
     def _save_cell_info(self, index, cell_id, image_index, label_info, stack):
+        global _tmp_single_cell_data, _tmp_single_cell_index
         #label info is None so just ignore for the base case
+        
+        #save single cell images
         _tmp_single_cell_data[index] = stack
+        # print("index:", index)
+        # import matplotlib.pyplot as plt
+        
+        # for i in stack:
+        #         plt.figure()
+        #         plt.imshow(i)
+        #         plt.show()
 
         #get label information
         with h5py.File(self.input_segmentation_path, "r") as hf:
-            save_value = np.array(flatten([str(index), str(cell_id), hf.get("labels")[image_index].astype('U13')[1:]]))
+            labelling = hf.get("labels").asstr()[image_index][1:]
+            save_value = [str(index), str(cell_id)]
+            save_value = np.array(flatten([save_value, labelling]))
+            #print(save_value)
 
-            _tmp_single_cell_index[index][:] = save_value
+            _tmp_single_cell_index[index] = save_value
+            # print(_tmp_single_cell_index[index])
 
             #double check that its really the same values
-            if _tmp_single_cell_index[index][1] != label_info:
+            if _tmp_single_cell_index[index][2] != label_info:
                 self.log("ISSUE INDEXES DO NOT MATCH.")
                 self.log(f"index: {index}")
                 self.log(f"image_index: {image_index}")
@@ -539,6 +561,8 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
     def process(self, input_segmentation_path, filtered_classes_path):
     # is called with the path to the segmented image
         
+        self.get_labelling()
+        self.get_channel_info()
         self.setup_output()
         self.parse_remapping()
 
@@ -553,25 +577,46 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         #start extraction
         self.log("Starting extraction.")
         self.verbalise_extraction_info()
-        
+
         with  h5py.File(self.input_segmentation_path, 'r') as hf:
             start = timeit.default_timer()
 
             self.log(f"Loading segmentation data from {self.input_segmentation_path}")
-            hdf_channels = hf.get(self.channel_label)
             hdf_labels = hf.get(self.segmentation_label)
 
-            for arg in arg_list:
+            for arg in tqdm(arg_list):
                 cell_ids, image_index, label_info = arg 
-                print(cell_ids)
+                # print("image index:", image_index)
+                # print("cell ids", cell_ids)
+                # print("label info:", label_info)
+
                 center_nuclei, _, _cell_ids = numba_mask_centroid(hdf_labels[image_index, 0, :, :], debug=self.debug)
                 px_centers = np.round(center_nuclei).astype(int)
                 _cell_ids = list(_cell_ids)
-                for cell_id in cell_ids:
+
+                # #plotting results for debugging
+                # import matplotlib.pyplot as plt
+                # plt.figure(figsize = (10, 10))
+                # plt.imshow(hdf_labels[image_index, 1, :, :])
+                # plt.figure(figsize = (10, 10))
+                # plt.imshow(hdf_labels[image_index, 0, :, :])
+                # y, x = px_centers.T
+                # plt.scatter(x, y, color = "red", s = 5)
+                
+                #filter lists to only include those cells which passed the final filters (i.e remove border cells)
+                filter = [x in cell_ids for x in _cell_ids]
+                px_centers = np.array(list(compress(px_centers, filter)))
+                _cell_ids = list(compress(_cell_ids, filter))
+
+                # #plotting results for debugging
+                # y, x = px_centers.T
+                # plt.scatter(x, y, color = "blue", s = 5)
+                # plt.show()
+
+                for cell_id, px_center in zip(_cell_ids, px_centers):
                     save_index = lookup_saveindex.index.get_loc(cell_id)
-                    px_center = px_centers[_cell_ids.index(cell_id)]
                     self._extract_classes(input_segmentation_path, px_center,  (save_index, cell_id, image_index, label_info))
-                print("done")
+
             stop = timeit.default_timer()
 
         duration = stop - start
@@ -579,11 +624,12 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         self.log(f"Finished parallel extraction in {duration:.2f} seconds ({rate:.2f} cells / second)")
         
         self.log("Collect cells")
-        self._transfer_tempmmap_to_hdf5(self)
+        self._create_hdf5()
+        self._transfer_tempmmap_to_hdf5()
         self.log("Extraction completed.")
 
 class SingleCellExtraction:
-    
+
     DEFAULT_LOG_NAME = "processing.log" 
     DEFAULT_DATA_DIR = "data"
     CLEAN_LOG = False
@@ -809,8 +855,7 @@ class SingleCellExtraction:
             np.save(os.path.join(self.extraction_data_directory,"{}.npy".format(index)),design)
             
 class HDF5CellExtractionOld:
-    
-    
+
     DEFAULT_LOG_NAME = "processing.log" 
     DEFAULT_DATA_FILE = "single_cells.h5"
     DEFAULT_DATA_DIR = "data"

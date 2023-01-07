@@ -496,7 +496,7 @@ class DAPISegmentationCellpose(BaseSegmentation):
 
     def cellpose_segmentation(self, input_image):
         #check that image is int
-        input_image = input_image.as_int(input_image)
+        input_image = input_image.astype('int')
 
         #load correct segmentation model
         model = models.Cellpose(model_type='nuclei')
