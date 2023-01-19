@@ -21,7 +21,7 @@ from skimage.segmentation import watershed
 from skimage.color import label2rgb
 
 from vipercore.processing.segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, shift_labels
-from vipercore.processing.utils import plot_image
+from vipercore.processing.utils import plot_image, flatten
 
 from vipercore.pipeline.base import ProcessingStep
 
@@ -601,7 +601,7 @@ class TimecourseSegmentation(Segmentation):
         if not hasattr(self, "method"):
             raise AttributeError("No BaseSegmentationType defined, please set attribute ``BaseSegmentationMethod``")
     
-    def initialize_as_shard(self, index, input_path, _tmp_seg):
+    def initialize_as_shard(self, index, input_path):
         """Initialize Segmentation Step with further parameters needed for federated segmentation. 
         
         Important:
@@ -615,7 +615,6 @@ class TimecourseSegmentation(Segmentation):
         """
         self.index = index
         self.input_path = input_path
-        self._tmp_seg = _tmp_seg
         
     def call_as_shard(self):
         """Wrapper function for calling a sharded segmentation.
@@ -633,15 +632,18 @@ class TimecourseSegmentation(Segmentation):
                 self.index = [self.index]
             
             self.log(f"Starting segmentation on a total of {len(self.index)} indexes.")
+            results= []
             for index in self.index:
                 self.current_index = index
                 input_image = hdf_input[index, :, :, :]
                 self.log(f"Segmentation on index {index} started.")
                 try:   
-                    super().__call__(input_image)
+                    _result = super().__call__(input_image)
+                    results.append(_result)
                 except Exception:
                     self.log(traceback.format_exc()) 
                 self.log(f"Segmentation on index {index} completed.")
+        return results
 
     def save_segmentation(self, 
                           input_image,
@@ -655,12 +657,13 @@ class TimecourseSegmentation(Segmentation):
             classes (list(int)): List of all classes in the labels array, which have passed the filtering step. All classes contained in this list will be extracted.
         
         """
-        global _tmp_seg
+        # global _tmp_seg
         # size (C, H, W) is expected
         # dims are expanded in case (H, W) is passed
         labels = np.expand_dims(labels, axis=0) if len(labels.shape) == 2 else labels
         classes = np.array(list(classes))
-        _tmp_seg[self.current_index] = labels
+        #_tmp_seg[self.current_index] = labels
+        return ((self.current_index, labels))
         #_tmp_classes[self.current_index] = [classes]
 
     def _initialize_tempmmap_array(self):
@@ -675,6 +678,30 @@ class TimecourseSegmentation(Segmentation):
         #dt = h5py.special_dtype(vlen=np.int32)
         #_tmp_classes  = tempmmap.array(, dtype = np.int32)
         self.TEMP_DIR_NAME = TEMP_DIR_NAME
+
+    def _transfer_results_to_hdf5(self, results):
+        input_path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE )
+        #create hdf5 datasets with temp_arrays as input
+        with h5py.File(input_path, 'a') as hf:
+
+            #check if dataset already exists if so delete and overwrite
+            if "segmentation" in hf.keys():
+                del hf["segmentation"]
+                self.log("segmentation dataset already existe in hdf5, deleted and overwritten.")
+            hf.create_dataset('segmentation',  shape = self.shape_segmentation, chunks=(1, 2, self.shape_input_images[2], self.shape_input_images[3]), dtype = "int32")
+            dt = h5py.special_dtype(vlen=np.dtype('int32'))
+            
+            if "classes" in hf.keys():
+                del hf["classes"]
+                self.log("classes dataset already existed in hdf5, deleted and overwritten.")
+            
+            hf.create_dataset("classes", shape = self.shape_classes, maxshape=(None), chunks= None, dtype = dt)
+
+            results = flatten(results)
+        
+            for x in results:
+                i, arr = x
+                hf["segmentation"][i] = arr
 
     def _transfer_tempmmap_to_hdf5(self):
         global _tmp_seg
@@ -796,7 +823,7 @@ class TimecourseSegmentation(Segmentation):
 
     def process(self):
         
-        global _tmp_seg
+        #global _tmp_seg
 
         input_path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE )
 
@@ -810,7 +837,7 @@ class TimecourseSegmentation(Segmentation):
             self.shape_classes = (input_images.shape[0])
 
         #initialize temp object to write segmentations too
-        self._initialize_tempmmap_array()
+        #self._initialize_tempmmap_array()
         self.log("Beginning segmentation without multithreading.")
 
         current_shard = self.method(
@@ -822,14 +849,21 @@ class TimecourseSegmentation(Segmentation):
                             )
 
         current_shard.initialize_as_shard(indexes, 
-                                        input_path = input_path, 
-                                        _tmp_seg = _tmp_seg)
+                                        input_path = input_path)
 
-        current_shard.call_as_shard()
+        #unpack results and write to temp array
+        results = current_shard.call_as_shard()
+
+        self._transfer_results_to_hdf5(results)
+        # results = flatten(results)
+        
+        # for x in results:
+        #     i, arr = x
+        #     _tmp_seg[i] = arr
 
         #save results to hdf5
         self.log("Writing segmentation results to .hdf5 file.")
-        self._transfer_tempmmap_to_hdf5()
+        #self._transfer_tempmmap_to_hdf5()
         self.adjust_segmentation_indexes()
         self.log("Adjusted Indexes.")
 
@@ -847,7 +881,7 @@ class MultithreadedSegmentation(TimecourseSegmentation):
     
     def process(self):
         
-        global _tmp_seg
+        #global _tmp_seg
 
         input_path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE )
 
@@ -861,7 +895,7 @@ class MultithreadedSegmentation(TimecourseSegmentation):
             self.shape_classes = (input_images.shape[0])
 
         #initialize temp object to write segmentations too
-        self._initialize_tempmmap_array()
+        #self._initialize_tempmmap_array()
         
         #self.log("Segmentation Plan generated with {} elements. Segmentation with {} threads begins.").format(self.n_files, self.config["threads"])
         
@@ -870,8 +904,7 @@ class MultithreadedSegmentation(TimecourseSegmentation):
         # class2 = np.array([1,2,3,4,5], dtype= "int32").reshape(1, 1, -1)
         
         segmentation_list = self.initialize_shard_list(indexes, 
-                                                       input_path = input_path, 
-                                                       _tmp_seg = _tmp_seg)
+                                                       input_path = input_path)
         
         print("Segmentation with", self.config["threads"], "threads beginns.")
        
@@ -882,17 +915,26 @@ class MultithreadedSegmentation(TimecourseSegmentation):
         
         with Pool(processes=self.config["threads"]) as pool:
             #x = pool.map(self.method.call_as_shard, segmentation_list)
-            for _ in tqdm(pool.imap(self.method.call_as_shard, segmentation_list), total = len(indexes)):
-                pass
+            # for _ in tqdm(pool.imap(self.method.call_as_shard, segmentation_list), total = len(indexes)):
+            #     pass
+            results = list(tqdm(pool.imap(self.method.call_as_shard, segmentation_list), total = len(indexes)))
             print('All segmentations are done.', flush=True)
-        
         self.log("Finished parallel segmentation")
+        self.log("Transferring results to array.")
 
-        self._transfer_tempmmap_to_hdf5()
+        self._transfer_results_to_hdf5(results)
+        # #add results to tmp_seg so that it can be transferred
+        # results = flatten(results)
+        # for x in results:
+        #     i, arr = x
+        #     _tmp_seg[i] = arr
+
+        self.log("Transferring results to hdf5 file.")
+        #self._transfer_tempmmap_to_hdf5()
         self.adjust_segmentation_indexes()
         self.log("Adjusted Indexes.")
 
-    def initialize_shard_list(self, segmentation_list, input_path, _tmp_seg):
+    def initialize_shard_list(self, segmentation_list, input_path):
         _shard_list = []
 
         for i  in tqdm(segmentation_list, total = len(segmentation_list), desc="Generating Shards"):
@@ -905,7 +947,7 @@ class MultithreadedSegmentation(TimecourseSegmentation):
                  intermediate_output = self.intermediate_output
             )
             
-            current_shard.initialize_as_shard(i, input_path, _tmp_seg)
+            current_shard.initialize_as_shard(i, input_path)
             _shard_list.append(current_shard)
         
         self.log(f"Shard list created with {len(_shard_list)} elements.")

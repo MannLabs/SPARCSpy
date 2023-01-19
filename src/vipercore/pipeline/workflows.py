@@ -402,9 +402,10 @@ class WGASegmentation(BaseSegmentation):
         filtered_classes = self._filter_cells_cytosol_size(all_classes, filtered_classes)   
         channels, segmentation = self._finalize_segmentation_results()
 
-        self.save_segmentation(channels, segmentation, filtered_classes)
+        results = self.save_segmentation(channels, segmentation, filtered_classes)
+        
         #self.save_segmentation_zarr(channels, segmentation) #currently save both since we have not fully converted.
-
+        return(results)
 class ShardedWGASegmentation(ShardedSegmentation):
 
     method = WGASegmentation

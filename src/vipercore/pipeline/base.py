@@ -131,9 +131,12 @@ class ProcessingStep(Logable):
 
         process = getattr(self, "process", None)
         if callable(process):
-            self.process(*args,**kwargs)
+            x = self.process(*args,**kwargs)
+            return(x)
         else:
             warnings.warn("no process method defined")
+
+        
             
     def register_parameter(self, key, value):
         
