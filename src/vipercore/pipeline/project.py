@@ -410,7 +410,6 @@ class TimecourseProject(Project):
             self.img_size = img_size
             
             def _read_write_images(dir, indexes, h5py_path):
-                
                 #unpack indexes
                 index_start, index_end = indexes
                 
@@ -463,6 +462,7 @@ class TimecourseProject(Project):
             
             #get all directories contained within the input dir
             directories = os.listdir(input_dir)
+            directories.remove('.DS_Store')  #need to remove this because otherwise it gives errors
 
             #filter directories to only contain those listed in the plate layout
             directories = [_dir for _dir in directories if re.match("^Row._Well[0-9]", _dir).group() in wells ]

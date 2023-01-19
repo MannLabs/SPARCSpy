@@ -485,7 +485,7 @@ class DAPISegmentationCellpose(BaseSegmentation):
         required_maps = [self.maps["normalized"][0]]
         
         # Feature maps are all further channel which contain phenotypes needed for the classification
-        if self.maps["input_image"].shape[0] > 1:
+        if self.maps["normalized"].shape[0] > 1:
             feature_maps = [element for element in self.maps["normalized"][1:]]
             channels = np.stack(required_maps+feature_maps).astype("float16")
         else:
@@ -501,9 +501,12 @@ class DAPISegmentationCellpose(BaseSegmentation):
         #load correct segmentation model
         model = models.Cellpose(model_type='nuclei')
         masks, _, _, _ = model.eval([input_image], diameter = None, channels = [0,0]) 
+        masks = np.array(masks) #convert to array
 
-        self.maps["nucleus_segmentation"] = masks
+        self.log(f"Segmented mask shape: {masks.shape}")
+        self.maps["nucleus_segmentation"] = masks.reshape(masks.shape[1:]) #need to add reshape so that hopefully saving works out
 
+    
     def process(self, input_image):
 
         #initialize location to save masks to

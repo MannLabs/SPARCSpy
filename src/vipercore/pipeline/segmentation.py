@@ -588,6 +588,7 @@ class TimecourseSegmentation(Segmentation):
     """Segmentation helper class used for creating segmentation workflows working with timecourse data.                     
     """
     DEFAULT_OUTPUT_FILE = "input_segmentation.h5"
+    DEFAULT_INPUT_IMAGE_NAME = "input_segmentation.h5"
     PRINT_MAPS_ON_DEBUG = True
     channel_colors = ["#e60049", "#0bb4ff", "#50e991", "#e6d800", "#9b19f5", "#ffa300", "#dc0ab4", "#b3d4ff", "#00bfa0"]
     
@@ -630,15 +631,17 @@ class TimecourseSegmentation(Segmentation):
             
             if type(self.index) == int:
                 self.index = [self.index]
-
+            
+            self.log(f"Starting segmentation on a total of {len(self.index)} indexes.")
             for index in self.index:
                 self.current_index = index
                 input_image = hdf_input[index, :, :, :]
-                print("Segmentation on index", index, "started.")
+                self.log(f"Segmentation on index {index} started.")
                 try:   
                     super().__call__(input_image)
                 except Exception:
                     self.log(traceback.format_exc()) 
+                self.log(f"Segmentation on index {index} completed.")
 
     def save_segmentation(self, 
                           input_image,
@@ -797,7 +800,7 @@ class TimecourseSegmentation(Segmentation):
 
         input_path = os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE )
 
-        with h5py.File(self.input_path, 'r') as hf:
+        with h5py.File(input_path, 'r') as hf:
             input_images = hf.get('input_images')
             indexes = list(range(0, input_images.shape[0]))
 
@@ -808,26 +811,27 @@ class TimecourseSegmentation(Segmentation):
 
         #initialize temp object to write segmentations too
         self._initialize_tempmmap_array()
+        self.log("Beginning segmentation without multithreading.")
 
-        #initialize segmentation object
-        current_seg = self.method(
-                 self.config,
-                 self.directory,
-                 debug=self.debug,
-                 overwrite = self.overwrite,
-                 intermediate_output = self.intermediate_output,
-            )
+        current_shard = self.method(
+                                self.config,
+                                self.directory,
+                                debug=self.debug,
+                                overwrite = self.overwrite,
+                                intermediate_output = self.intermediate_output
+                            )
 
-        current_seg.initialize_as_shard(index = indexes, 
+        current_shard.initialize_as_shard(indexes, 
                                         input_path = input_path, 
                                         _tmp_seg = _tmp_seg)
 
-        self.method.call_as_shard(current_seg)
+        current_shard.call_as_shard()
 
         #save results to hdf5
         self.log("Writing segmentation results to .hdf5 file.")
         self._transfer_tempmmap_to_hdf5()
         self.adjust_segmentation_indexes()
+        self.log("Adjusted Indexes.")
 
 class MultithreadedSegmentation(TimecourseSegmentation):
     
@@ -869,20 +873,22 @@ class MultithreadedSegmentation(TimecourseSegmentation):
                                                        input_path = input_path, 
                                                        _tmp_seg = _tmp_seg)
         
-        print("Segmentation with", self.config["threads"], "beginns.")
+        print("Segmentation with", self.config["threads"], "threads beginns.")
+       
+        #make more verbose output for troubleshooting and timing purposes.
+        n_threads = self.config["threads"]
+        self.log(f"Beginning segmentation with {n_threads} threads.")
+        self.log(f"A total of {len(segmentation_list)} processes need to be executed.")
         
         with Pool(processes=self.config["threads"]) as pool:
-            x = pool.map(self.method.call_as_shard, segmentation_list)
-            # for _ in tqdm(pool.imap(self.method.call_as_shard, segmentation_list), total = len(indexes)):
-            #     pass
-            pool.close()
-            pool.join()
+            #x = pool.map(self.method.call_as_shard, segmentation_list)
+            for _ in tqdm(pool.imap(self.method.call_as_shard, segmentation_list), total = len(indexes)):
+                pass
             print('All segmentations are done.', flush=True)
         
         self.log("Finished parallel segmentation")
 
         self._transfer_tempmmap_to_hdf5()
-
         self.adjust_segmentation_indexes()
         self.log("Adjusted Indexes.")
 
@@ -901,6 +907,8 @@ class MultithreadedSegmentation(TimecourseSegmentation):
             
             current_shard.initialize_as_shard(i, input_path, _tmp_seg)
             _shard_list.append(current_shard)
+        
+        self.log(f"Shard list created with {len(_shard_list)} elements.")
 
         return _shard_list
 
