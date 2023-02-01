@@ -304,7 +304,6 @@ class Project(Logable):
             raise ValueError("No extraction method defined")
             
         input_segmentation = self.segmentation_f.get_output()
-        
         input_dir = os.path.join(self.project_location, self.DEFAULT_SEGMENTATION_DIR_NAME, "classes.csv")
         self.extraction_f(input_segmentation,  input_dir, *args, **kwargs)
         
@@ -322,7 +321,6 @@ class Project(Logable):
         """
             
         input_extraction = self.extraction_f.get_output_path()
-        
 
         if not os.path.isdir(input_extraction):
             raise ValueError("input was not found at {}".format(input_extraction))
@@ -424,7 +422,17 @@ class TimecourseProject(Project):
                 #filter to only contain the timepoints of interest
                 files = np.sort([x for x in files if x.startswith(tuple(timepoints))])
 
-                #filter to only contain the files listes in the plate layout
+                #checkt to make sure all timepoints are actually there
+                _timepoints = np.unique([re.match("^Timepoint[0-9][0-9][0-9]", x).group() for x in files])
+                sum = 0
+                for timepoint in timepoints:
+                    if timepoint in _timepoints:
+                        sum += 1
+                        continue
+                    else:
+                        print(f"No images found for Timepoint {timepoint}")
+                #print(f"{sum} different timepoints found of the total {len(timepoints)} timepoints given.")
+                self.log(f"{sum} different timepoints found of the total {len(timepoints)} timepoints given.")
                 
                 #read images for that region
                 imgs = np.empty((n_timepoints, n_channels, img_size, img_size), dtype='uint16')
@@ -462,10 +470,13 @@ class TimecourseProject(Project):
             
             #get all directories contained within the input dir
             directories = os.listdir(input_dir)
-            directories.remove('.DS_Store')  #need to remove this because otherwise it gives errors
+            if ".DS_Store" in directories: directories.remove('.DS_Store')  #need to remove this because otherwise it gives errors
 
             #filter directories to only contain those listed in the plate layout
             directories = [_dir for _dir in directories if re.match("^Row._Well[0-9]", _dir).group() in wells ]
+
+            #check to make sure that timepoints given and timepoints found in data acutally match!
+            _timepoints = []
             
             #create .h5 dataset to which all results are written
             path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, self.DEFAULT_INPUT_IMAGE_NAME)

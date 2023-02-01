@@ -391,15 +391,17 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     
     # need to perform this adjustment here so that we can also work with segmentations that do not start with a seg index of 1!
     # this is relevant when working with segmentations that have been reindexed over different tiles
+
     cell_ids = list(np.unique(mask).flatten())
     
     if 0 in cell_ids: cell_ids.remove(0)
     
     cell_ids = np.array(cell_ids)
-    min_cell_id = np.min(cell_ids) #need to convert to array since numba min functions requires array as input not list
+    min_cell_id = np.min(cell_ids) - 1 #need to convert to array since numba min functions requires array as input not list
+                                       #-1 important since otherwise the cell with the lowest id becomes 0 and is ignored (since 0 = background)
     
     if min_cell_id != 1:
-        mask = _numba_subtract(mask, min_cell_id)
+        mask = _numba_subtract(mask, min_cell_id) 
 
     num_classes = np.max(mask)
     class_range = [0, np.max(mask)]
@@ -410,10 +412,11 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     
     #add check to make sure that not run when there is only background
     if class_range[1] == 0:
-        raise ValueError("no cells in image.")
-        return
+        print("no cells in image.")
+        #raise ValueError("no cells in image.")
+        return None, None, None
 
-    points_class = np.zeros((num_classes,), dtype="uint32")
+    points_class = np.zeros((num_classes,), dtype = nb.uint32)
     center = np.zeros((num_classes, 2, ))
     ids = np.zeros((num_classes,))
 
@@ -442,7 +445,7 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     center = np.stack((y,x)).T
     
     if min_cell_id != 1:
-        ids += min_cell_id
+        ids += (min_cell_id) 
 
     return center, points_class, ids.astype("int32")
 

@@ -38,7 +38,6 @@ from contextlib import redirect_stdout
 
 class MLClusterClassifier:
     
-    
     DEFAULT_LOG_NAME = "processing.log" 
     DEFAULT_DATA_DIR = "data"
     CLEAN_LOG = True
@@ -69,15 +68,11 @@ class MLClusterClassifier:
         self.config = config
         self.intermediate_output = intermediate_output
         
-        
-        
         # Create segmentation directory
         self.directory = path
         if not os.path.isdir(self.directory):
-            
             os.makedirs(self.directory)
         
-            
         # Set up log and clean old log
         if self.CLEAN_LOG:
             log_path = os.path.join(self.directory, self.DEFAULT_LOG_NAME)
@@ -97,7 +92,6 @@ class MLClusterClassifier:
             
         self.log(f"current run: {self.current_run}")
             
-    
     def is_Int(self, s):
         try: 
             int(s)
@@ -134,8 +128,7 @@ class MLClusterClassifier:
                 
                 if self.debug:
                     print(self.get_timestamp() + line)
-        
-        
+          
     def __call__(self, 
                  extraction_dir, 
                  accessory, 
@@ -270,15 +263,14 @@ class MLClusterClassifier:
         self.log(f"start processing {len(data_iter)} batches with {model_fun.__name__} based inference")
         with torch.no_grad():
 
-            x, label, class_id = data_iter.next()
+            x, label, class_id = next(data_iter)
             r = model_fun(x.to(self.config['inference_device']))
             result = r.cpu().detach()
 
             for i in range(len(dataloader)-1):
                 if i % 10 == 0:
                     self.log(f"processing batch {i}")
-                
-                x, l, id = data_iter.next()
+                x, l, id = next(data_iter)
 
                 r = model_fun(x.to(self.config['inference_device']))
                 result = torch.cat((result, r.cpu().detach()), 0)

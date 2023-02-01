@@ -173,14 +173,13 @@ class HDF5SingleCellDataset(Dataset):
     def add_hdf_to_index(self, current_label, path):       
         try:
             input_hdf = h5py.File(path, 'r')
-        
             index_handle = input_hdf.get('single_cell_index')
 
             handle_id = len(self.handle_list)
             self.handle_list.append(input_hdf.get('single_cell_data'))
 
             for row in index_handle:
-                self.data_locator.append([current_label,handle_id]+list(row))      
+                self.data_locator.append([current_label, handle_id]+list(row))      
         except:
             return
         

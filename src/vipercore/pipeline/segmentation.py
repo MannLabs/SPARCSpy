@@ -580,9 +580,6 @@ class ShardedSegmentation(Segmentation):
         hf.close()      
         
         self.log("resolved sharding plan")
-        
-    def get_output(self):
-        return os.path.join(self.directory, self.DEFAULT_OUTPUT_FILE)
 
 class TimecourseSegmentation(Segmentation):
     """Segmentation helper class used for creating segmentation workflows working with timecourse data.                     
@@ -760,7 +757,6 @@ class TimecourseSegmentation(Segmentation):
         self.log("resolve segmentation indexes")
         
         output = os.path.join(self.directory,self.DEFAULT_OUTPUT_FILE)
-
         path = os.path.join(self.directory, self.DEFAULT_INPUT_IMAGE_NAME)
 
         with h5py.File(path, 'a') as hf:
@@ -771,7 +767,7 @@ class TimecourseSegmentation(Segmentation):
             filtered_classes_combined = []
             edge_classes_combined = []
                           
-            for i in range(0, hdf_labels.shape[0]):
+            for i in tqdm(range(0, hdf_labels.shape[0]), total = hdf_labels.shape[0], desc="Adjusting Indexes"):
                 
                 individual_hdf_labels = hdf_labels[i,:, :, :]
                 num_shapes = np.max(individual_hdf_labels)
@@ -780,6 +776,8 @@ class TimecourseSegmentation(Segmentation):
                 filtered_classes = [int(el) for el in list(cr)]
                 shifted_map, edge_labels = shift_labels(individual_hdf_labels, class_id_shift, return_shifted_labels=True)
                 filtered_classes = np.unique(shifted_map)
+
+                edge_labels = set(edge_labels)
                 final_classes = [item for item in filtered_classes if item not in edge_labels]
                 
                 hdf_labels[i, :, :] = shifted_map
@@ -791,7 +789,8 @@ class TimecourseSegmentation(Segmentation):
 
                 #adjust class_id shift
                 class_id_shift += num_shapes
-
+            
+            edge_classes_combined = set(edge_classes_combined)
             classes_after_edges = [item for item in filtered_classes_combined if item not in edge_classes_combined]
 
             self.log("Number of filtered classes combined after segmentation:")
@@ -929,10 +928,12 @@ class MultithreadedSegmentation(TimecourseSegmentation):
         #     i, arr = x
         #     _tmp_seg[i] = arr
 
-        self.log("Transferring results to hdf5 file.")
         #self._transfer_tempmmap_to_hdf5()
         self.adjust_segmentation_indexes()
         self.log("Adjusted Indexes.")
+
+        #cleanup variables to make sure memory is cleared up again
+        del results
 
     def initialize_shard_list(self, segmentation_list, input_path):
         _shard_list = []

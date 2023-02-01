@@ -29,18 +29,18 @@ class MultilabelSupervisedModel(pl.LightningModule):
                                 num_classes=self.hparams["num_classes"])
 
         
-        self.train_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=self.hparams["num_classes"]), 
-                                                            torchmetrics.Recall(average="none",num_classes=self.hparams["num_classes"]),
-                                                            torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"]),
-                                                            torchmetrics.ConfusionMatrix(num_classes=self.hparams["num_classes"], normalize="true")]) 
+        self.train_metrics = torchmetrics.MetricCollection([torchmetrics.Precision("binary", average="none",num_classes=self.hparams["num_classes"]), 
+                                                            torchmetrics.Recall("binary", average="none",num_classes=self.hparams["num_classes"]),
+                                                            torchmetrics.Accuracy("binary", average=None,num_classes=self.hparams["num_classes"]),
+                                                            torchmetrics.ConfusionMatrix("binary", num_classes=self.hparams["num_classes"], normalize="true")]) 
         
-        self.val_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=self.hparams["num_classes"]), 
-                                                          torchmetrics.Recall(average="none",num_classes=self.hparams["num_classes"]),
-                                                          torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"])])
+        self.val_metrics = torchmetrics.MetricCollection([torchmetrics.Precision("binary", average="none",num_classes=self.hparams["num_classes"]), 
+                                                          torchmetrics.Recall("binary", average="none",num_classes=self.hparams["num_classes"]),
+                                                          torchmetrics.Accuracy("binary", average=None,num_classes=self.hparams["num_classes"])])
         
-        self.test_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=self.hparams["num_classes"]), 
-                                                          torchmetrics.Recall(average="none",num_classes=self.hparams["num_classes"]),
-                                                          torchmetrics.Accuracy(average=None,num_classes=self.hparams["num_classes"])])
+        self.test_metrics = torchmetrics.MetricCollection([torchmetrics.Precision("binary", average="none",num_classes=self.hparams["num_classes"]), 
+                                                          torchmetrics.Recall("binary", average="none",num_classes=self.hparams["num_classes"]),
+                                                          torchmetrics.Accuracy("binary", average=None,num_classes=self.hparams["num_classes"])])
         
     def on_train_start(self):
         self.logger.log_hyperparams(self.hparams, {"precision/train": 0,"recall/train": 0,"precision/val": 0,"recall/val": 0})
@@ -200,17 +200,16 @@ class GeneralModel(pl.LightningModule):
         self.hp = hparams
         self.network = model
         
-        self.train_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=hparams["num_classes"]), 
-                                                            torchmetrics.Recall(average="none",num_classes=hparams["num_classes"]),
+        self.train_metrics = torchmetrics.MetricCollection([torchmetrics.Precision("binary", average="none",num_classes=hparams["num_classes"]), 
+                                                            torchmetrics.Recall("binary", average="none",num_classes=hparams["num_classes"]),
                                                             torchmetrics.AUROC(num_classes=hparams["num_classes"]),
-                                                           torchmetrics.Accuracy()]) 
+                                                            torchmetrics.Accuracy("binary")]) 
         
-        self.val_metrics = torchmetrics.MetricCollection([torchmetrics.Precision(average="none",num_classes=hparams["num_classes"]), 
-                                                          torchmetrics.Recall(average="none",num_classes=hparams["num_classes"]),
+        self.val_metrics = torchmetrics.MetricCollection([torchmetrics.Precision("binary", average="none",num_classes=hparams["num_classes"]), 
+                                                          torchmetrics.Recall("binary", average="none",num_classes=hparams["num_classes"]),
                                                           torchmetrics.AUROC(num_classes=hparams["num_classes"]),
-                                                          torchmetrics.Accuracy()])
+                                                          torchmetrics.Accuracy("binary")])
         
-        #
         
     def on_train_start(self):
         self.logger.log_hyperparams(self.hp, {"precision/train": 0,"recall/train": 0,"precision/val": 0,"recall/val": 0})

@@ -135,8 +135,7 @@ class ProcessingStep(Logable):
             return(x)
         else:
             warnings.warn("no process method defined")
-
-        
+ 
             
     def register_parameter(self, key, value):
         

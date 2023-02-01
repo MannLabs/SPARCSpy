@@ -147,7 +147,7 @@ class HDF5CellExtraction(ProcessingStep):
     def _create_hdf5(self):
 
         hf = h5py.File(self.output_path, 'w')
-        hf.create_dataset('single_cell_index', (self.num_classes,2) ,dtype="uint32")
+        hf.create_dataset('single_cell_index', (self.num_classes,2) ,dtype="uint64") #increase to 64 bit otherwise information may become truncated
         hf.create_dataset('single_cell_data', (self.num_classes,
                                                    self.n_channels,
                                                    self.config["image_size"],
@@ -199,7 +199,7 @@ class HDF5CellExtraction(ProcessingStep):
         Processing for each invidual cell that needs to be run for each center.
         """
         save_index, index, image_index, label_info = self._get_label_info(arg) #label_info not used in base case but relevant for flexibility for other classes
-        
+    
         #generate some progress output every 10000 cells
         #relevant for benchmarking of time
         if index % 10000 == 0:
@@ -408,9 +408,18 @@ class HDF5CellExtraction(ProcessingStep):
         self.log("Finished cleaning up cache")
 
 class TimecourseHDF5CellExtraction(HDF5CellExtraction):
+    DEFAULT_LOG_NAME = "processing.log" 
+    DEFAULT_DATA_FILE = "single_cells.h5"
+    DEFAULT_SEGMENTATION_DIR = "segmentation"
     DEFAULT_SEGMENTATION_FILE = "input_segmentation.h5"
+
+    DEFAULT_DATA_DIR = "data"
+    CLEAN_LOG = False
+    
+    #new parameters to make workflow adaptable to other types of projects
     channel_label = "input_images"
     segmentation_label = "segmentation"
+
     def __init__(self, 
                  *args,
                  **kwargs):
@@ -469,7 +478,8 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
             
             #generate index data container
             self.single_cell_index_shape =  (self.num_classes, len(column_labels))
-            hf.create_dataset('single_cell_index', self.single_cell_index_shape , chunks=None, dtype = dt)
+            hf.create_dataset('single_cell_index_labelled', self.single_cell_index_shape , chunks=None, dtype = dt)
+            hf.create_dataset('single_cell_index', (self.num_classes, 2), dtype="uint64")
             
             #generate datacontainer for the single cell images
             self.single_cell_data_shape = (self.num_classes,
@@ -499,7 +509,7 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         #generate container for single_cell_index
         #cannot be a temmmap array with object type as this doesnt work for memory mapped arrays
         #dt = h5py.special_dtype(vlen=str)
-        _tmp_single_cell_index  = np.empty(self.single_cell_index_shape, dtype = "<U32")
+        _tmp_single_cell_index  = np.empty(self.single_cell_index_shape, dtype = "<U64") #need to use U64 here otherwise information potentially becomes truncated
         
         #_tmp_single_cell_index  = tempmmap.array(self.single_cell_index_shape, dtype = "<U32")
 
@@ -510,10 +520,16 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         
         self.log(f"Transferring exracted single cells to .hdf5")
         with h5py.File(self.output_path, 'a') as hf:
-            hf["single_cell_index"][:] = _tmp_single_cell_index
+            hf["single_cell_index_labelled"][:] = _tmp_single_cell_index
+            
+            #need to save this index seperately since otherwise we get issues with the classificaiton of the extracted cells
+            index = _tmp_single_cell_index[:, 0:2]
+            index[index == ""] = "0" #dirty fix to rename those that are blank. not clear yet why some of the cells remain blank
+            index = index.astype("uint64")
+            hf["single_cell_index"][:] = index
             hf["single_cell_data"][:] = _tmp_single_cell_data
-
-
+            
+            #hf["single_cell_index"][:] = 
             # import matplotlib.pyplot as plt
             # for i in hf["single_cell_data"][0]:
             #     plt.figure()
@@ -546,10 +562,8 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
             labelling = hf.get("labels").asstr()[image_index][1:]
             save_value = [str(index), str(cell_id)]
             save_value = np.array(flatten([save_value, labelling]))
-            #print(save_value)
 
             _tmp_single_cell_index[index] = save_value
-            # print(_tmp_single_cell_index[index])
 
             #double check that its really the same values
             if _tmp_single_cell_index[index][2] != label_info:
@@ -557,6 +571,7 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
                 self.log(f"index: {index}")
                 self.log(f"image_index: {image_index}")
                 self.log(f"label_info: {label_info}")
+                self.log(f"index it should be: {_tmp_single_cell_index[index][2]}")
     
     def process(self, input_segmentation_path, filtered_classes_path):
     # is called with the path to the segmented image
@@ -589,33 +604,47 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
                 # print("image index:", image_index)
                 # print("cell ids", cell_ids)
                 # print("label info:", label_info)
-
-                center_nuclei, _, _cell_ids = numba_mask_centroid(hdf_labels[image_index, 0, :, :], debug=self.debug)
-                px_centers = np.round(center_nuclei).astype(int)
-                _cell_ids = list(_cell_ids)
-
-                # #plotting results for debugging
-                # import matplotlib.pyplot as plt
-                # plt.figure(figsize = (10, 10))
-                # plt.imshow(hdf_labels[image_index, 1, :, :])
-                # plt.figure(figsize = (10, 10))
-                # plt.imshow(hdf_labels[image_index, 0, :, :])
-                # y, x = px_centers.T
-                # plt.scatter(x, y, color = "red", s = 5)
                 
-                #filter lists to only include those cells which passed the final filters (i.e remove border cells)
-                filter = [x in cell_ids for x in _cell_ids]
-                px_centers = np.array(list(compress(px_centers, filter)))
-                _cell_ids = list(compress(_cell_ids, filter))
+                input_image = hdf_labels[image_index, 0, :, :]
 
-                # #plotting results for debugging
-                # y, x = px_centers.T
-                # plt.scatter(x, y, color = "blue", s = 5)
-                # plt.show()
+                #check if image is an empty array
+                if np.all(input_image==0):
+                    self.log(f"Image with the image_index {image_index} only contains zeros. Skipping this image.")
+                    print(f"Error: image with the index {image_index} only contains zeros!! Skipping this image.")
+                    continue
+                else:
+                    center_nuclei, _, _cell_ids = numba_mask_centroid(input_image, debug=self.debug)
 
-                for cell_id, px_center in zip(_cell_ids, px_centers):
-                    save_index = lookup_saveindex.index.get_loc(cell_id)
-                    self._extract_classes(input_segmentation_path, px_center,  (save_index, cell_id, image_index, label_info))
+                    if center_nuclei is not None:
+                        px_centers = np.round(center_nuclei).astype(int)
+                        _cell_ids = list(_cell_ids)
+
+                        # #plotting results for debugging
+                        # import matplotlib.pyplot as plt
+                        # plt.figure(figsize = (10, 10))
+                        # plt.imshow(hdf_labels[image_index, 1, :, :])
+                        # plt.figure(figsize = (10, 10))
+                        # plt.imshow(hdf_labels[image_index, 0, :, :])
+                        # y, x = px_centers.T
+                        # plt.scatter(x, y, color = "red", s = 5)
+                        
+                        #filter lists to only include those cells which passed the final filters (i.e remove border cells)
+                        filter = [x in cell_ids for x in _cell_ids]
+                        px_centers = np.array(list(compress(px_centers, filter)))
+                        _cell_ids = list(compress(_cell_ids, filter))
+
+                        # #plotting results for debugging
+                        # y, x = px_centers.T
+                        # plt.scatter(x, y, color = "blue", s = 5)
+                        # plt.show()
+
+                        for cell_id, px_center in zip(_cell_ids, px_centers):
+                            save_index = lookup_saveindex.index.get_loc(cell_id)
+                            self._extract_classes(input_segmentation_path, px_center,  (save_index, cell_id, image_index, label_info))
+                    else:
+                        self.log(f"Image with the image_index {image_index} doesn't contain any cells. Skipping this image.")
+                        print(f"Error: image with the index {image_index} doesn't contain any cells!! Skipping this image.")
+                        continue
 
             stop = timeit.default_timer()
 
