@@ -397,11 +397,11 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     if 0 in cell_ids: cell_ids.remove(0)
     
     cell_ids = np.array(cell_ids)
-    min_cell_id = np.min(cell_ids) - 1 #need to convert to array since numba min functions requires array as input not list
+    min_cell_id = np.min(cell_ids) #need to convert to array since numba min functions requires array as input not list
                                        #-1 important since otherwise the cell with the lowest id becomes 0 and is ignored (since 0 = background)
     
     if min_cell_id != 1:
-        mask = _numba_subtract(mask, min_cell_id) 
+        mask = _numba_subtract(mask, min_cell_id - 1 ) 
 
     num_classes = np.max(mask)
     class_range = [0, np.max(mask)]
@@ -445,7 +445,7 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     center = np.stack((y,x)).T
     
     if min_cell_id != 1:
-        ids += (min_cell_id) 
+        ids += (min_cell_id - 1 ) 
 
     return center, points_class, ids.astype("int32")
 

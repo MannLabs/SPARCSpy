@@ -3,6 +3,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch
 
+from collections import OrderedDict
+
 class GolgiCAE(nn.Module):
     
     
@@ -113,6 +115,7 @@ class GolgiCAE(nn.Module):
     
     
 
+
 class GolgiVGG(nn.Module):
     
     cfgs = {
@@ -204,6 +207,21 @@ class GolgiVGG(nn.Module):
         return x
 
     def make_layers(self, cfg, in_channels, batch_norm = True):
+        # layers = []
+        # i = 0
+        # for v in cfg:
+        #     if v == "M":
+        #         layers += [(f"maxpool{i}", nn.MaxPool2d(kernel_size=2, stride=2))]
+        #     else:
+        #         conv2d = nn.Conv2d(1, v, kernel_size=3, padding=1)
+        #         if batch_norm:
+        #             layers += [(f"conv{i}", conv2d), (f"batchnorm{i}", nn.BatchNorm2d(v)), (f"relu{i}", nn.ReLU(inplace=True))]
+        #         else:
+        #             layers += [(f"conv{i}", conv2d), (f"relu{i}", nn.ReLU(inplace=True))]
+        #         in_channels = v
+        #         i +=1
+        # return nn.Sequential(OrderedDict(layers))
+        
         layers = []
         for v in cfg:
             if v == "M":
@@ -485,6 +503,21 @@ class AutophagyVGG(nn.Module):
                     layers += [conv2d, nn.ReLU(inplace=True)]
                 in_channels = v
         return nn.Sequential(*layers)
+        
+        # layers = []
+        # i = 0
+        # for v in cfg:
+        #     if v == "M":
+        #         layers += [(f"maxpool{i}", nn.MaxPool2d(kernel_size=2, stride=2))]
+        #     else:
+        #         conv2d = nn.Conv2d(1, v, kernel_size=3, padding=1)
+        #         if batch_norm:
+        #             layers += [(f"conv{i}", conv2d), (f"batchnorm{i}", nn.BatchNorm2d(v)), (f"relu{i}", nn.ReLU(inplace=True))]
+        #         else:
+        #             layers += [(f"conv{i}", conv2d), (f"relu{i}", nn.ReLU(inplace=True))]
+        #         in_channels = v
+        #         i +=1
+        # return nn.Sequential(OrderedDict(layers))
 
         
     def vgg(cfg, in_channels,  **kwargs):

@@ -412,7 +412,7 @@ class TimecourseProject(Project):
                 index_start, index_end = indexes
                 
                 #get information on directory
-                well = re.match("^Row._Well[0-9]", dir).group()
+                well = re.match("^Row.._Well[0-9][0-9]", dir).group()
                 region = re.search("r..._c...$", dir).group()
                 
                 #list all images within directory
@@ -473,7 +473,14 @@ class TimecourseProject(Project):
             if ".DS_Store" in directories: directories.remove('.DS_Store')  #need to remove this because otherwise it gives errors
 
             #filter directories to only contain those listed in the plate layout
-            directories = [_dir for _dir in directories if re.match("^Row._Well[0-9]", _dir).group() in wells ]
+            directories = [_dir for _dir in directories if re.match("^Row.._Well[0-9][0-9]", _dir).group() in wells ]
+
+            #check to ensure that imaging data is found for all wells listed in plate_layout
+            _wells = [re.match("^Row.._Well[0-9][0-9]", _dir).group() for _dir in directories]
+            not_found = [well for well in _wells if well not in wells]
+            if len(not_found)>0:
+                print("following wells listed in plate_layout not found in imaging data:", not_found)
+                self.log(f"following wells listed in plate_layout not found in imaging data: {not_found}")
 
             #check to make sure that timepoints given and timepoints found in data acutally match!
             _timepoints = []
@@ -481,6 +488,10 @@ class TimecourseProject(Project):
             #create .h5 dataset to which all results are written
             path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, self.DEFAULT_INPUT_IMAGE_NAME)
             
+            #for some reason this directory does not always exist so check to make sure it does otherwise the whole reading of stuff fails
+            if not os.path.isdir(os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME)):
+                os.makedirs(os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME))
+
             with h5py.File(path, 'w') as hf:
                 dt = h5py.special_dtype(vlen=str)
                 hf.create_dataset('label_names', (len(column_labels)), chunks=None, dtype = dt)
@@ -512,6 +523,138 @@ class TimecourseProject(Project):
                 for dir, index in tqdm(zip(directories, indexes), total = len(directories)):
                     _read_write_images(dir, index, h5py_path = path)
     
+    def load_input_from_files_and_merge(self, input_dir, channels, timepoints, plate_layout, img_size = 1080, stitching_channel = "Alexa488", overlap = 0.1, max_shift =10, overwrite = False):    
+        """
+        Function to load timecourse experiments recorded with opera phenix into .h5 dataformat for further processing after merging all the regions from each teampoint in each well.
+        """
+        from vipertools.stitch import generate_stitched
+        
+        #check if already exists if so throw error message
+        if not os.path.isdir(os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME)):
+            os.makedirs(os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME))
+
+        path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, self.DEFAULT_INPUT_IMAGE_NAME)
+        
+        if not overwrite:
+            if os.path.isfile(path):
+                sys.exit("File already exists.")
+            else:
+                overwrite = True
+        
+        if overwrite:
+            self.img_size = img_size
+
+            self.log(f"Reading all images included in directory {input_dir}.")
+
+            images = os.listdir(input_dir)
+            images = [x for x in images if x.endswith((".tiff", ".tif"))]
+
+            _timepoints = np.sort(list(set([x.split("_")[0] for x in images])))
+            _wells = np.sort(list(set([re.match(".*_Row[0-9][0-9]_Well[0-9][0-9]", x).group()[13:] for x in images])))
+
+            #apply filtering to only get those that are in the plate layout file
+            plate_layout = pd.read_csv(plate_layout, sep = "\s+|;|,", engine = "python")
+            plate_layout = plate_layout.set_index("Well")
+            
+            column_labels = ["index", "ID", "location", "timepoint", "well", "region"] + plate_layout.columns.tolist()
+            
+            #get information on number of timepoints and number of channels
+            n_timepoints = len(timepoints)
+            n_channels = len(channels)
+            wells = np.unique(plate_layout.index.tolist())
+
+            _wells = [x for x in _wells if x in wells]
+            _timepoints = [x for x in _timepoints if x in timepoints]
+            
+            not_found_wells = [well for well in _wells if well not in wells]
+            not_found_timepoints = [timepoint for timepoint in _timepoints if timepoint not in timepoints]
+
+            if len(not_found_wells)>0:
+                print("following wells listed in plate_layout not found in imaging data:", not_found_wells)
+                self.log(f"following wells listed in plate_layout not found in imaging data: {not_found_wells}")
+            
+            if len(not_found_timepoints)>0:
+                print("following timepoints given not found in imaging data:", not_found_timepoints)
+                self.log(f"following timepoints given not found in imaging data: {not_found_timepoints}")
+
+            self.log(f"Will perform merging over the following specs:")
+            self.log(f"Wells: {_wells}")
+            self.log(f"Timepoints: {_timepoints}")
+            
+            #create .h5 dataset to which all results are written
+            path = os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME, self.DEFAULT_INPUT_IMAGE_NAME)
+            
+            #for some reason this directory does not always exist so check to make sure it does otherwise the whole reading of stuff fails
+            if not os.path.isdir(os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME)):
+                os.makedirs(os.path.join(self.directory, self.DEFAULT_SEGMENTATION_DIR_NAME))
+
+            with h5py.File(path, 'w') as hf:
+                dt = h5py.special_dtype(vlen=str)
+                hf.create_dataset('label_names', (len(column_labels)), chunks=None, dtype = dt)
+                hf.create_dataset('labels', (len(_wells)*n_timepoints, len(column_labels)), chunks=None, dtype = dt)
+                label_names = hf.get("label_names")
+                labels = hf.get("labels")
+                
+                label_names[:]= column_labels
+
+                run_number = 0
+                for timepoint in tqdm(_timepoints):
+                    for well in tqdm(_wells):
+                        RowID = well.split("_")[0]
+                        WellID = well.split("_")[1]
+                        zstack_value = 1
+
+                        #define patter to recognize which slide should be stitched
+                        #remember to adjust the zstack value if you aquired zstacks and want to stitch a speciifc one in the parameters above
+
+                        pattern = f"{timepoint}_{RowID}_{WellID}"+"_{channel}_"+"zstack"+str(zstack_value).zfill(3)+"_r{row:03}_c{col:03}.tif"
+
+                        merged_images = generate_stitched(input_dir,
+                                            well,
+                                            pattern,
+                                            outdir = "/",
+                                            overlap = overlap,
+                                            max_shift = max_shift,
+                                            do_intensity_rescale = True,
+                                            stitching_channel = stitching_channel,
+                                            filetype = "return_array", 
+                                            export_XML = False,
+                                            plot_QC = False)
+
+
+                        if run_number == 0:
+                            img_size1 = merged_images.shape[1] - 2*10
+                            img_size2 = merged_images.shape[2] - 2*10
+                            #create this after the first image is stitched and we have the dimensions
+                            hf.create_dataset('input_images', (len(_wells)*n_timepoints, n_channels, img_size1, img_size2), chunks=(1, 1, img_size1, img_size2))
+                            input_images = hf.get("input_images")
+                        
+                        #crop so that all images have the same size
+                        _, x, y = merged_images.shape
+                        diff1 = x - img_size1
+                        diff1x = int(np.floor(diff1/2))
+                        diff1y = int(np.ceil(diff1/2))
+                        diff2 = y - img_size2
+                        diff2x = int(np.floor(diff2/2))
+                        diff2y = int(np.ceil(diff2/2))
+                        cropped = merged_images[:, slice(diff1x, x - diff1y), slice(diff2x, y - diff2y)]
+                        print(merged_images.shape, cropped.shape)
+
+                        #create labelling 
+                        column_values = []
+                        for column in plate_layout.columns:
+                            column_values.append(plate_layout.loc[well, column])
+
+                        list_input = [str(run_number), f"{well}_{timepoint}_all", f"{well}_all", timepoint, well, "stitched"]
+
+                        for x in column_values:
+                            list_input.append(x)
+
+                        input_images[run_number, :, :, :] = cropped
+                        labels[run_number] = list_input
+                        run_number += 1
+                        self.log(f"finished stitching and saving well {well} for timepoint {timepoint}.")  
+
     def segment(self, 
                 overwrite = False,
                 *args, 

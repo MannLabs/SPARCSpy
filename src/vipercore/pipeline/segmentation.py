@@ -384,7 +384,11 @@ class ShardedSegmentation(Segmentation):
         self.log(f"sharding plan with {len(sharding_plan)} elements generated, sharding with {self.config['threads']} threads begins")
 
         with Pool(processes=self.config["threads"]) as pool:
-            tqdm(pool.map(self.method.call_as_shard, shard_list), total = len(shard_list))
+            results = list(tqdm(pool.imap(self.method.call_as_shard, shard_list), total = len(shard_list)))
+            pool.close()
+            pool.join()
+            print('All segmentations are done.', flush=True)
+
         self.log("Finished parallel segmentation")
         
         self.resolve_sharding(sharding_plan)
@@ -485,7 +489,10 @@ class ShardedSegmentation(Segmentation):
         
         output = os.path.join(self.directory,self.DEFAULT_OUTPUT_FILE)
         
-        label_size = (2,self.image_size[0],self.image_size[1])
+        if self.config["input_channels"] == 1:
+            label_size = (1, self.image_size[0], self.image_size[1])
+        elif self.config["input_channels"] >= 2:
+            label_size = (2, self.image_size[0], self.image_size[1])
 
         #dirty fix to get this to run until we can impelement a better solution
         if "wga_segmentation" in self.config: #need to add this check because otherwise it sometimes throws errors need better solution
@@ -573,7 +580,7 @@ class ShardedSegmentation(Segmentation):
                 plot_image(hdf_channels[i].astype(np.float64))
             
             for i in range(len(hdf_labels)):
-                image = label2rgb(hdf_labels[i],hdf_channels[0].astype(np.float64)/np.max(hdf_channels[0].astype(np.float64)),alpha=0.2, bg_label=0)
+                image = label2rgb(hdf_labels[i], hdf_channels[0].astype(np.float64)/np.max(hdf_channels[0].astype(np.float64)), alpha=0.5, bg_label=0)
                 plot_image(image)
             
         
