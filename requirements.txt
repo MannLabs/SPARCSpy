@@ -14,3 +14,5 @@ colorama
 opencv
 hilbertcurve
 cellpose
+pytorch-lightning
+torchvision
