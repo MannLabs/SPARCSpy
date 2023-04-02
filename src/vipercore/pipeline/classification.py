@@ -196,8 +196,7 @@ class MLClusterClassifier:
         
         # generate project dataset dataloader
         # transforms like noise, random rotations, channel selection are still hardcoded
-        t = transforms.Compose([ChannelSelector([self.config["channel_classification"]]),
-                        RandomRotation()])
+        t = transforms.Compose([ChannelSelector([self.config["channel_classification"]])])
                 
         self.log(f"loading {extraction_dir}")
         
