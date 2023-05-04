@@ -17,8 +17,7 @@ from scipy.ndimage import binary_fill_holes
 
 from vipercore.processing.segmentation import numba_mask_centroid, _return_edge_labels
 from vipercore.processing.utils import plot_image, flatten
-from vipercore.processing.preprocessing import percentile_normalization
-from vipercore.processing.deprecated import normalize, MinMax
+from vipercore.processing.preprocessing import percentile_normalization, MinMax
 from vipercore.pipeline.base import ProcessingStep
 
 import uuid
@@ -314,7 +313,7 @@ class HDF5CellExtraction(ProcessingStep):
                     else:
                         channel_wga = hdf_channels[image_index, 1,window_y,window_x]
 
-                    channel_wga = normalize(channel_wga)
+                    channel_wga = percentile_normalization(channel_wga)
                     channel_wga = channel_wga*cell_mask_extended
                 
                 if n_channels == 1:
@@ -329,7 +328,7 @@ class HDF5CellExtraction(ProcessingStep):
                     if hdf_channels.shape[0] > 2:  
                         for i in range(2, hdf_channels.shape[0]):
                             feature_channel = hdf_channels[i, window_y, window_x]   
-                            feature_channel = normalize(feature_channel)
+                            feature_channel = percentile_normalization(feature_channel)
                             feature_channel = feature_channel*cell_mask_extended
                             feature_channel = MinMax(feature_channel)
                             
@@ -339,7 +338,7 @@ class HDF5CellExtraction(ProcessingStep):
                     if hdf_channels.shape[1] > 2:
                         for i in range(2, hdf_channels.shape[1]):
                             feature_channel = hdf_channels[image_index, i, window_y, window_x]
-                            feature_channel = normalize(feature_channel)
+                            feature_channel = percentile_normalization(feature_channel)
                             feature_channel = feature_channel*cell_mask_extended
                             feature_channel = MinMax(feature_channel)
                             
@@ -905,7 +904,7 @@ class SingleCellExtraction:
 
             # channel 1: nucleus
             channel_nucleus = hdf_channels[0,window_y,window_x]
-            channel_nucleus = normalize(channel_nucleus)
+            channel_nucleus = percentile_normalization(channel_nucleus)
             channel_nucleus = channel_nucleus *nuclei_mask_extended
 
             channel_nucleus = MinMax(channel_nucleus)
@@ -918,7 +917,7 @@ class SingleCellExtraction:
             # channl 2: cytosol marker
             if n_channels >= 2:
                 channel_cytosol= hdf_channels[1,window_y,window_x]
-                channel_cytosol = normalize(channel_cytosol)
+                channel_cytosol = percentile_normalization(channel_cytosol)
                 channel_cytosol = channel_cytosol*cell_mask_extended
 
                 channel_cytosol = MinMax(channel_cytosol)
@@ -932,7 +931,7 @@ class SingleCellExtraction:
             if n_channels >= 3:
                 for id in range(2, n_channels):
                     channel_additional = hdf_channels[id, window_y, window_x]
-                    channel_additional = normalize(channel_additional)
+                    channel_additional = percentile_normalization(channel_additional)
                     channel_additional = channel_additional*cell_mask_extended
 
                     if self.debug:
@@ -1209,7 +1208,7 @@ class HDF5CellExtractionOld:
             
             # channel 2: nucleus
             channel_nucleus = hdf_channels[0,window_y,window_x]
-            channel_nucleus = normalize(channel_nucleus)
+            channel_nucleus = percentile_normalization(channel_nucleus)
             channel_nucleus = channel_nucleus *nuclei_mask_extended
 
             channel_nucleus = MinMax(channel_nucleus)
@@ -1221,7 +1220,7 @@ class HDF5CellExtractionOld:
 
             # channel 3: golgi
             channel_golgi = hdf_channels[1,window_y,window_x]
-            channel_golgi = normalize(channel_golgi)
+            channel_golgi = percentile_normalization(channel_golgi)
             channel_golgi = channel_golgi*cell_mask_extended
 
             channel_golgi = MinMax(channel_golgi)
@@ -1233,7 +1232,7 @@ class HDF5CellExtractionOld:
             
             # channel 4: cellmask
             channel_wga = hdf_channels[2,window_y,window_x]
-            channel_wga = normalize(channel_wga)
+            channel_wga = percentile_normalization(channel_wga)
             channel_wga = channel_wga*cell_mask_extended
             
             """

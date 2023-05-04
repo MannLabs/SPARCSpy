@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-def percentile_normalization(im, lower_percentile, upper_percentile):
+def percentile_normalization(im, lower_percentile = 0.001, upper_percentile = 0.999):
     
     """Normalize an input image channel wise based on defined percentiles. 
     The percentiles will be calculated and the image will be normalized to ``[0, 1]`` based on the lower and upper percentile.
@@ -101,3 +101,8 @@ def origins_from_distance(array):
     
     return peak_list, peak_map
 
+def MinMax(inarr):
+    if np.max(inarr) - np.min(inarr) > 0:
+        return (inarr - np.min(inarr)) / (np.max(inarr) - np.min(inarr))
+    else:
+        return inarr
