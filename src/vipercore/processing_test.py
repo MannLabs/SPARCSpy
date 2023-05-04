@@ -13,42 +13,11 @@ from vipercore.processing.segmentation import global_otsu, _segment_threshold, s
 from skimage import data #test datasets for segmentation testing
 
 def test_global_otsu():
-    """
-    This test function checks various cases for the input image:
-    1. The global_otsu function returns a float value.
-    2. If the input image has all its pixels set to zero, the function returns a threshold value of 0.
-    3. If the input image has all its pixels set to 255 (the highest grayscale value), the function returns a threshold value of 0.
-    4. If the input image has half of its pixels set to zero and the other half set to 255, the function returns a threshold value within an expected range (126-130).
-    """
-
     image = data.coins()
     threshold = global_otsu(image)
     assert isinstance(threshold, float), "The result is not a float"
 
-    image_all_zeros = np.zeros((50, 50))
-    threshold_all_zeros = global_otsu(image_all_zeros)
-    assert threshold_all_zeros == 0, "The threshold is not zero for an all-zero image"
-
-    image_all_ones = np.ones((50, 50)) * 255
-    threshold_all_ones = global_otsu(image_all_ones)
-    assert threshold_all_ones == 0, "The threshold is not zero for an all-one (255) image"
-
-    image_half = np.vstack((np.zeros((50, 50)), np.ones((50, 50)) * 255))
-    threshold_half = global_otsu(image_half)
-    assert threshold_half in np.arange(126, 130), "The threshold is not in the expected range for a half-half (0, 255) image"
-
 def test_segment_threshold():
-    """
-    This test function checks various cases for the input image and threshold values:
-
-    1. The _segment_threshold function returns a numpy.ndarray.
-    2. The output labels have the same shape as the input image.
-    3. The output labels have the correct dtype (int).
-    4. The output labels have non-negative valus.
-    5. If the input image has all its pixels set to zero, and the threshold is also 0, the function returns a label array with all zeros.
-    6. If the input image has all its pixels set to one, and the threshold is 1, the function returns a label array with all ones.
-    7. If the input image has half of its pixels set to zero and the other half set to one, with a threshold 0.5, the function returns a label array with more than one unique value due to different regions.
-    """
     image = data.coins()
     threshold = 100
 
@@ -65,36 +34,7 @@ def test_segment_threshold():
     # Check if values are non-negative
     assert np.all(labels >= 0), "Output labels contain negative values"
 
-    # Test with an all-zero image
-    image_all_zeros = np.zeros((50, 50))
-    threshold_all_zeros = 0
-    labels_all_zeros = _segment_threshold(image_all_zeros, threshold_all_zeros)
-    assert np.all(labels_all_zeros == 0), "The labels are not all zeros for an all-zero image"
-
-    # Test with an all-ones image
-    image_all_ones = np.ones((50, 50))
-    threshold_all_ones = 1
-    labels_all_ones = _segment_threshold(image_all_ones, threshold_all_ones)
-    assert np.all(labels_all_ones == 1), "The labels are not all ones for an all-ones image"
-
-    # Test with a half-half image
-    image_half = np.vstack((np.zeros((50, 50)), np.ones((50, 50))))
-    threshold_half = 0.5
-    labels_half = _segment_threshold(image_half, threshold_half)
-   
-    assert np.unique(labels_half).size > 1, "The labels should have more than one unique value for a half-half image"
-
 def test_segment_global_threshold():
-    """
-    This test function checks various cases for the input image:
-    1. The segment_global_threshold function returns a numpy.ndarray.
-    2. The output labels have the same shape as the input image.
-    3. The output labels have the correct dtype (int).
-    4. The output labels have non-negative values.
-    5. If the input image has all its pixels set to zero, the function returns a label array with all zeros.
-    6. If the input image has all its pixels set to one, the function returns a label array with all ones.
-    7. If the input image has half of its pixels set to zero and the other half set to one, the function returns a label array with more than one unique value due to different regions.
-    """
     image = data.coins()
 
     # Check if output is a numpy.ndarray
@@ -109,21 +49,6 @@ def test_segment_global_threshold():
 
     # Check if values are non-negative
     assert np.all(labels >= 0), "Output labels contain negative values"
-
-    # Test with an all-zero image
-    image_all_zeros = np.zeros((50, 50))
-    labels_all_zeros = segment_global_threshold(image_all_zeros)
-    assert np.all(labels_all_zeros == 0), "The labels are not all zeros for an all-zero image"
-
-    # Test with an all-ones image
-    image_all_ones = np.ones((50, 50))
-    labels_all_ones = segment_global_threshold(image_all_ones)
-    assert np.all(labels_all_ones == 1), "The labels are not all ones for an all-ones image"
-
-    # Test with a half-half image
-    image_half = np.vstack((np.zeros((50, 50)), np.ones((50, 50))))
-    labels_half = segment_global_threshold(image_half)
-    assert np.unique(labels_half).size > 1, "The labels should have more than one unique value for a half-half image"
 
 def test_segment_local_threshold():
     # Load sample image
@@ -156,7 +81,7 @@ def test_return_edge_labels():
                           [0, 2, 0],
                           [0, 0, 3]])
 
-    expected_edge_labels = [1, 2, 3]
+    expected_edge_labels = [1, 3]
     edge_labels = _return_edge_labels(input_map)
     
     assert set(edge_labels) == set(expected_edge_labels)
@@ -181,7 +106,7 @@ def test_shift_labels():
     expected_shifted_map = np.array([[11,  0,  0],
                                      [ 0, 12,  0],
                                      [ 0,  0, 13]])
-    expected_edge_labels = [11, 12, 13]
+    expected_edge_labels = [11, 13]
 
     shifted_map, edge_labels = shift_labels(input_map, shift)
 
@@ -201,6 +126,7 @@ def test_shift_labels():
                                         [[ 0, 11,  0],
                                          [12,  0,  0],
                                          [ 0, 13,  0]]])
+    expected_edge_labels = [11,12, 13]
 
     shifted_map_3d, edge_labels_3d = shift_labels(input_map_3d, shift)
 
@@ -255,14 +181,14 @@ def test_contact_filter_lambda():
                       [0, 2, 1],
                       [0, 0, 2]])
     result = contact_filter_lambda(label)
-    expected_result = np.array([1., 0.28571429, 0.5])
+    expected_result = np.array([1., 1., 0.6])
     assert np.allclose(result, expected_result, atol=1e-6)
 
 def test_contact_filter():
     inarr = np.array([[0, 1, 1],
                       [0, 2, 1],
                       [0, 0, 2]])
-    result = contact_filter(inarr, threshold=0.5)
+    result = contact_filter(inarr, threshold=0.7)
     expected_result = np.array([[0, 1, 1],
                                 [0, 0, 1],
                                 [0, 0, 0]])

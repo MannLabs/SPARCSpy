@@ -312,7 +312,7 @@ def segment_local_threshold(image,
                                               offset=-thr)
 
     # Resize the local threshold image to match the original input image
-    local_thresh = resize(local_thresh, image.shape)
+    local_threshold = resize(local_threshold, image.shape)
     
     # Segment the input image using the computed local threshold
     labels = _segment_threshold(image, 
@@ -389,7 +389,7 @@ def shift_labels(input_map, shift, return_shifted_labels=False):
            [ 0, 12,  0],
            [ 0,  0, 13]])
     >>> print(edge_labels)
-    [11, 12, 13]
+    [11, 13]
 
     """
         
@@ -533,7 +533,7 @@ def contact_filter_lambda(label, background=0):
                       [0, 2, 1],
                       [0, 0, 2]])
     >>> contact_filter_lambda(label)
-    array([1.        , 0.28571429, 0.5       ])
+    array([1.        , 1.,  0.6 ])
     """
 
     num_labels = np.max(label)
