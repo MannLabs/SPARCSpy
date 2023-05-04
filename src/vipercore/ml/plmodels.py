@@ -17,17 +17,24 @@ sys.path.append("/home/default/projects/opticalScreening/viper/machine_learning"
 
 class MultilabelSupervisedModel(pl.LightningModule):
 
-    def __init__(self, **kwargs):
+    def __init__(self, type = "AutophagyVGG", **kwargs):
         super().__init__()
         
         
         self.save_hyperparameters()
-            
-        self.network = AutophagyVGG(in_channels=self.hparams["num_in_channels"],
-                                cfg = "B",
-                                dimensions=128,
-                                num_classes=self.hparams["num_classes"])
-
+        
+        if type == "AutophagyVGG":
+            self.network = AutophagyVGG(in_channels=self.hparams["num_in_channels"],
+                                    cfg = "B",
+                                    dimensions=128,
+                                    num_classes=self.hparams["num_classes"])
+        elif type == "GolgiVGG":
+            self.network = GolgiVGG(in_channels=self.hparams["num_in_channels"],
+                                    cfg = "B",
+                                    dimensions=128,
+                                    num_classes=self.hparams["num_classes"])
+        else:
+            sys.exit("Incorrect network architecture specified. Please check that MultilabelSupervisedModel type parameter is set to key present in method.")
         
         self.train_metrics = torchmetrics.MetricCollection([torchmetrics.Precision("binary", average="none",num_classes=self.hparams["num_classes"]), 
                                                             torchmetrics.Recall("binary", average="none",num_classes=self.hparams["num_classes"]),

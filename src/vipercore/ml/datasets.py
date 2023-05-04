@@ -127,7 +127,7 @@ class NPYSingleCellDataset(Dataset):
     
 class HDF5SingleCellDataset(Dataset):
     
-    HDF_FILETYPES = ["hdf", "hf", "h5"]
+    HDF_FILETYPES = ["hdf", "hf", "h5", "hdf5"]
     def __init__(self, dir_list, 
                  dir_labels, 
                  root_dir, 

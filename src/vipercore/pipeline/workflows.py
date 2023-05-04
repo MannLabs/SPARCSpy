@@ -251,7 +251,7 @@ class BaseSegmentation(Segmentation):
         return(filtered_classes)
 
     #functions to generate quality control plots
-    def _dapi_median_intensity_plot():
+    def _dapi_median_intensity_plot(self):
         #generate plot of dapi median intensity
         plt.hist(self.maps["median"][0].flatten(),bins=100,log=False)
         plt.xlabel("intensity")
@@ -261,7 +261,7 @@ class BaseSegmentation(Segmentation):
         plt.savefig("dapi_intensity_dist.png")
         plt.show()
     
-    def _cellmembrane_median_intensity_plot():
+    def _cellmembrane_median_intensity_plot(self):
         #generate plot of median Cellmembrane Marker intensity
         plt.hist(self.maps["median"][1].flatten(),bins=100,log=False)
         plt.xlabel("intensity")
@@ -570,23 +570,19 @@ class CytosolSegmentationCellpose(BaseSegmentation):
         #check if GPU is available
         
         #use_GPU = False
-        use_GPU = core.use_gpu() #currently no realy acceleration through using GPU as we can't load batches, so force run on CPU
+        use_GPU = True #currently no real acceleration through using GPU as we can't load batches, so force run on CPU
         self.log(f"GPU Status for segmentation: {use_GPU}")
-        
         
         #load correct segmentation model for nuclei
         model_name = self.config["nucleus_segmentation"]["model"]
         self.log(f"Segmenting nuclei using the following model: {model_name}")
         model = models.Cellpose(model_type=self.config["nucleus_segmentation"]["model"], gpu = use_GPU)
-        
-        # model = models.Cellpose(model_type="nuclei", gpu = use_GPU)
         masks, _, _, _ = model.eval([input_image], diameter = None, channels = [1, 0]) 
         masks = np.array(masks) #convert to array
         self.maps["nucleus_segmentation"] = masks.reshape(masks.shape[1:]) #need to add reshape so that hopefully saving works out
 
         model_name = self.config["cytosol_segmentation"]["model"]
         self.log(f"Segmenting cytosol using the following model: {model_name}")
-        # model = models.Cellpose(model_type=self.config["cytosol_segmentation"]["model"], gpu = use_GPU)
         model = models.Cellpose(model_type=self.config["cytosol_segmentation"]["model"], gpu = use_GPU)
         masks, _, _, _ = model.eval([input_image], diameter = None, channels = [2, 1]) 
         masks = np.array(masks) #convert to array
@@ -637,7 +633,7 @@ class MultithreadedWGATimecourseSegmentation(MultithreadedSegmentation):
     def __init__(self, *args, **kwargs):
          super().__init__(*args, **kwargs) 
 
-class CytosoLCellposeTimecourseSegmentation(TimecourseSegmentation):
+class CytosolCellposeTimecourseSegmentation(TimecourseSegmentation):
     """
     Specialized Processing for Timecourse segmentation (i.e. smaller tiles not stitched together from many different wells and or timepoints).
     No intermediate results are saved and everything is written to one .hdf5 file. Uses Cellpose segmentation models.

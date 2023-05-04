@@ -126,7 +126,7 @@ class HDF5CellExtraction(ProcessingStep):
             self.remap = [int(el.strip()) for el in char_list]
 
     def get_classes(self, filtered_classes_path):
-        self.log("Loading filtered classes")
+        self.log(f"Loading filtered classes from {filtered_classes_path}")
         cr = csv.reader(open(filtered_classes_path,'r'))
         filtered_classes = [int(el[0]) for el in list(cr)]
 
@@ -183,6 +183,8 @@ class HDF5CellExtraction(ProcessingStep):
         self.log(f"number of cells too close to image edges to extract: {len(self.save_index_to_remove)}")
         _tmp_single_cell_data = np.delete(_tmp_single_cell_data, self.save_index_to_remove, axis=0)
         _tmp_single_cell_index = np.delete(_tmp_single_cell_index, self.save_index_to_remove, axis=0)
+        _, cell_ids = _tmp_single_cell_index[:].T
+        _tmp_single_cell_index[:] = list(zip(list(range(len(cell_ids))), cell_ids))
 
         self.log(f"Transferring extracted single cells to .hdf5")
 
@@ -495,6 +497,10 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
             # currently not working because of issue with datatypes
             
             for i, tile_id in zip(labels.T[0], labels.T[1]):
+                #dirty fix for some strange problem with some of the datasets
+                #FIX THIS
+                if i == "":
+                    continue
                 cellids =list(classes[int(i)])
                 if 0 in cellids:
                     cellids.remove(0)
@@ -511,36 +517,6 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         save_index, index, image_index, label_info = arg
         return(save_index, index, image_index, label_info)  
 
-    def _create_hdf5(self):
-        #extract information about the annotation of cell ids
-        column_labels = ['index', "cellid"] + list(self.label_names.astype("U13"))[1:]
-        
-        with h5py.File(self.output_path, 'w') as hf:
-            #create special datatype for storing strings
-            dt = h5py.special_dtype(vlen=str)
-
-            #save label names so that you can always look up the column labelling
-            hf.create_dataset('label_names', data = column_labels, chunks=None, dtype = dt)
-            
-            #generate index data container
-            self.single_cell_index_shape =  (self.num_classes, len(column_labels))
-            hf.create_dataset('single_cell_index_labelled', self.single_cell_index_shape , chunks=None, dtype = dt)
-            hf.create_dataset('single_cell_index', (self.num_classes, 2), dtype="uint64")
-            
-            #generate datacontainer for the single cell images
-            self.single_cell_data_shape = (self.num_classes,
-                                                    self.n_channels_output,
-                                                    self.config["image_size"],
-                                                    self.config["image_size"])
-
-            hf.create_dataset('single_cell_data', self.single_cell_data_shape,
-                                                chunks=(1,
-                                                        1,
-                                                        self.config["image_size"],
-                                                        self.config["image_size"]),
-                                                compression=self.compression_type,
-                                                dtype="float16")
-
     def _initialize_tempmmap_array(self):
         #define as global variables so that this is also avaialable in other functions
         global _tmp_single_cell_data, _tmp_single_cell_index
@@ -549,8 +525,17 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         from alphabase.io import tempmmap
         TEMP_DIR_NAME = tempmmap.redefine_temp_location(self.config["cache"])
 
+        #generate datacontainer for the single cell images
+        column_labels = ['index', "cellid"] + list(self.label_names.astype("U13"))[1:]
+        self.single_cell_index_shape =  (self.num_classes, len(column_labels))
+        self.single_cell_data_shape = (self.num_classes,
+                                                    self.n_channels_output,
+                                                    self.config["image_size"],
+                                                    self.config["image_size"])
+
         #generate container for single_cell_data
-        _tmp_single_cell_data = tempmmap.array(self.single_cell_data_shape,dtype = np.float16)
+        print(self.single_cell_data_shape)
+        _tmp_single_cell_data = tempmmap.array(self.single_cell_data_shape, dtype = np.float16)
 
         #generate container for single_cell_index
         #cannot be a temmmap array with object type as this doesnt work for memory mapped arrays
@@ -567,25 +552,42 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         self.log(f"number of cells too close to image edges to extract: {len(self.save_index_to_remove)}")
         _tmp_single_cell_data = np.delete(_tmp_single_cell_data, self.save_index_to_remove, axis=0)
         _tmp_single_cell_index = np.delete(_tmp_single_cell_index, self.save_index_to_remove, axis=0)
+
+        #extract information about the annotation of cell ids
+        column_labels = ['index', "cellid"] + list(self.label_names.astype("U13"))[1:]
         
+        self.log("Creating HDF5 file to save results to.")
+        with h5py.File(self.output_path, 'w') as hf:
+            #create special datatype for storing strings
+            dt = h5py.special_dtype(vlen=str)
+
+            #save label names so that you can always look up the column labelling
+            hf.create_dataset('label_names', data = column_labels, chunks=None, dtype = dt)
+            
+            #generate index data container
+            hf.create_dataset('single_cell_index_labelled', _tmp_single_cell_index.shape , chunks=None, dtype = dt)
+            single_cell_labelled = hf.get("single_cell_index_labelled")
+            single_cell_labelled[:] = _tmp_single_cell_index[:]
+
+            hf.create_dataset('single_cell_index', (_tmp_single_cell_index.shape[0], 2), dtype="uint64")           
+
+            hf.create_dataset('single_cell_data',data =  _tmp_single_cell_data,
+                                                chunks=(1,
+                                                        1,
+                                                        self.config["image_size"],
+                                                        self.config["image_size"]),
+                                                compression=self.compression_type,
+                                                dtype="float16")
+            
         self.log(f"Transferring exracted single cells to .hdf5")
         with h5py.File(self.output_path, 'a') as hf:
-            hf["single_cell_index_labelled"][:] = _tmp_single_cell_index
-            
             #need to save this index seperately since otherwise we get issues with the classificaiton of the extracted cells
             index = _tmp_single_cell_index[:, 0:2]
-            index[index == ""] = "0" #dirty fix to rename those that are blank. not clear yet why some of the cells remain blank
+            _, cell_ids = index.T
+            index = np.array(list(zip(range(len(cell_ids)), cell_ids)))
+            index[index == ""] = "0" 
             index = index.astype("uint64")
             hf["single_cell_index"][:] = index
-            hf["single_cell_data"][:] = _tmp_single_cell_data
-            
-            #hf["single_cell_index"][:] = 
-            # import matplotlib.pyplot as plt
-            # for i in hf["single_cell_data"][0]:
-            #     plt.figure()
-            #     plt.imshow(i)
-            
-            # print(hf["single_cell_index"][0])
 
         #delete tempobjects (to cleanup directory)
         self.log(f"Tempmmap Folder location {self.TEMP_DIR_NAME} will now be removed.")
@@ -636,7 +638,6 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
         lookup_saveindex = self.generate_save_index_lookup(complete_class_list)
 
         # setup cache
-        self._create_hdf5()
         self._initialize_tempmmap_array()
 
         #start extraction

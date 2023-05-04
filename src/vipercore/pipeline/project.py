@@ -412,7 +412,7 @@ class TimecourseProject(Project):
                 index_start, index_end = indexes
                 
                 #get information on directory
-                well = re.match("^Row.._Well[0-9][0-9]", dir).group()
+                well = re.search("Row.._Well[0-9][0-9]", dir).group() #need to use re.search and not match sinde the identifier is not always at the beginning of the name
                 region = re.search("r..._c...$", dir).group()
                 
                 #list all images within directory
@@ -421,9 +421,10 @@ class TimecourseProject(Project):
 
                 #filter to only contain the timepoints of interest
                 files = np.sort([x for x in files if x.startswith(tuple(timepoints))])
-
+                
                 #checkt to make sure all timepoints are actually there
-                _timepoints = np.unique([re.match("^Timepoint[0-9][0-9][0-9]", x).group() for x in files])
+                _timepoints = np.unique([re.search("Timepoint[0-9][0-9][0-9]", x).group() for x in files])
+
                 sum = 0
                 for timepoint in timepoints:
                     if timepoint in _timepoints:
@@ -438,8 +439,11 @@ class TimecourseProject(Project):
                 imgs = np.empty((n_timepoints, n_channels, img_size, img_size), dtype='uint16')
                 for ix, channel in enumerate(channels):
                     images = [x for x in files if channel in x]
-                    for id, im in enumerate(images):
-                        imgs[id, ix, :, :] = imread(os.path.join(path, im), 0)
+                    
+                    for i, im in enumerate(images):
+
+                        image = imread(os.path.join(path, im), 0)
+                        imgs[i, ix, :, :] = image
 
                 #create labelling 
                 column_values = []
@@ -467,18 +471,19 @@ class TimecourseProject(Project):
             n_timepoints = len(timepoints)
             n_channels = len(channels)
             wells = np.unique(plate_layout.index.tolist())
-            
+
             #get all directories contained within the input dir
             directories = os.listdir(input_dir)
             if ".DS_Store" in directories: directories.remove('.DS_Store')  #need to remove this because otherwise it gives errors
+            if ".ipynb_checkpoints" in directories: directories.remove('.ipynb_checkpoints')
 
             #filter directories to only contain those listed in the plate layout
-            directories = [_dir for _dir in directories if re.match("^Row.._Well[0-9][0-9]", _dir).group() in wells ]
+            directories = [_dir for _dir in directories if re.search("Row.._Well[0-9][0-9]", _dir).group() in wells ]
 
             #check to ensure that imaging data is found for all wells listed in plate_layout
             _wells = [re.match("^Row.._Well[0-9][0-9]", _dir).group() for _dir in directories]
             not_found = [well for well in _wells if well not in wells]
-            if len(not_found)>0:
+            if len(not_found) > 0:
                 print("following wells listed in plate_layout not found in imaging data:", not_found)
                 self.log(f"following wells listed in plate_layout not found in imaging data: {not_found}")
 
@@ -523,7 +528,7 @@ class TimecourseProject(Project):
                 for dir, index in tqdm(zip(directories, indexes), total = len(directories)):
                     _read_write_images(dir, index, h5py_path = path)
     
-    def load_input_from_files_and_merge(self, input_dir, channels, timepoints, plate_layout, img_size = 1080, stitching_channel = "Alexa488", overlap = 0.1, max_shift =10, overwrite = False):    
+    def load_input_from_files_and_merge(self, input_dir, channels, timepoints, plate_layout, img_size = 1080, stitching_channel = "Alexa488", overlap = 0.1, max_shift =10, overwrite = False, nucleus_channel = "DAPI", cytosol_channel = "Alexa488"):    
         """
         Function to load timecourse experiments recorded with opera phenix into .h5 dataformat for further processing after merging all the regions from each teampoint in each well.
         """
@@ -609,17 +614,17 @@ class TimecourseProject(Project):
 
                         pattern = f"{timepoint}_{RowID}_{WellID}"+"_{channel}_"+"zstack"+str(zstack_value).zfill(3)+"_r{row:03}_c{col:03}.tif"
 
-                        merged_images = generate_stitched(input_dir,
-                                            well,
-                                            pattern,
-                                            outdir = "/",
-                                            overlap = overlap,
-                                            max_shift = max_shift,
-                                            do_intensity_rescale = True,
-                                            stitching_channel = stitching_channel,
-                                            filetype = "return_array", 
-                                            export_XML = False,
-                                            plot_QC = False)
+                        merged_images, channels = generate_stitched(input_dir,
+                                                            well,
+                                                            pattern,
+                                                            outdir = "/",
+                                                            overlap = overlap,
+                                                            max_shift = max_shift,
+                                                            do_intensity_rescale = True,
+                                                            stitching_channel = stitching_channel,
+                                                            filetype = "return_array", 
+                                                            export_XML = False,
+                                                            plot_QC = False)
 
 
                         if run_number == 0:
@@ -650,10 +655,37 @@ class TimecourseProject(Project):
                         for x in column_values:
                             list_input.append(x)
 
+                        #reorder to fit to timecourse sorting
+                        allocated_channels = []
+                        allocated_indexes = []
+                        if nucleus_channel in channels:
+                            nucleus_index = channels.index(nucleus_channel)
+                            allocated_channels.append(nucleus_channel)
+                            allocated_indexes.append(nucleus_index)
+                        else:
+                            print("nucleus_channel not found in supplied channels!!!")
+                        
+                        if cytosol_channel in channels:
+                            cytosol_index = channels.index(cytosol_channel)
+                            allocated_channels.append(cytosol_channel)
+                            allocated_indexes.append(cytosol_index)
+                        else:
+                            print("cytosol_channel not found in supplied channels!!!")
+
+                        all_other_indexes = [channels.index(x) for x in channels if x not in allocated_channels]
+                        all_other_indexes = list(np.sort(all_other_indexes))
+
+                        index_list = allocated_indexes + all_other_indexes
+                        cropped = np.array([cropped[x, :, :] for x in index_list])
+
+                        self.log(f"adjusted channels to the following order: {[channels[i] for i in index_list]}")
                         input_images[run_number, :, :, :] = cropped
                         labels[run_number] = list_input
                         run_number += 1
                         self.log(f"finished stitching and saving well {well} for timepoint {timepoint}.")  
+
+    def adjust_segmentation_indexes(self):
+        self.segmentation_f.adjust_segmentation_indexes()
 
     def segment(self, 
                 overwrite = False,
