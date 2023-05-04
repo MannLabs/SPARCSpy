@@ -1,13 +1,335 @@
 from vipercore.processing.preprocessing import percentile_normalization
-
-import numpy as np
-import pytest
-
 from vipercore.processing.preprocessing import percentile_normalization
 from vipercore.processing.segmentation import selected_coords, selected_coords_fast, remove_classes
 
 import numpy as np
 import pytest
+
+#######################################################
+# Unit tests for ../proccessing/segmentation.py
+#######################################################
+
+from vipercore.processing.segmentation import global_otsu, _segment_threshold, segment_global_threshold, segment_local_threshold
+from skimage import data #test datasets for segmentation testing
+
+def test_global_otsu():
+    """
+    This test function checks various cases for the input image:
+    1. The global_otsu function returns a float value.
+    2. If the input image has all its pixels set to zero, the function returns a threshold value of 0.
+    3. If the input image has all its pixels set to 255 (the highest grayscale value), the function returns a threshold value of 0.
+    4. If the input image has half of its pixels set to zero and the other half set to 255, the function returns a threshold value within an expected range (126-130).
+    """
+
+    image = data.coins()
+    threshold = global_otsu(image)
+    assert isinstance(threshold, float), "The result is not a float"
+
+    image_all_zeros = np.zeros((50, 50))
+    threshold_all_zeros = global_otsu(image_all_zeros)
+    assert threshold_all_zeros == 0, "The threshold is not zero for an all-zero image"
+
+    image_all_ones = np.ones((50, 50)) * 255
+    threshold_all_ones = global_otsu(image_all_ones)
+    assert threshold_all_ones == 0, "The threshold is not zero for an all-one (255) image"
+
+    image_half = np.vstack((np.zeros((50, 50)), np.ones((50, 50)) * 255))
+    threshold_half = global_otsu(image_half)
+    assert threshold_half in np.arange(126, 130), "The threshold is not in the expected range for a half-half (0, 255) image"
+
+def test_segment_threshold():
+    """
+    This test function checks various cases for the input image and threshold values:
+
+    1. The _segment_threshold function returns a numpy.ndarray.
+    2. The output labels have the same shape as the input image.
+    3. The output labels have the correct dtype (int).
+    4. The output labels have non-negative valus.
+    5. If the input image has all its pixels set to zero, and the threshold is also 0, the function returns a label array with all zeros.
+    6. If the input image has all its pixels set to one, and the threshold is 1, the function returns a label array with all ones.
+    7. If the input image has half of its pixels set to zero and the other half set to one, with a threshold 0.5, the function returns a label array with more than one unique value due to different regions.
+    """
+    image = data.coins()
+    threshold = 100
+
+    # Check if output is a numpy.ndarray
+    labels = _segment_threshold(image, threshold)
+    assert isinstance(labels, np.ndarray), "The result is not a numpy.ndarray"
+
+    # Check if output has the same shape as the input image
+    assert labels.shape == image.shape, "Output labels and input image shapes are not equal"
+
+    # Check if output has the correct dtype (int)
+    assert labels.dtype == np.int, "Output label dtype is not integer"
+
+    # Check if values are non-negative
+    assert np.all(labels >= 0), "Output labels contain negative values"
+
+    # Test with an all-zero image
+    image_all_zeros = np.zeros((50, 50))
+    threshold_all_zeros = 0
+    labels_all_zeros = _segment_threshold(image_all_zeros, threshold_all_zeros)
+    assert np.all(labels_all_zeros == 0), "The labels are not all zeros for an all-zero image"
+
+    # Test with an all-ones image
+    image_all_ones = np.ones((50, 50))
+    threshold_all_ones = 1
+    labels_all_ones = _segment_threshold(image_all_ones, threshold_all_ones)
+    assert np.all(labels_all_ones == 1), "The labels are not all ones for an all-ones image"
+
+    # Test with a half-half image
+    image_half = np.vstack((np.zeros((50, 50)), np.ones((50, 50))))
+    threshold_half = 0.5
+    labels_half = _segment_threshold(image_half, threshold_half)
+   
+    assert np.unique(labels_half).size > 1, "The labels should have more than one unique value for a half-half image"
+
+def test_segment_global_threshold():
+    """
+    This test function checks various cases for the input image:
+    1. The segment_global_threshold function returns a numpy.ndarray.
+    2. The output labels have the same shape as the input image.
+    3. The output labels have the correct dtype (int).
+    4. The output labels have non-negative values.
+    5. If the input image has all its pixels set to zero, the function returns a label array with all zeros.
+    6. If the input image has all its pixels set to one, the function returns a label array with all ones.
+    7. If the input image has half of its pixels set to zero and the other half set to one, the function returns a label array with more than one unique value due to different regions.
+    """
+    image = data.coins()
+
+    # Check if output is a numpy.ndarray
+    labels = segment_global_threshold(image)
+    assert isinstance(labels, np.ndarray), "The result is not a numpy.ndarray"
+
+    # Check if output has the same shape as the input image
+    assert labels.shape == image.shape, "Output labels and input image shapes are not equal"
+
+    # Check if output has the correct dtype (int)
+    assert labels.dtype == np.int, "Output label dtype is not integer"
+
+    # Check if values are non-negative
+    assert np.all(labels >= 0), "Output labels contain negative values"
+
+    # Test with an all-zero image
+    image_all_zeros = np.zeros((50, 50))
+    labels_all_zeros = segment_global_threshold(image_all_zeros)
+    assert np.all(labels_all_zeros == 0), "The labels are not all zeros for an all-zero image"
+
+    # Test with an all-ones image
+    image_all_ones = np.ones((50, 50))
+    labels_all_ones = segment_global_threshold(image_all_ones)
+    assert np.all(labels_all_ones == 1), "The labels are not all ones for an all-ones image"
+
+    # Test with a half-half image
+    image_half = np.vstack((np.zeros((50, 50)), np.ones((50, 50))))
+    labels_half = segment_global_threshold(image_half)
+    assert np.unique(labels_half).size > 1, "The labels should have more than one unique value for a half-half image"
+
+def test_segment_local_threshold():
+    # Load sample image
+    image = data.coins()
+
+    # Test invalid speckle_kernel parameter
+    with pytest.raises(ValueError):
+        segment_local_threshold(image, speckle_kernel=0)
+
+    # Test valid parameters
+    labels = segment_local_threshold(image, 
+                                     dilation=4, 
+                                     thr=0.01, 
+                                     median_block=51, 
+                                     min_distance=10, 
+                                     peak_footprint=7, 
+                                     speckle_kernel=4, 
+                                     debug=False)
+    
+    # Check the output label array shape and verify it's non-empty
+    assert labels.shape == image.shape
+    assert labels.max() > 0
+
+
+
+from vipercore.processing.segmentation import _return_edge_labels, shift_labels
+
+def test_return_edge_labels():
+    input_map = np.array([[1, 0, 0],
+                          [0, 2, 0],
+                          [0, 0, 3]])
+
+    expected_edge_labels = [1, 2, 3]
+    edge_labels = _return_edge_labels(input_map)
+    
+    assert set(edge_labels) == set(expected_edge_labels)
+
+    input_map_3d = np.array([[[1, 0, 0],
+                              [0, 2, 0],
+                              [0, 0, 3]],
+                             [[0, 1, 0],
+                              [2, 0, 0],
+                              [0, 3, 0]]])
+
+    expected_edge_labels_3d = [1, 2, 3]
+    edge_labels_3d = _return_edge_labels(input_map_3d[0])
+
+    assert set(edge_labels_3d) == set(expected_edge_labels_3d)
+
+def test_shift_labels():
+    input_map = np.array([[1, 0, 0],
+                          [0, 2, 0],
+                          [0, 0, 3]])
+    shift = 10
+    expected_shifted_map = np.array([[11,  0,  0],
+                                     [ 0, 12,  0],
+                                     [ 0,  0, 13]])
+    expected_edge_labels = [11, 12, 13]
+
+    shifted_map, edge_labels = shift_labels(input_map, shift)
+
+    assert np.array_equal(shifted_map, expected_shifted_map)
+    assert set(edge_labels) == set(expected_edge_labels)
+
+    input_map_3d = np.array([[[1, 0, 0],
+                              [0, 2, 0],
+                              [0, 0, 3]],
+                             [[0, 1, 0],
+                              [2, 0, 0],
+                              [0, 3, 0]]])
+
+    expected_shifted_map_3d = np.array([[[11,  0,  0],
+                                         [ 0, 12,  0],
+                                         [ 0,  0, 13]],
+                                        [[ 0, 11,  0],
+                                         [12,  0,  0],
+                                         [ 0, 13,  0]]])
+
+    shifted_map_3d, edge_labels_3d = shift_labels(input_map_3d, shift)
+
+    assert np.array_equal(shifted_map_3d, expected_shifted_map_3d)
+    assert set(edge_labels_3d) == set(expected_edge_labels)
+
+
+
+from vipercore.processing.segmentation import _remove_classes, remove_classes
+
+def test_remove_classes():
+    label_in = np.array([[1, 2, 1],
+                         [1, 0, 2],
+                         [0, 2, 3]])
+    to_remove = [1, 3]
+
+    expected_output = np.array([[0, 2, 0],
+                                 [0, 0, 2],
+                                 [0, 2, 0]])
+
+    # Test _remove_classes function
+    result = _remove_classes(label_in, to_remove)
+    assert np.array_equal(result, expected_output)
+
+    # Test remove_classes function
+    result = remove_classes(label_in, to_remove)
+    assert np.array_equal(result, expected_output)
+
+    # Test reindex parameter
+    to_remove_reindex = [1]
+    expected_output_reindex = np.array([[0, 1, 0],
+                                        [0, 0, 1],
+                                        [0, 1, 2]])
+    result_reindex = remove_classes(label_in, to_remove_reindex, reindex=True)
+    assert np.array_equal(result_reindex, expected_output_reindex)
+
+    # Test custom background parameter
+    background_value = 1
+    expected_output_custom_background = np.array([[1,  2, 1],
+                                                  [1, 0,  2],
+                                                  [0,  2,  1]])
+    result_custom_background = remove_classes(label_in, to_remove, background=background_value)
+    
+    assert np.array_equal(result_custom_background, expected_output_custom_background)
+
+
+
+from vipercore.processing.segmentation import contact_filter_lambda, contact_filter
+
+def test_contact_filter_lambda():
+    label = np.array([[0, 1, 1],
+                      [0, 2, 1],
+                      [0, 0, 2]])
+    result = contact_filter_lambda(label)
+    expected_result = np.array([1., 0.28571429, 0.5])
+    assert np.allclose(result, expected_result, atol=1e-6)
+
+def test_contact_filter():
+    inarr = np.array([[0, 1, 1],
+                      [0, 2, 1],
+                      [0, 0, 2]])
+    result = contact_filter(inarr, threshold=0.5)
+    expected_result = np.array([[0, 1, 1],
+                                [0, 0, 1],
+                                [0, 0, 0]])
+    assert np.all(result == expected_result)
+
+
+from vipercore.processing.segmentation import numba_mask_centroid
+
+
+from vipercore.processing.segmentation import _class_size, size_filter
+
+def test_size_filter():
+    label = np.array([[0, 1, 1],
+                      [0, 2, 1],
+                      [0, 0, 2]])
+    limits = [1, 2]
+    result = size_filter(label, limits)
+    expected_result = np.array([[0, 1, 1],
+                                [0, 0, 1],
+                                [0, 0, 0]])
+
+    assert np.all(result == expected_result)
+
+def test_class_size():
+    mask = np.array([[0, 1, 1],
+                     [0, 2, 1],
+                     [0, 0, 2]])
+
+    _, length = _class_size(mask)
+    expected_length = np.array([3, 2])
+    assert np.all(length == expected_length)
+
+
+from vipercore.processing.segmentation import _numba_subtract, numba_mask_centroid
+
+def test_numba_subtract():
+    array1 = np.array([[0, 2, 3],
+                       [0, 5, 6],
+                       [0, 0, 7]])
+    min_number = 1
+    result = _numba_subtract(array1, min_number)
+    expected_result = np.array([[0, 1, 2],
+                                [0, 4, 5],
+                                [0, 0, 6]])
+    assert np.all(result == expected_result)
+
+def test_numba_mask_centroid():
+    mask = np.array([[0, 1, 1],
+                     [0, 2, 1],
+                     [0, 0, 2]])
+    centers, points_class, ids = numba_mask_centroid(mask)
+    expected_centers = np.array([[1.5       , 1.33333333],
+                                  [2.        , 1.5       ]])
+    expected_points_class = np.array([3, 3], dtype=np.uint32)
+    expected_ids = np.array([1, 2], dtype=np.int32)
+    
+    assert np.allclose(centers, expected_centers, atol=1e-6)
+    assert np.all(points_class == expected_points_class)
+    assert np.all(ids == expected_ids)
+
+
+
+
+
+
+
+
 
 def test_percentile_normalization_C_H_W():
     
@@ -102,32 +424,6 @@ def test_selected_coords_fast():
     
     pred_class_2 = np.array(coords[1])
     np.testing.assert_array_equal(class_2[class_2[:,0].argsort()], pred_class_2[pred_class_2[:,0].argsort()])
-    
-def test_remove_classes():
-    
-    imgsize = 10
-    maxclass = 20
-    inarr = np.random.choice(maxclass, size=(imgsize*imgsize), replace=True).astype('int')
-    inarr[0]=0
-    
-    to_delete_idx = np.random.choice(imgsize*imgsize, size=(10), replace=False)
-    to_delete_classes = set(inarr[to_delete_idx])
-    
-    # reshape inarr to 2D 
-    inarr = np.reshape(inarr, (imgsize,imgsize))
-    
-    # dont remove background label
-    if 0 in to_delete_classes:
-        to_delete_classes.remove(0)
-        
-    # create remain classes
-    to_remain_classes = set(np.unique(inarr))-to_delete_classes
-    
-    outarr = remove_classes(inarr, to_delete_classes, reindex=False)
-    assert to_remain_classes == set(np.unique(outarr))
-    
-    outarr_reindex = remove_classes(inarr, to_delete_classes, reindex=True)
-    assert set(np.unique(outarr_reindex)) == set(np.arange(len(to_remain_classes)))
     
 def test_test():
     assert 1 == 1

@@ -1,26 +1,17 @@
-
-from datetime import datetime
-from multiprocessing.dummy import Process
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import skfmm
 import csv
 import h5py
 from functools import partial
 from multiprocessing import Pool
 import shutil
-import warnings
 
 import traceback
-import sys
 from PIL import Image
-from skimage.filters import gaussian, median
-from skimage.morphology import binary_erosion, disk, dilation
-from skimage.segmentation import watershed
 from skimage.color import label2rgb
 
-from vipercore.processing.segmentation import segment_local_tresh, mask_centroid, contact_filter, size_filter, shift_labels
+from vipercore.processing.segmentation import shift_labels
 from vipercore.processing.utils import plot_image, flatten
 
 from vipercore.pipeline.base import ProcessingStep
@@ -826,7 +817,7 @@ class TimecourseSegmentation(Segmentation):
                     self.log("Sharding sanity check: edge classes are NOT a full subset of all classes.")
               
         self.log("resolved segmentation list")
-
+ 
     def process(self):
         
         #global _tmp_seg
@@ -925,6 +916,7 @@ class MultithreadedSegmentation(TimecourseSegmentation):
             #     pass
             results = list(tqdm(pool.imap(self.method.call_as_shard, segmentation_list), total = len(indexes)))
             print('All segmentations are done.', flush=True)
+        
         self.log("Finished parallel segmentation")
         self.log("Transferring results to array.")
 

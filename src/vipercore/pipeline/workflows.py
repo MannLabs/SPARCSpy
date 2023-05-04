@@ -1,28 +1,25 @@
 from vipercore.pipeline.segmentation import Segmentation, ShardedSegmentation, TimecourseSegmentation, MultithreadedSegmentation
 from vipercore.processing.preprocessing import percentile_normalization
 from vipercore.processing.utils import plot_image, visualize_class
-from vipercore.processing.segmentation import segment_local_tresh, segment_global_tresh, mask_centroid, contact_filter, size_filter, shift_labels, _class_size, global_otsu
+from vipercore.processing.segmentation import segment_local_threshold, segment_global_threshold, numba_mask_centroid, contact_filter, size_filter, _class_size, global_otsu
 
-from datetime import datetime
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 import skfmm
-import csv
-import h5py
+
 from functools import partial
 from multiprocessing import Pool
-import shutil
-import warnings
 
-from skimage.filters import gaussian, median
+
+from skimage.filters import median
 from skimage.morphology import binary_erosion, disk, dilation
 from skimage.segmentation import watershed
 from skimage.color import label2rgb
 
 #for cellpose segmentation
-from cellpose import models, core
-import torch
+from cellpose import models
+
 
 class BaseSegmentation(Segmentation):
 
@@ -57,7 +54,7 @@ class BaseSegmentation(Segmentation):
         # Use manual threshold if defined in ["wga_segmentation"]["threshold"]
         # If not, use global otsu
         if 'threshold' in self.config["nucleus_segmentation"] and 'median_block' in self.config["nucleus_segmentation"]:
-            self.maps["nucleus_segmentation"] = segment_local_tresh(nucleus_map_tr, 
+            self.maps["nucleus_segmentation"] = segment_local_threshold(nucleus_map_tr, 
                                         dilation=self.config["nucleus_segmentation"]["dilation"], 
                                         thr=self.config["nucleus_segmentation"]["threshold"], 
                                         median_block=self.config["nucleus_segmentation"]["median_block"], 
@@ -68,7 +65,7 @@ class BaseSegmentation(Segmentation):
                                         debug=self.debug)
         else:
             self.log('No treshold or median_block for nucleus segmentation defined, global otsu will be used.')
-            self.maps["nucleus_segmentation"] = segment_global_tresh(nucleus_map_tr, 
+            self.maps["nucleus_segmentation"] = segment_global_threshold(nucleus_map_tr, 
                                         dilation=self.config["nucleus_segmentation"]["dilation"], 
                                         min_distance=self.config["nucleus_segmentation"]["min_distance"], 
                                         peak_footprint=self.config["nucleus_segmentation"]["peak_footprint"], 
@@ -227,7 +224,7 @@ class BaseSegmentation(Segmentation):
 
     def _filter_cells_cytosol_size(self, all_classes, filtered_classes):
         # filter cells based on cytosol size
-        center_cell, length, coords = mask_centroid(self.maps["watershed"], debug=self.debug)
+        center_cell, length, coords = numba_mask_centroid(self.maps["watershed"], debug=self.debug)
         
         all_classes_wga = np.unique(self.maps["watershed"])
 
