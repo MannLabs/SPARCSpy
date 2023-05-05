@@ -26,3 +26,16 @@ plmodels
 
 .. automodule:: vipercore.ml.plmodels
     :members:
+
+
+transforms
+###########
+
+.. automodule:: vipercore.ml.transforms
+    :members:
+
+utils
+###########
+
+.. automodule:: vipercore.ml.utils
+    :members:
