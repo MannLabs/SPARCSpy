@@ -1,8 +1,9 @@
 from scipy.sparse import csr_matrix
 import numpy as np
 import torch
+from math import floor
 
-def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, test_per_class):
+def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, val_per_class, test_per_class,):
     
     elements = [len(el) for el in list_of_datasets]
     rows = np.arange(len(list_of_datasets))
@@ -15,22 +16,26 @@ def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, t
     
     train_dataset = []
     test_dataset = []
+    val_dataset = []
     
     for dataset, label, fraction in zip(list_of_datasets, class_labels, dataset_fraction):
         print(dataset, label, fraction)
-        train_size = np.round(train_per_class*fraction).astype(int)
-        test_size = np.round(test_per_class*fraction).astype(int)
+        train_size = floor(train_per_class*fraction)
+        test_size = floor(test_per_class*fraction)
+        val_size = floor(val_per_class*fraction)
         
-        residual_size = len(dataset) - train_size - test_size
+        residual_size = len(dataset) - train_size - test_size - val_size
         
         if(residual_size < 0):
-            raise ValueError(f"Dataset with length {len(dataset)} is to small to be split into test set of size {test_size} and train set of size {train_size}. Use a smaller test and trainset.")
+            raise ValueError(f"Dataset with length {len(dataset)} is to small to be split into test set of size {test_size} and train set of size {train_size} and validation set of size {val_size}. Use a smaller test and trainset.")
         
-        train, test, _ = torch.utils.data.random_split(dataset, [train_size, test_size, residual_size])
+        train, test, val, _ = torch.utils.data.random_split(dataset, [train_size, test_size, val_size, residual_size])
         train_dataset.append(train)
         test_dataset.append(test)
+        val_dataset.append(val)
     
     train_dataset = torch.utils.data.ConcatDataset(train_dataset)
     test_dataset = torch.utils.data.ConcatDataset(test_dataset)
+    val_dataset = torch.utils.data.ConcatDataset(val_dataset)
     
-    return train_dataset, test_dataset
+    return train_dataset, val_dataset, test_dataset

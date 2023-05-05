@@ -127,7 +127,7 @@ class NPYSingleCellDataset(Dataset):
     
 class HDF5SingleCellDataset(Dataset):
     
-    HDF_FILETYPES = ["hdf", "hf", "h5"]
+    HDF_FILETYPES = ["hdf", "hf", "h5", "hdf5"]
     def __init__(self, dir_list, 
                  dir_labels, 
                  root_dir, 
@@ -135,7 +135,7 @@ class HDF5SingleCellDataset(Dataset):
                  transform=None, 
                  return_id=False, 
                  return_fake_id=False,
-                select_channel=None):
+                 select_channel=None):
         
         self.root_dir = root_dir
         self.dir_labels = dir_labels
@@ -149,11 +149,19 @@ class HDF5SingleCellDataset(Dataset):
         
         # scan all directoreis
         for i, directory in enumerate(dir_list):
-            path = os.path.join(self.root_dir,directory)  
+            path = os.path.join(self.root_dir, directory)  
             current_label = self.dir_labels[i]
-            
-            # recursively scan for files
-            self.scan_directory(path, current_label, max_level)
+
+            #check if "directory" is a path to specific hdf5
+            filetype = directory.split(".")[-1]
+            filename = directory.split(".")[0]
+                
+            if filetype in self.HDF_FILETYPES:
+                self.add_hdf_to_index(current_label, directory)
+
+            else:
+                # recursively scan for files
+                self.scan_directory(path, current_label, max_level)
         
         # print dataset stats at the end
         
@@ -165,18 +173,21 @@ class HDF5SingleCellDataset(Dataset):
     def add_hdf_to_index(self, current_label, path):       
         try:
             input_hdf = h5py.File(path, 'r')
-        
             index_handle = input_hdf.get('single_cell_index')
 
             handle_id = len(self.handle_list)
             self.handle_list.append(input_hdf.get('single_cell_data'))
 
             for row in index_handle:
-                self.data_locator.append([current_label,handle_id]+list(row))      
+                self.data_locator.append([current_label, handle_id]+list(row))      
         except:
             return
         
     def scan_directory(self, path, current_label, levels_left):
+        
+        # iterates over all files and folders in a directory
+        # hdf5 files are added to the index
+        # subfolders are recursively scanned
         
         if levels_left > 0:
             

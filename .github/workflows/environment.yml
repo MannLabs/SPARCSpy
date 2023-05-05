@@ -1,6 +1,4 @@
 name: base
-channels:
-    - conda-forge
 dependencies:
   - numpy
   - matplotlib

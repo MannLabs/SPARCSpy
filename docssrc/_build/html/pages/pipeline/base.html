@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>base &mdash; Viper Core  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="project" href="project.html" />
+    <link rel="prev" title="base" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Viper Core
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html">viper-split</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html#viper-stat">viper-stat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Pipeline:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">base</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">base</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#logable">Logable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#processingstep">ProcessingStep</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="project.html">project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">selection</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing/preprocessing.html">1. Preprocessing</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Viper Core</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/pages/pipeline/base.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="base">
+<h1>base<a class="headerlink" href="#base" title="Permalink to this headline">¶</a></h1>
+<section id="logable">
+<h2>Logable<a class="headerlink" href="#logable" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.pipeline.base.</span></span><span class="sig-name descname"><span class="pre">Logable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.Logable" title="Permalink to this definition">¶</a></dt>
+<dd><p>object which can create log entries.
+:param debug: When set to <code class="docutils literal notranslate"><span class="pre">True</span></code> log entries will be printed to the console.
+:type debug: bool, default <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.directory">
+<span class="sig-name descname"><span class="pre">directory</span></span><a class="headerlink" href="#vipercore.pipeline.base.Logable.directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>A directory must be set in every descendant before log can be called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.DEFAULT_LOG_NAME">
+<span class="sig-name descname"><span class="pre">DEFAULT_LOG_NAME</span></span><a class="headerlink" href="#vipercore.pipeline.base.Logable.DEFAULT_LOG_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default log file name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str, default <code class="docutils literal notranslate"><span class="pre">processing.log</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.DEFAULT_FORMAT">
+<span class="sig-name descname"><span class="pre">DEFAULT_FORMAT</span></span><a class="headerlink" href="#vipercore.pipeline.base.Logable.DEFAULT_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Date and time format used for logging. See <a href="#id1"><span class="problematic" id="id2">`datetime.strftime &lt;https://docs.python.org/3/library/datetime.html#datetime.date.strftime`_</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.Logable.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.Logable.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>log a message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em><em>, </em><em>list</em><em>(</em><em>str</em><em>)</em><em>, </em><em>dict</em><em>(</em><em>str</em><em>)</em>) – Strings are s</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="processingstep">
+<h2>ProcessingStep<a class="headerlink" href="#processingstep" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.ProcessingStep">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vipercore.pipeline.base.</span></span><span class="sig-name descname"><span class="pre">ProcessingStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermediate_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.ProcessingStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="protocols.html#vipercore.pipeline.base.Logable" title="vipercore.pipeline.base.Logable"><code class="xref py py-class docutils literal notranslate"><span class="pre">vipercore.pipeline.base.Logable</span></code></a></p>
+<p>Processing step living in its own subdirectory of the project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>dict</em>) – Config file which is passed by the Project class when called. Is loaded from the project based on the name of the class.</p></li>
+<li><p><strong>directory</strong> (<em>str</em>) – Directory which should be used by the processing step. The directory will be newly created if it does not exist yet. When used with the <a class="reference internal" href="project.html#vipercore.pipeline.project.Project" title="vipercore.pipeline.project.Project"><code class="xref py py-class docutils literal notranslate"><span class="pre">vipercore.pipeline.project.Project</span></code></a> class, a subdirectory of the project directory is passed.</p></li>
+<li><p><strong>intermediate_output</strong> (bool, default <code class="docutils literal notranslate"><span class="pre">False</span></code>) – When set to True intermediate outputs will be saved where applicable.</p></li>
+<li><p><strong>debug</strong> (bool, default <code class="docutils literal notranslate"><span class="pre">False</span></code>) – When set to True debug outputs will be printed where applicable.</p></li>
+<li><p><strong>overwrite</strong> (bool, default <code class="docutils literal notranslate"><span class="pre">False</span></code>) – When set to True, the processing step directory will be completely deleted and newly created when called.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="vipercore.pipeline.base.ProcessingStep.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.pipeline.base.ProcessingStep.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>log a message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em><em>, </em><em>list</em><em>(</em><em>str</em><em>)</em><em>, </em><em>dict</em><em>(</em><em>str</em><em>)</em>) – Strings are s</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="project.html" class="btn btn-neutral float-right" title="project" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="introduction.html" class="btn btn-neutral float-left" title="base" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2021, Georg Wallmann, Sophia Mädler, Niklas Schmacke
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

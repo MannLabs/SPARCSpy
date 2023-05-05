@@ -1,146 +1,148 @@
 import numpy as np
 from scipy import ndimage
-from scipy.signal import convolve2d
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-from tqdm import tqdm
-import multiprocessing
-from numba import njit
 
 import numba as nb
+from numba import njit
+from numba import prange
 
+from skimage.transform import resize
 from skimage.color import label2rgb
-from skimage.filters import gaussian
 from skimage import filters
 from skimage.feature import peak_local_max
 from skimage.segmentation import watershed
 from skimage.morphology import dilation as sk_dilation
-
 from skimage.morphology import binary_erosion, disk
+import skfmm
 
 from vipercore.processing.utils import plot_image
 
-import skimage as sk
-import numpy as np
-import skfmm
-
-def segment_global_thresh(image, min_distance=8, min_size=20, dilation=0, threshold=3,peak_threshold=3, return_markers=False):
-    """This function takes a preprocessed image with low background noise and extracts and segments the foreground.
-    Extraction is performed based on global thresholding, therefore a preprocessed image with homogenous low noise background is needed.
-    
-    :param image: 2D numpy array of type float containing the image. 
-    :type image: class:`numpy.array`
-    
-    :param min_distance: Minimum distance between the centers of two cells. This value is applied before mask dilation. defaults to 10
-    :type min_distance: int, optional
-    
-    :param min_size: Minimum number of pixels occupied by a single cell. This value is applied before mask dilation. defaults to 20
-    :type min_size: int, optional
-    
-    :param dilation: Dilation of the segmented masks in pixel. If no dilation is desired, set to zero. defaults to 0
-    :type dilation: int, optional
-    
-    :param threshold: Threshold for areas to be considered as cells. Areas are considered as if they are larger than threshold * standard_dev. defaults to 3
-    :type threshold: int, optional
+#### Thresholding Functions to binarize input images
+def global_otsu(image):
     """
+    Calculate the optimal global threshold for an input grayscale image using Otsu's method.
     
-    # calculate global standard deviation
-    std = np.std(image.flatten())
-    
-    image = image - np.median(image.flatten())
-    
-    # filter image for smoother shapes
-    image = gaussian(image, sigma=1, preserve_range=True)
-    peak_mask = np.where(image > peak_threshold * std, 1,0)
-    
-
-    distance = ndimage.distance_transform_edt(peak_mask)
-    
-    # find peaks based on distance transform
-    peak_idx  = peak_local_max(distance, min_distance=min_distance, footprint=np.ones((3, 3)))
-    local_maxi = np.zeros_like(image, dtype=bool)
-    local_maxi[tuple(peak_idx.T)] = True
-    markers = ndimage.label(local_maxi)[0]
-    
-    kernel = disk(dilation)
-    
-    mask = np.where(image > threshold * std, 1,0)
-
-    dilated_mask = sk_dilation(mask,selem=kernel)
-    dilated_distance = ndimage.distance_transform_edt(dilated_mask)
-    
-
-    labels = watershed(-dilated_distance,markers, mask=dilated_mask)
-    
-    
-    if return_markers:
-        return labels.astype(int), peak_idx
-    else:
-        return labels.astype(int)
-    
-def segment_local_tresh(image, 
-                        dilation=4, 
-                        thr=0.01, 
-                        median_block=51, 
-                        min_distance=10, 
-                        peak_footprint=7, 
-                        speckle_kernel=4, 
-                        debug=False):
-    """This function takes a unprocessed image with low background noise and extracts and segments approximately round foreground objects based on intensity.
-    Extraction is performed based on local median thresholding.
+    Otsu's method maximizes the between-class variance and minimizes the within-class variance.
     
     Parameters
     ----------
-    image : numpy.array
-        2D numpy array of type float containing the image. 
-    
-    thr : float, default = 0.01
-        Treshold above median for segmentation.
-        
-    median_block : int, default = 51
-        size of the receptive field for median calculation. Needs to be an odd number.
-        
-    min_distance : int, default = 10
-        Minimum distance in px between the centers of two segemnts. This value is applied before mask dilation.
-        
-    peak_footprint : int, default = 7
-        average width of peaks in px for the center detection.
-        
-    speckle_kernel : int, default = 4
-        width of the kernal used for denoising. First a binary erosion with disk(speckle_kernel) is performed,
-        then a dilation by disk(speckle_kernel -1)
-    
-    debug : bool, default = False
-        Needed for parameter tuning with new data. Results in the display of all intermediate maps.
-    """
-    
-    if speckle_kernel < 1:
-        raise ValueError("speckle_kernel needs to be at least 1")
+    image : numpy.ndarray
+        Input grayscale image.
 
-    local_thresh = filters.threshold_local(image, block_size=median_block,method="median", offset=-thr)
-        
-    image_mask = image > local_thresh
+    Returns
+    -------
+    float
+        Optimal threshold value calculated using Otsu's method.
     
+    Example
+    -------
+    >>> import numpy as np
+    >>> from skimage import data
+    >>> image = data.coins()
+    >>> threshold = global_otsu(image)
+    >>> print(threshold)
+    """
+
+    # Calculate histogram of input image and bin centers
+    counts, bin_edges = np.histogram(np.ravel(image), bins=512)
+    bin_centers = bin_edges[:-1] + np.diff(bin_edges)/2
+
+    # Calculate cumulative sum of counts for class 1 and class 2
+    weight1 = np.cumsum(counts)
+    weight2 = np.cumsum(counts[::-1])[::-1]
+    
+    # class means for all possible thresholds
+    mean1 = np.cumsum(counts * bin_centers) / weight1
+    mean2 = (np.cumsum((counts * bin_centers)[::-1]) / weight2[::-1])[::-1]
+
+    # Calculate between-class variance for all possible thresholds
+    # Clip ends to align class 1 and class 2 variables:
+    # The last value of ``weight1``/``mean1`` should pair with zero values in
+    # ``weight2``/``mean2``, which do not exist.
+    variance12 = weight1[:-1] * weight2[1:] * (mean1[:-1] - mean2[1:]) ** 2
+
+    # Find the threshold value that maximizes the between-class variance
+    idx = np.argmax(variance12)
+    threshold = bin_centers[idx]
+    
+    return threshold
+
+def _segment_threshold(image, 
+                      threshold,
+                      dilation=4, 
+                      min_distance=10, 
+                      peak_footprint=7, 
+                      speckle_kernel=4, 
+                      debug=False):
+    
+    """
+    Perform image segmentation using an input threshold and additional user-defined parameters.
+    This is a private helper function for segmenting images using a given threshold. It combines several
+    operations like binary erosion and dilation, distance transforms, and watershed segmentation to obtain
+    unique labels for distinct regions in the input image.
+
+    Parameters
+    ----------
+
+    image : numpy.ndarray
+        Input grayscale image.
+
+
+    threshold : float
+        Threshold value for creating image_mask.
+
+
+    dilation : int, optional
+        Size of the structuring element for the dilation operation (default is 4).
+
+
+    min_distance : int, optional
+        Minimum number of pixels separating peaks (default is 10).
+
+
+    peak_footprint : int, optional
+        Size of the structuring element used for finding local maxima (default is 7).
+
+
+    speckle_kernel : int, optional
+        Size of the structuring element used for speckle removal (default is 4).
+
+
+    debug : bool, optional
+        If True, intermediate results are plotted (default is False).
+
+
+    Returns
+    -------
+    numpy.ndarray
+        Labeled array, where each unique feature in the input image has a unique label.
+
+
+    Example
+    -------
+    This function is meant to be used internally as a helper function for other segmentation methods.
+    It should not be used directly.
+
+    """
+
+    image_mask = image > threshold
+
+    # If debug is set to True, plot the binary mask
     if debug:
         plot_image(image_mask, cmap="Greys_r")
         
     # removing speckles by binary erosion and dilation 
-    image_mask_clean = binary_erosion(image_mask, selem=disk(speckle_kernel))
-    image_mask_clean = sk_dilation(image_mask_clean, selem=disk(speckle_kernel-1))
+    image_mask_clean = binary_erosion(image_mask, footprint=disk(speckle_kernel))
+    image_mask_clean = sk_dilation(image_mask_clean, footprint=disk(speckle_kernel-1))
     
-    #if debug:
-    #    plot_image(image_mask_clean)
-        
-    
-    
-    # find peaks based on distance transform
+    # Find peaks in the image mask using a distance transform
     distance = ndimage.distance_transform_edt(image_mask_clean)
     
     peak_idx  = peak_local_max(distance, min_distance=min_distance, footprint=disk(peak_footprint))
-    local_maxi = np.zeros_like(image_mask_clean, dtype=bool)
+    local_maxi = np.zeros_like(image_mask_clean, dtype=bool) # Initialize an array of zeros with the same shape as image_mask_clean
     local_maxi[tuple(peak_idx.T)] = True
-    markers = ndimage.label(local_maxi)[0]
     
+    # If debug is set to True, plot the local maxima on the binary mask
     if debug:
         fig = plt.figure(frameon=False)
         fig.set_size_inches(10,10)
@@ -151,21 +153,17 @@ def segment_local_tresh(image,
         plt.scatter(peak_idx[:,1],peak_idx[:,0],color="red")
         plt.show()
     
-    
     # segmentation by fast marching and watershed
-    
-
-    dilated_mask = sk_dilation(image_mask_clean,selem=disk(dilation))
-
+    dilated_mask = sk_dilation(image_mask_clean, footprint=disk(dilation))
 
     fmm_marker = np.ones_like(dilated_mask)
     for center in peak_idx:
         fmm_marker[center[0],center[1]] = 0
 
-
     m = np.ma.masked_array(fmm_marker, np.logical_not(dilated_mask))
     distance_2 = skfmm.distance(m)
     
+    # If debug is True, plot the calculated distance_2
     if debug:
         fig = plt.figure(frameon=False)
         fig.set_size_inches(10,10)
@@ -174,48 +172,210 @@ def segment_local_tresh(image,
         fig.add_axes(ax)
         ax.imshow(distance_2,  cmap="viridis")
         plt.scatter(peak_idx[:,1],peak_idx[:,0],color="red")
-        
-        
 
+    # Assign unique labels to each segmented region     
     marker = np.zeros_like(image_mask_clean).astype(int)
     for i, center in enumerate(peak_idx):
         marker[center[0],center[1]] = i+1
 
     labels = watershed(distance_2, marker, mask=dilated_mask)
 
-
+    # If debug is True, visualize the final labels on the image
     if debug: 
         image = label2rgb(labels,image/np.max(image),alpha=0.2, bg_label=0)
         plot_image(image)
+    
+    return(labels)
+
+def segment_global_threshold(image, 
+                            dilation=4, 
+                            min_distance=10, 
+                            peak_footprint=7, 
+                            speckle_kernel=4, 
+                            debug=False):
+    
+    """
+    Segments an image based on a global threshold determined using Otsu's method, followed by peak detection using 
+    distance transforms and watershed segmentation. 
+
+    Parameters
+    ----------
+    image : numpy.ndarray
+        Input grayscale image.
+    dilation : int, optional
+        Size of the structuring element for the dilation operation (default is 4).
+    min_distance : int, optional
+        Minimum number of pixels separating peaks (default is 10).
+    peak_footprint : int, optional
+        Size of the structuring element used for finding local maxima (default is 7).
+    speckle_kernel : int, optional
+        Size of the structuring element used for speckle removal (default is 4).
+    debug : bool, optional
+        If True, intermediate results are plotted (default is False).
+
+    Returns
+    -------
+    numpy.ndarray
+        Labeled array, where each unique feature in the input image has a unique label.
+
+    Examples
+    --------
+    >>> import matplotlib.pyplot as plt
+    >>> from skimage import data
+    >>> from segment import segment_global_threshold
+    >>> coins = data.coins()
+    >>> labels = segment_global_threshold(coins, dilation=5, min_distance=20, peak_footprint=7, speckle_kernel=3, debug=True)
+    >>> plt.imshow(labels, cmap='jet')
+    >>> plt.colorbar()
+    >>> plt.show()
+    """
+
+    # calculate the global threshold
+    threshold = global_otsu(image)
+    
+    labels = _segment_threshold(image, 
+                                threshold,
+                                dilation=dilation, 
+                                min_distance=min_distance, 
+                                peak_footprint=peak_footprint, 
+                                speckle_kernel=speckle_kernel, 
+                                debug=debug)
+
+    # returnt the segmented image
+    return labels
+    
+def segment_local_threshold(image, 
+                            dilation=4, 
+                            thr=0.01, 
+                            median_block=51, 
+                            min_distance=10, 
+                            peak_footprint=7, 
+                            speckle_kernel=4, 
+                            median_step = 1,
+                            debug=False):
+    
+    """This function takes a unprocessed image with low background noise and extracts and segments approximately round foreground objects 
+    based on intensity. The image is segmented using the local (adaptive) threshold method. It first applies a local threshold based on 
+    the median value of a block of pixels, followed by peak detection using distance transforms and watershed segmentation. 
+
+    Parameters
+    ----------
+    image : numpy.ndarray
+        Input grayscale image.
+    dilation : int, optional
+        Size of the structuring element for the dilation operation (default is 4).
+    thr : float, optional
+        The value added to the median of the block of pixels when calculating the local threshold (default is 0.01).
+    median_block : int, optional
+        Size of the block of pixels used to compute the local threshold (default is 51).
+    min_distance : int, optional
+        Minimum number of pixels separating peaks (default is 10).
+    peak_footprint : int, optional
+        Size of the structuring element used for finding local maxima (default is 7).
+    speckle_kernel : int, optional
+        Size of the structuring element used for speckle removal (default is 4).
+    median_step : int, optional
+        The step size for downsampling the image before applying the local threshold (default is 1).
+    debug : bool, optional
+        If True, intermediate results are plotted (default is False).
+
+    Returns
+    -------
+    numpy.ndarray
+        Labeled array, where each unique feature in the input image has a unique label.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> from skimage import data
+    >>> image = data.coins()
+    >>> labels = segment_local_threshold(image, dilation=4, thr=0.01, median_block=51, min_distance=10, peak_footprint=7, speckle_kernel=4, debug=False)
+    >>> plt.imshow(labels, cmap=‘jet’)
+    >>> plt.colorbar()
+    >>> plt.show()
+    """
+    
+    if speckle_kernel < 1:
+        raise ValueError("speckle_kernel needs to be at least 1")
+
+    # Downsample the input image
+    downsampled_image = image[::median_step, ::median_step]
+
+    # Calculate the local threshold using median filtering
+    local_threshold = filters.threshold_local(downsampled_image, 
+                                              block_size=median_block,
+                                              method="median", 
+                                              offset=-thr)
+
+    # Resize the local threshold image to match the original input image
+    local_threshold = resize(local_threshold, image.shape)
+    
+    # Segment the input image using the computed local threshold
+    labels = _segment_threshold(image, 
+                                local_threshold,
+                                dilation=dilation, 
+                                min_distance=min_distance, 
+                                peak_footprint=peak_footprint, 
+                                speckle_kernel=speckle_kernel, 
+                                debug=debug)
         
     return labels
 
-def shift_labels(input_map, shift, return_shifted_labels=False):
-    """Input is a segmentation in form of a 2d or 3d numpy array of type int representing a labeled map. All labels but the background are incremented and all classes in contact with the edges of the canvas are returned.
+
+#### Collection of functions to modify, filter or remove labels from segmentation masks
+
+#helper function to allow numba optimization for subtraction
+@njit
+def _numba_subtract(array1, number):
     """
-        
-    imap = input_map[:].copy()
-    if not issubclass(imap.dtype.type, np.integer):
-        raise ValueError("operation is only permitted for integer arrays")
+    Subtract a minimum number from all non-zero elements of the input array.
 
-    shifted_map = np.where(imap == 0, 0, imap+shift)
+    Parameters
+    ----------
+    array1 : numpy.ndarray
+        The input array.
+    number : int
+        The number to be subtracted from all non-zero elements.
 
-    edge_label = []
+    Returns
+    -------
+    array1 : numpy.ndarray
+        The resulting array after subtracting the number from non-zero elements.
 
-    if len(imap.shape) == 2:
+    Example
+    -------
+    >>> import numpy as np
+    >>> array1 = np.array([[0, 2, 3], [0, 5, 6], [0, 0, 7]])
+    >>> _numba_subtract(array1, 1)
+    array([[0, 1, 2],
+           [0, 4, 5],
+           [0, 0, 6]])
+    """
 
-        edge_label += _return_edge_labels(imap)
-    else:
-        for dimension in imap:
-            edge_label += _return_edge_labels(dimension)
-            
-    if return_shifted_labels:
-        edge_label = [label + shift for label in edge_label]
-        
-    return shifted_map, list(set(edge_label))
-        
+    for i in range(array1.shape[0]):     # parallel --> for i in nb.prange(c.shape[0]):
+        for j in range(array1.shape[1]):
+            if array1[i, j] != 0:
+                array1[i, j] = array1[i, j] - number
+
+    return array1
+
 @njit
 def _return_edge_labels(input_map):
+    """
+    Return the unique labels in contact with the edges of the input_map.
+
+    Parameters
+    ----------
+    input_map : numpy.ndarray
+        Input segmentation as a 2D numpy array of integers.
+
+    Returns
+    -------
+    edge_labels : list
+        List of unique labels in contact with the edges of the input_map.
+    """
+
     top_row = input_map[0]
     bottom_row = input_map[-1]
     first_column = input_map[:,0]
@@ -226,69 +386,248 @@ def _return_edge_labels(input_map):
     
     return list(full_union)
 
+def shift_labels(input_map, shift, return_shifted_labels=False):
+    """
+    Shift the labels of a given labeled map (2D or 3D numpy array) by a specific value.
+    Return the shifted map and the labels that are in contact with the edges of the canvas.
+    All labels but the background are incremented and all classes in contact with the edges of the 
+    canvas are returned.
+    
+    Parameters
+    ----------
+    input_map : numpy.ndarray
+        Input segmentation as a 2D or 3D numpy array of integers.
+    shift : int
+        Value to increment the labels by.
+    return_shifted_labels : bool, optional
+        If True, return the edge labels after shifting (default is False). 
+        If False will return the edge labels before shifting.
 
+    Returns
+    -------
+    shifted_map : numpy.ndarray
+        The labeled map with incremented labels.
+    edge_labels : list
+        List of unique labels in contact with the edges of the canvas.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> input_map = np.array([[1, 0, 0],
+                              [0, 2, 0],
+                              [0, 0, 3]])
+    >>> shift = 10
+    >>> shifted_map, edge_labels = shift_labels(input_map, shift)
+    >>> print(shifted_map)
+    array([[11,  0,  0],
+           [ 0, 12,  0],
+           [ 0,  0, 13]])
+    >>> print(edge_labels)
+    [11, 13]
+
+    """
+        
+    imap = input_map[:].copy()
+    shifted_map = np.where(imap == 0, 0, imap+shift)
+
+    edge_label = []
+
+    if len(imap.shape) == 2:
+        edge_label += _return_edge_labels(imap)
+    else:
+        for dimension in imap:
+            edge_label += _return_edge_labels(dimension)
+            
+    if return_shifted_labels:
+        edge_label = [label + shift for label in edge_label]
+        
+    return shifted_map, list(set(edge_label))
+
+@njit(parallel = True)
+def _remove_classes(label_in, to_remove, background=0, reindex=False):
+    """
+    Remove specified classes from a labeled input array.
+
+    This function takes a labeled array and removes the specified classes. It
+    assigns the background value to these classes and, if reindex=True, reindexes
+    the remaining classes.
+
+    Parameters
+    ----------
+    label_in : numpy.ndarray
+        Input labeled array.
+    to_remove : list or array-like
+        List of label classes to remove.
+    background : int, optional
+        Value used to represent the background class (default is 0).
+    reindex : bool, optional
+        If True, reindex the remaining classes after removal (default is False).
+
+    Returns
+    -------
+    label : numpy.ndarray
+        Labeled array with specified classes removed or reindexed.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> label_in = np.array([[1, 2, 1], [1, 0, 2], [0, 2, 3]])
+    >>> to_remove = [1, 3]
+    >>> _remove_classes(label_in, to_remove)
+    array([[0, 2, 0],
+           [0, 0, 2],
+           [0, 2, 0]])
+
+    """
+    label = label_in.copy()
+    
+    # generate library which contains the new class for label x at library[x]
+    remove_set = set(to_remove)
+    library = np.zeros(np.max(label)+1, dtype="int")
+    
+    # Assign new labels for each class based on whether it is to be removed, and whether reindexing is enabled
+    carry = 0
+    for current_class in range(len(library)):
+        if current_class in remove_set:
+            library[current_class] = background
+            if reindex:
+                carry -= 1
+        else:
+            library[current_class] = current_class + carry
+            
+    # Update the label array based on the library
+    for y in prange(len(label)):
+        for x in prange(len(label[0])):
+            current_label = label[y,x]
+            if current_label != background:
+                label[y,x] = library[current_label]
+                              
+    return label
+
+def remove_classes(label_in, to_remove, background=0, reindex=False):
+    """
+    Wrapper function for the numba optimized _remove_classes function.
+
+    Parameters
+    ----------
+    label_in : numpy.ndarray
+        Input labeled array.
+    to_remove : list or array-like
+        List of label classes to remove.
+    background : int, optional
+        Value used to represent the background class (default is 0).
+    reindex : bool, optional
+        If True, reindex the remaining classes after removal (default is False).
+
+    Returns
+    -------
+    label : numpy.ndarray
+        Labeled array with specified classes removed or reindexed.
+    
+    Example
+    -------
+    >>> import numpy as np
+    >>> label_in = np.array([[1, 2, 1], [1, 0, 2], [0, 2, 3]])
+    >>> to_remove = [1, 3]
+    >>> remove_classes(label_in, to_remove)
+    array([[0, 2, 0],
+           [0, 0, 2],
+           [0, 2, 0]])
+    """
+    return _remove_classes(label_in, to_remove, background=background, reindex=reindex)
 
 @njit(parallel=True)
 def contact_filter_lambda(label, background=0):
-    
+    """
+    Calculate the contact proportion of classes in the labeled array.
+
+    This function calculates the surrounding background and non-background elements
+    for each class in the label array and returns the proportion of background elements
+    to total surrounding elements for each class.
+
+    Parameters
+    ----------
+    label : numpy.ndarray
+        Input labeled array.
+    background : int, optional
+        Value used to represent the background class (default is 0).
+
+    Returns
+    -------
+    pop : numpy.ndarray
+        Array containing the contact proportion for each class.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> label = np.array([[0, 1, 1],
+                      [0, 2, 1],
+                      [0, 0, 2]])
+    >>> contact_filter_lambda(label)
+    array([1.        , 1.,  0.6 ])
+    """
+
     num_labels = np.max(label)
     
-    background_matrix = np.ones((np.max(label)+1,2),dtype='i')
+    # Initialize a background_matrix
+    background_matrix = np.ones((num_labels+1,2),dtype='int')
 
     for y in range(1,len(label)-1):
         for x in range(1,len(label[0])-1):
             
             current_label = label[y,x]
             
-            background_matrix[current_label,0] += int(label[y-1,x] == 0)
-            background_matrix[current_label,0] += int(label[y,x-1] == 0)
-            background_matrix[current_label,0] += int(label[y+1,x] == 0)
-            background_matrix[current_label,0] += int(label[y,x+1] == 0)
+            # Count the background (0) and non-background contact pixels
+            background_matrix[current_label,0] += int(label[y-1,x] == background)
+            background_matrix[current_label,0] += int(label[y,x-1] == background)
+            background_matrix[current_label,0] += int(label[y+1,x] == background)
+            background_matrix[current_label,0] += int(label[y,x+1] == background)
             
+            # Count the non-background contact pixels
             background_matrix[current_label,1] += int(label[y-1,x] != current_label)
             background_matrix[current_label,1] += int(label[y,x-1] != current_label)
             background_matrix[current_label,1] += int(label[y+1,x] != current_label)
             background_matrix[current_label,1] += int(label[y,x+1] != current_label)
             
+    # Compute the proportion of background contact pixels
+    proportion = background_matrix[:,0]/background_matrix[:,1]
     
-    pop = background_matrix[:,0]/background_matrix[:,1]
-    
-    return pop
-
-@njit(parallel=True)
-def remove_classes(label_in, to_remove, background=0, reindex=False):
-    label = label_in.copy()
-    # generate library which contains the new class for label x at library[x]
-    remove_set = set(to_remove)
-
-    library = np.zeros(np.max(label)+1, dtype=np.int_)
-    
-    
-    carry = 0
-    for current_class in range(len(library)):
-        if current_class in remove_set:
-            library[current_class] = background
-            
-            if reindex:
-                carry -= 1
-            
-        else:
-            library[current_class] = current_class +carry
-            
-    # rewrite array based on library
-    for y in range(len(label)):
-        for x in range(len(label[0])):
-            current_label = label[y,x]
-            if current_label != background:
-                label[y,x] = library[current_label]
-                    
-    
-                    
-    return label
-
-
+    return proportion
 
 def contact_filter(inarr, threshold=1, reindex=False, background=0):
+    """
+    Filter the input labeled array based on its contact with background pixels.
+
+    This function filters an input labeled array by removing classes with a background
+    contact proportion less than the given threshold.
+
+    Parameters
+    ----------
+    inarr : numpy.ndarray
+        Input labeled array.
+    threshold : int, optional
+        Specifies the minimum background contact proportion for class retention (default is 1).
+    reindex : bool, optional
+        If True, reindexes the remaining classes after removal (default is False).
+    background : int, optional
+        Value used to represent the background class (default is 0).
+
+    Returns
+    -------
+    label : numpy.ndarray
+        Filtered labeled array.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> inarr = np.array([[0, 1, 1],
+                      [0, 2, 1],
+                      [0, 0, 2]])
+    >>> contact_filter(inarr, threshold=0.5)
+    array([[0, 1, 1],
+           [0, 0, 1],
+           [0, 0, 0]])
+    """
     
     label = inarr.copy()
 
@@ -299,368 +638,254 @@ def contact_filter(inarr, threshold=1, reindex=False, background=0):
     to_remove = np.argwhere(background_contact<threshold).flatten()
 
     to_remove = np.delete(to_remove, np.where(to_remove == background))
-
-    # remove these classes
-    label = remove_classes(label,to_remove,reindex=reindex)
+    
+    # numba typed list fails to determine type for empty list
+    # return without removing classes if no classes should be removed
+    if len(to_remove) > 0:
+        # remove these classes
+        label = remove_classes(label,nb.typed.List(to_remove),reindex=reindex)
+    else:
+         pass
     
     return label
 
-def size_filter(label, limits=[0,np.inf], background=0, reindex=False):
-    center,points_class,coords = mask_centroid(label)
+@njit
+def _class_size(mask, debug=False, background=0):
+    """
+    Compute the size (number of pixels) of each class in the given mask.
+
+    This function calculates the size (number of pixels) for each class present
+    in the input mask. It returns two arrays - an array containing the center of each class, and an array containing the
+    number of pixels in each class. Ignores background as specified in background.
+
+    Parameters
+    ----------
+    mask : numpy.ndarray
+        Input mask containing classes.
+    debug : bool, optional
+        Debug flag (default is False).
+    background : int, optional
+        Value used to represent the background class (default is 0).
+
+    Returns
+    -------
+    mean_arr : numpy.ndarray
+        Array containing the sum of the coordinates of each pixel for each class.
+    length : numpy.ndarray
+        Array containing the number of pixels in each class.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> mask = np.array([[0, 1, 1],
+                          [0, 2, 1],
+                          [0, 0, 2]])
+    >>> _class_size(mask)
+    (array([[       nan,        nan],
+            [0.33333333, 1.66666667],
+            [1.5       , 1.5       ]]),
+    array([nan,  3.,  2.]))
+    """
+
+    # Get the unique cell_ids and remove the background(0)
+    cell_ids = list(np.unique(mask).flatten())
+    if 0 in cell_ids: cell_ids.remove(background)
+    cell_ids = np.array(cell_ids)
+
+    min_cell_id = np.min(cell_ids) #need to convert to array since numba min functions requires array as input not list
+                                       #-1 important since otherwise the cell with the lowest id becomes 0 and is ignored (since 0 = background)
     
+    # Adjust mask by subtracting the min_cell_id - 1 from non-zero elements
+    if min_cell_id != 1:
+        mask = _numba_subtract(mask, min_cell_id - 1 ) 
+
+    # Calculate the total number of classes
+    num_classes = np.max(mask) + 1
+    
+    # Initialize an array to store the sum of the coordinates for each class
+    mean_sum = np.zeros((num_classes, 2))
+    #
+    #  Initialize an array to store the number of pixels for each class
+    length = np.zeros((num_classes, 1))
+    
+    #get dimensions of input mask
+    rows, cols = mask.shape 
+    
+    # Iterate through the rows and columns of the mask
+    for row in range(rows):
+        for col in range(cols):
+            #get the class id at the current position
+            return_id = mask[row, col] 
+            
+            # Check if the current class ID is not equal to the background class
+            if return_id != background:
+                mean_sum[return_id ] += np.array([row, col], dtype="uint32")  # Add the coordinates to the corresponding class ID in mean_sum
+                length[return_id][0] += 1 # Increment the number of pixels for the corresponding class ID in length
+                
+
+    # Divide the mean_sum array by the length array to get the mean_arr            
+    mean_arr = np.divide(mean_sum, length)
+
+    #set background index to np.NaN
+    length[background][0] = np.nan
+    mean_arr[background] = np.nan
+
+    return mean_arr, length.flatten()
+
+def size_filter(label, limits=[0, 100000], background=0, reindex=False):
+    """
+    Filter classes in a labeled array based on their size (number of pixels).
+
+    This function filters classes in the input labeled array by removing classes
+    that have a size (number of pixels) outside the provided limits. Optionally,
+    it can reindex the remaining classes.
+
+    Parameters
+    ----------
+
+    label : numpy.ndarray
+        Input labeled array.
+    limits : list, optional
+        List containing the minimum and maximum allowed class size (number of pixels)
+        (default is [0, 100000]).
+    background : int, optional
+        Value used to represent the background class (default is 0).
+    reindex : bool, optional
+        If True, reindexes the remaining classes after removal (default is False).
+
+    Returns
+    -------
+    label : numpy.ndarray
+        Filtered labeled array.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> label = np.array([[0, 1, 1],
+                          [0, 2, 1],
+                          [0, 0, 2]])
+    >>> size_filter(label, limits=[1, 2])
+    array([[0, 0, 0],
+           [0, 2, 0],
+           [0, 0, 2]])
+    """
+    
+    # Calculate the number of pixels for each class in the labeled array
+    _, points_class = _class_size(label)
+    
+    # Find the classes with size below the lower limit and above the upper limit
     below = np.argwhere(points_class < limits[0]).flatten()
     above = np.argwhere(points_class > limits[1]).flatten()
     
+    # Combine the classes below and above the limits to create the list of classes to remove
     to_remove = list(below) + list(above)
     
+    # Remove the specified classes, and optionally reindex the remaining classes
     if len(to_remove) > 0:
-        label = remove_classes(label,to_remove,reindex=reindex)
+        label = remove_classes(label,nb.typed.List(to_remove),reindex=reindex)
     
     return label
 
 
+#### Function to get centers of cells
 @njit
 def numba_mask_centroid(mask, debug=False, skip_background=True):
-    
-    
-    num_classes = np.max(mask)+1
-    class_range = [0,np.max(mask)]
-        
-    if class_range[1] > np.max(mask):
-        raise ValueError("upper class range limit exceeds total classes")
-        return
+    """
+    Calculate the centroids of classes in a given mask.
 
-    points_class = np.zeros((num_classes,), dtype="uint32")
+    This function calculates the centroids of each class in the mask and returns an array
+    with the (y, x) coordinates of the centroids, the number of pixels associated with
+    each class, and the id number of each class.
+
+    Parameters
+    ----------
+    mask : numpy.ndarray
+        Input mask containing classes.
+    debug : bool, optional
+        Debug flag (default is False).
+    skip_background : bool, optional
+        If True, skip background class (default is True).
+
+    Returns
+    -------
+    center : numpy.ndarray
+        Array containing the (y, x) coordinates of the centroids of each class.
+    points_class : numpy.ndarray
+        Array containing the number of pixels associated with each class.
+    ids : numpy.ndarray
+        Array containing the id number of each class.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> mask = np.array([[0, 1, 1], [0, 2, 1], [0, 0, 2]])
+    >>> numba_mask_centroid(mask)
+    (array([[0.33333333, 1.66666667],
+            [1.5       , 1.5       ]]),
+    array([3, 2], dtype=uint32),
+    array([1, 2], dtype=int32))
+    """
     
-    center = np.zeros((num_classes,2,))
+    # need to perform this adjustment here so that we can also work with segmentations that do not start with a seg index of 1!
+    # this is relevant when working with segmentations that have been reindexed over different tiles
+
+    # Get the unique cell_ids and remove the background (0)
+    cell_ids = list(np.unique(mask).flatten())
+    if 0 in cell_ids: cell_ids.remove(0)
+    cell_ids = np.array(cell_ids)
+
+    min_cell_id = np.min(cell_ids) #need to convert to array since numba min functions requires array as input not list
+                                       #-1 important since otherwise the cell with the lowest id becomes 0 and is ignored (since 0 = background)
     
+    # Adjust mask by subtracting the min_cell_id - 1 from non-zero elements
+    if min_cell_id != 1:
+        mask = _numba_subtract(mask, min_cell_id - 1 ) 
+
     if skip_background:
-        points_class[0] = 1
+        num_classes = np.max(mask)
+    else:
+        num_classes = np.max(mask) + 1
+    class_range = [0, num_classes]
+    
+    # Check if there's only background
+    if class_range[1] == 0:
+        print("no cells in image. Only contains background.")
+        #return empty arrays
+        return None, None, None
+
+    points_class = np.zeros((num_classes,), dtype = nb.uint32)
+    center = np.zeros((num_classes, 2, ))
+    ids = np.zeros((num_classes,))
+
+    if skip_background:
         for y in range(len(mask)):
             for x in range(len(mask[0])):
 
                 class_id = mask[y,x]
-                if class_id > 0:
-
+                if class_id != 0:
+                    class_id -= 1
                     points_class[class_id] +=1
                     center[class_id] += np.array([x,y])
+                    ids[class_id] = class_id + 1
                     
     else:
         for y in range(len(mask)):
             for x in range(len(mask[0])):
-
                 class_id = mask[y,x]
-                points_class[class_id] +=1
+                points_class[class_id] += 1
                 center[class_id] += np.array([x,y])
+                ids[class_id] = class_id
                     
-        
     x = center[:,0]/points_class
     y = center[:,1]/points_class
     
     center = np.stack((y,x)).T
-    return center, points_class
-
-from numba import prange
-import numba as nb
-
-@njit
-def _selected_coords_fast(mask, classes, debug=False, background=0):
     
-    num_classes = np.max(mask)+1
-    
-    coords = []
-    
-    for i in prange(num_classes):
-        coords.append([np.array([0.,0.], dtype="uint32")])
-    
-    rows, cols = mask.shape
-    
-    for row in range(rows):
-        if row % 10000 == 0:
-            print(row)
-        for col in range(cols):
-            return_id = mask[row, col]
-            if return_id != background:
-                coords[return_id].append(np.array([row, col], dtype="uint32")) # coords[translated_id].append(np.array([x,y]))
-    
-    for i, el in enumerate(coords):
-        #print(i, el)
-        if i not in classes:
-            #print(i)
-            coords[i] = [np.array([0.,0.], dtype="uint32")]
-                
-        #return
-    return coords
-             
-
-def selected_coords_fast(inarr, classes, debug=False):
-    # return with empty lists if no classes are provided
-    if len(classes) == 0:
-        return [],[],[]
-    
-    # calculate all coords in list
-    # due to typing issues in numba, every list and sublist contains np.array([0.,0.], dtype="int32") as first element
-    coords = _selected_coords_fast(inarr.astype("uint32"), nb.typed.List(classes))
-    
-    print("start removal of zero vectors")
-    # removal of np.array([0.,0.], dtype="int32")
-    coords = [np.array(el[1:]) for el in coords[1:]]
-    
-    print("start removal of out of class cells")
-    # remove empty elements, not in class list
-    coords_filtered = [el for i, el in enumerate(coords) if i+1 in classes]
-    
-    print("start center calculation")
-    center = [np.mean(el, axis=0) for el in coords_filtered]
-    
-    print("start length calculation")
-    length = [len(el) for el in coords_filtered]
-    
-    return center, length, coords
-
-# calculate center, coordinates and number of pixel for a selected set of classes
-def selected_coords(segmentation, classes, debug=False):
-    center, points_class, coords = _selected_coords(segmentation, classes, debug=False)
-    
-    # ccoords array contains [0, 0] as first element.
-    # hack needed to tell numba the datatype
-    # folowing lines are needed for removal
-    out_l = []
-    for elem in coords:
-        if len(elem) > 1:
-            out_l.append(np.array(elem[1:]))
-    
-    coords = out_l
-    return center, points_class, coords
-
-@njit
-def _selected_coords(segmentation, classes, debug=False):
-    num_classes = len(classes)
-    
-    #setup emtpy lists
-    coords = [[(np.array([0.,0.], dtype="int64"))]]
-    
-    
-    
-    for i in range(num_classes):
-        coords.append([(np.array([0.,0.], dtype="int64"))])
-
-    
-    points_class = np.zeros((num_classes))
-    center = np.zeros((num_classes,2,))
-    
-    y_size, x_size = segmentation.shape
-    
-    for y in range(y_size):
-        for x in range(x_size):
-            
-            class_id = segmentation[y,x]
-            
-            if class_id in classes:
-                
-                return_id = np.argwhere(classes==class_id)[0][0]
-                
-                
-                coords[return_id].append(np.array([y,x], dtype="int64")) # coords[translated_id].append(np.array([x,y]))
-                points_class[return_id] +=1
-                center[return_id] += np.array([x,y])
-                
-                
-    x = center[:,0]/points_class
-    y = center[:,1]/points_class
-    center = np.stack((y,x)).T
-    
-    return center, points_class, coords
-
-def mask_centroid(mask, class_range=None, debug=False):
-    
-    if class_range == None:
-        num_classes = np.max(mask)
-        class_range = [0,np.max(mask)]
+    if skip_background:
+        if min_cell_id != 1:
+            ids += (min_cell_id - 1 ) 
     else:
-        num_classes = class_range[1]-class_range[0]
-        print(num_classes)
-        
-    if class_range[1] > np.max(mask):
-        raise ValueError("upper class range limit exceeds total classes")
-        return
+        if min_cell_id != 1:
+            ids[1:] += (min_cell_id - 1 ) #leave the background at 0
 
-    points_class = np.zeros((num_classes,))
-    center = np.zeros((num_classes,2,))
-    
-    cl = np.empty(num_classes)
-    
-    
-    coords = [[] for _ in range(num_classes)]
-
-    
-    for y in tqdm(range(len(mask)), disable = not debug):
-   
-        for x in range(len(mask[0])):
-            class_id = mask[y,x]-1
-            
-            translated_id = class_id - class_range[0]
-            if class_id >= class_range[0] and class_id < class_range[1]:
-
-                coords[translated_id].append([x,y]) # coords[translated_id].append(np.array([x,y]))
-                points_class[translated_id] +=1
-                center[translated_id] += np.array([x,y])
-            
-        
-    x = center[:,0]/points_class
-    y = center[:,1]/points_class
-    
-    center = np.stack((y,x)).T
-    return center,points_class,coords
-  
-
-class Shape:
-    """
-    Helper class which is created for every segment. Can be used to convert a list of pixels into a polygon.
-    Reasonable results should only be expected for fully connected sets of coordinates. 
-    The resulting polygon has a baseline resolution of twice the pixel density.
-    
-    """
-    
-    def __init__(self, center,length,coords):
-        self.center = center
-        self.length = length
-        self.coords = np.array(coords)
-        
-        #print(self.center,self.length)
-        
-        #print(self.coords.shape)
-        # may be needed for further debugging
-        """
-        fig = plt.figure(frameon=False)
-        fig.set_size_inches(10,10)
-        ax = plt.Axes(fig, [0., 0., 1., 1.])
-        ax.set_axis_off()
-        fig.add_axes(ax)
-
-        ax.imshow(bounds)
-        ax.plot(edges[:,1]*2,edges[:,0]*2)"""
-        
-    def create_poly(self, 
-                    smoothing_filter_size = 12,
-                    poly_compression_factor = 8,
-                   dilation = 0):
-        
-        """
-        Converts a list of pixels into a polygon.
-
-        Parameters
-        ----------
-        smoothing_filter_size : int, default = 12
-            The smoothing filter is the circular convolution with a vector of length smoothing_filter_size and all elements 1 / smoothing_filter_size.
-            
-        poly_compression_factor : int, default = 8    
-            When compression is seeked, only every n-th element is kept for n = poly_compression_factor.
-        """
-        
-        
-        safety_offset = 3
-        dilation_offset = dilation 
-        
-        
-        # top left offsett used for creating the offset map
-        self.offset = np.min(self.coords,axis=0)-safety_offset-dilation_offset
-        
-        
-        self.offset_coords = self.coords-self.offset
-        
-        self.offset_map = np.zeros(np.max(self.offset_coords,axis=0)+2*safety_offset+dilation_offset)
-        
-        
-        y = tuple(self.offset_coords.T[0])
-        x = tuple(self.offset_coords.T[1])
-
-        self.offset_map[(y,x)] = 1
-        self.offset_map = self.offset_map.astype(int)
-        
-        plt.imshow(self.offset_map)
-        plt.show()
-        
-        self.offset_map = sk_dilation(self.offset_map , selem=disk(dilation))
-        
-        plt.imshow(self.offset_map)
-        plt.show()
-        
-        # find polygon bounds from mask
-        bounds = sk.segmentation.find_boundaries(self.offset_map, connectivity=1, mode="subpixel", background=0)
-        
-        
-        
-        edges = np.array(np.where(bounds == 1))/2
-        edges = edges.T
-        edges = self.sort_edges(edges)
-        
-        # smoothing resulting shape
-        smk = np.ones((smoothing_filter_size,1))/smoothing_filter_size
-        edges = convolve2d(edges,smk,mode="full",boundary="wrap")
-        
-        
-        # compression of the resulting polygon      
-        newlen = np.round(len(edges)/poly_compression_factor).astype(int)
-        
-        mine = 0
-        maxe= len(edges)-1
-        
-        indices=np.linspace(mine,maxe,newlen).astype(int)
-
-        self.poly = edges[indices]
-        
-        # Useful for debuging
-        """
-        print(self.poly.shape)
-        fig = plt.figure(frameon=False)
-        fig.set_size_inches(10,10)
-        ax = plt.Axes(fig, [0., 0., 1., 1.])
-        ax.set_axis_off()
-        fig.add_axes(ax)
-
-        ax.imshow(bounds)
-        ax.plot(edges[:,1]*2,edges[:,0]*2)
-        ax.plot(self.poly[:,1]*2,self.poly[:,0]*2)
-        """
-        
-        return self
-    
-    def get_poly(self):
-        return self.poly+self.offset
-    
-        
-    def sort_edges(self, edges):
-        """
-        greedy sorts the vertices of a graph.
-        
-        """
-
-        it = len(edges)
-        new = []
-        new.append(edges[0])
-
-        edges = np.delete(edges,0,0)
-
-        for i in range(1,it):
-
-            old = np.array(new[i-1])
-
-
-            dist = np.linalg.norm(edges-old,axis=1)
-
-            min_index = np.argmin(dist)
-            new.append(edges[min_index])
-            edges = np.delete(edges,min_index,0)
-        
-        return(np.array(new))
-    
-    def plot(self, axis,  flip=True, **kwargs):
-        """
-        Args
-            flip (bool, True): Shapes are still in the (row, col) format and need to bee flipped if plotted with a (x, y) coordinate system.
-        """
-        if flip:
-            axis.plot(self.poly[:,1]+self.offset[1],self.poly[:,0]+self.offset[0], **kwargs)
-        else:
-            axis.plot(self.poly[:,0]+self.offset[0],self.poly[:,1]+self.offset[1], **kwargs)
+    return center, points_class, ids.astype("int32")
