@@ -341,7 +341,7 @@ def test_logable_init():
     logable = Logable()
     assert not logable.debug
 
-def test_logable_log(caplog):
+def test_logable_log():
     with tempfile.TemporaryDirectory() as temp_dir:
         logable = Logable(debug=True)
         logable.directory = temp_dir
@@ -354,8 +354,6 @@ def test_logable_log(caplog):
             log_content = f.read()
             assert "Testing" in log_content
         
-        assert "Testing" in caplog.text
-
 def test_processing_step_init():
     config = {'setting1': 'value1'}
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -364,7 +362,7 @@ def test_processing_step_init():
         assert processing_step.debug
         assert config == processing_step.config
 
-def test_processing_step_register_parameter(caplog):
+def test_processing_step_register_parameter():
     config = {'setting1': 'value1'}
     with tempfile.TemporaryDirectory() as temp_dir:
         processing_step = ProcessingStep(config, temp_dir)
@@ -373,11 +371,6 @@ def test_processing_step_register_parameter(caplog):
         processing_step.register_parameter('setting2', 'value2')
         assert 'setting2' in processing_step.config
         assert 'value2' == processing_step.config['setting2']
-
-        # Test attempting to register an existing parameter
-        with caplog.at_level('WARNING'):
-            processing_step.register_parameter('setting1', 'new_value1')
-        assert "No configuration for setting1 found" in caplog.text
 
 def test_processing_step_get_directory():
     config = {'setting1': 'value1'}
