@@ -18,9 +18,12 @@ jobs:
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install dependencies
+    - name: Install Dependencies with Mamba
       run: |
-        conda env update --file .github/workflows/environment.yml --name base
+        conda install --name base -c conda-forge mamba
+    - name: Install Dependencies with Mamba
+      run: |
+        mamba env update -n base --file .github/workflows/environment.yml
     - name: Test with pytest
       run: |
         conda install pytest

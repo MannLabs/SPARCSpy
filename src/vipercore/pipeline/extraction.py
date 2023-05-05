@@ -810,7 +810,7 @@ class SingleCellExtraction:
         else:
             self.log("Started class coordinate calculation")
             center_nuclei, length, coords = numba_mask_centroid(hdf_labels[0], debug=self.debug)
-             
+            
 
             with open(center_path, "wb") as output_file:
                 cPickle.dump(center_nuclei, output_file)
