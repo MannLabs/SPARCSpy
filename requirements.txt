@@ -8,7 +8,6 @@ tqdm
 h5py
 pyYaml
 datetime
-numba
 pillow
 opencv
 scikit-image
