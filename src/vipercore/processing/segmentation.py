@@ -335,7 +335,7 @@ def _return_edge_labels(input_map):
     Parameters
     ----------
     input_map : numpy.ndarray
-        Input segmentation as a 2D or 3D numpy array of integers.
+        Input segmentation as a 2D numpy array of integers.
 
     Returns
     -------
@@ -399,7 +399,6 @@ def shift_labels(input_map, shift, return_shifted_labels=False):
     edge_label = []
 
     if len(imap.shape) == 2:
-
         edge_label += _return_edge_labels(imap)
     else:
         for dimension in imap:
@@ -659,8 +658,7 @@ def _class_size(mask, debug=False, background=0):
     Compute the size (number of pixels) of each class in the given mask.
 
     This function calculates the size (number of pixels) for each class present
-    in the input mask. It returns two arrays - an array containing the sum of
-    the coordinates of each pixel for each class, and an array containing the
+    in the input mask. It returns two arrays - an array containing the center of each class, and an array containing the
     number of pixels in each class. Ignores background as specified in background.
 
     Parameters
@@ -686,8 +684,10 @@ def _class_size(mask, debug=False, background=0):
                           [0, 2, 1],
                           [0, 0, 2]])
     >>> _class_size(mask)
-    (array([[[4.5       , 1.33333333],
-            [5.        , 2.        ]]), array([3, 2]))
+    (array([[       nan,        nan],
+            [0.33333333, 1.66666667],
+            [1.5       , 1.5       ]]),
+    array([nan,  3.,  2.]))
     """
 
     # Get the unique cell_ids and remove the background(0)
@@ -703,7 +703,7 @@ def _class_size(mask, debug=False, background=0):
         mask = _numba_subtract(mask, min_cell_id - 1 ) 
 
     # Calculate the total number of classes
-    num_classes = np.max(mask)
+    num_classes = np.max(mask) + 1
     
     # Initialize an array to store the sum of the coordinates for each class
     mean_sum = np.zeros((num_classes, 2))
@@ -716,19 +716,23 @@ def _class_size(mask, debug=False, background=0):
     
     # Iterate through the rows and columns of the mask
     for row in range(rows):
-        if row % 10000 == 0:
-            print(row)
         for col in range(cols):
             #get the class id at the current position
             return_id = mask[row, col] 
             
             # Check if the current class ID is not equal to the background class
             if return_id != background:
-                mean_sum[return_id - 1] += np.array([row, col], dtype="uint32")  # Add the coordinates to the corresponding class ID in mean_sum
-                length[return_id -1][0] += 1 # Increment the number of pixels for the corresponding class ID in length
+                mean_sum[return_id ] += np.array([row, col], dtype="uint32")  # Add the coordinates to the corresponding class ID in mean_sum
+                length[return_id][0] += 1 # Increment the number of pixels for the corresponding class ID in length
                 
+
     # Divide the mean_sum array by the length array to get the mean_arr            
     mean_arr = np.divide(mean_sum, length)
+
+    #set background index to np.NaN
+    length[background][0] = np.NaN
+    mean_arr[background] = np.NaN
+
     return mean_arr, length.flatten()
 
 def size_filter(label, limits=[0, 100000], background=0, reindex=False):
@@ -764,9 +768,9 @@ def size_filter(label, limits=[0, 100000], background=0, reindex=False):
                           [0, 2, 1],
                           [0, 0, 2]])
     >>> size_filter(label, limits=[1, 2])
-    array([[0, 1, 1],
-           [0, 0, 1],
-           [0, 0, 0]])
+    array([[0, 0, 0],
+           [0, 2, 0],
+           [0, 0, 2]])
     """
     
     # Calculate the number of pixels for each class in the labeled array
@@ -818,8 +822,10 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     >>> import numpy as np
     >>> mask = np.array([[0, 1, 1], [0, 2, 1], [0, 0, 2]])
     >>> numba_mask_centroid(mask)
-    (array([[1.5       , 1.33333333],
-            [2.        , 1.5       ]]), array([3, 3], dtype=uint32), array([1, 2], dtype=int32))
+    (array([[0.33333333, 1.66666667],
+            [1.5       , 1.5       ]]),
+    array([3, 2], dtype=uint32),
+    array([1, 2], dtype=int32))
     """
     
     # need to perform this adjustment here so that we can also work with segmentations that do not start with a seg index of 1!
@@ -837,16 +843,15 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     if min_cell_id != 1:
         mask = _numba_subtract(mask, min_cell_id - 1 ) 
 
-    num_classes = np.max(mask)
-    class_range = [0, np.max(mask)]
-        
-    if class_range[1] > np.max(mask):
-        raise ValueError("upper class range limit exceeds total classes")
-        return
+    if skip_background:
+        num_classes = np.max(mask)
+    else:
+        num_classes = np.max(mask) + 1
+    class_range = [0, num_classes]
     
     # Check if there's only background
     if class_range[1] == 0:
-        print("no cells in image.")
+        print("no cells in image. Only contains background.")
         #return empty arrays
         return None, None, None
 
@@ -859,7 +864,7 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
             for x in range(len(mask[0])):
 
                 class_id = mask[y,x]
-                if class_id > 0:
+                if class_id != 0:
                     class_id -= 1
                     points_class[class_id] +=1
                     center[class_id] += np.array([x,y])
@@ -878,8 +883,12 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     
     center = np.stack((y,x)).T
     
-    if min_cell_id != 1:
-        ids += (min_cell_id - 1 ) 
+    if skip_background:
+        if min_cell_id != 1:
+            ids += (min_cell_id - 1 ) 
+    else:
+        if min_cell_id != 1:
+            ids[1:] += (min_cell_id - 1 ) #leave the background at 0
 
     return center, points_class, ids.astype("int32")
 

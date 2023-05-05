@@ -29,7 +29,7 @@ def test_segment_threshold():
     assert labels.shape == image.shape, "Output labels and input image shapes are not equal"
 
     # Check if output has the correct dtype (int)
-    assert labels.dtype == np.int, "Output label dtype is not integer"
+    assert labels.dtype == np.int32, "Output label dtype is not integer"
 
     # Check if values are non-negative
     assert np.all(labels >= 0), "Output labels contain negative values"
@@ -85,18 +85,6 @@ def test_return_edge_labels():
     edge_labels = _return_edge_labels(input_map)
     
     assert set(edge_labels) == set(expected_edge_labels)
-
-    input_map_3d = np.array([[[1, 0, 0],
-                              [0, 2, 0],
-                              [0, 0, 3]],
-                             [[0, 1, 0],
-                              [2, 0, 0],
-                              [0, 3, 0]]])
-
-    expected_edge_labels_3d = [1, 2, 3]
-    edge_labels_3d = _return_edge_labels(input_map_3d[0])
-
-    assert set(edge_labels_3d) == set(expected_edge_labels_3d)
 
 def test_shift_labels():
     input_map = np.array([[1, 0, 0],
@@ -240,21 +228,14 @@ def test_numba_mask_centroid():
                      [0, 2, 1],
                      [0, 0, 2]])
     centers, points_class, ids = numba_mask_centroid(mask)
-    expected_centers = np.array([[1.5       , 1.33333333],
-                                  [2.        , 1.5       ]])
-    expected_points_class = np.array([3, 3], dtype=np.uint32)
+    expected_centers = np.array([[0.33333333, 1.66666667],
+                                 [1.5       , 1.5       ]])
+    expected_points_class = np.array([3, 2], dtype=np.uint32)
     expected_ids = np.array([1, 2], dtype=np.int32)
     
     assert np.allclose(centers, expected_centers, atol=1e-6)
     assert np.all(points_class == expected_points_class)
     assert np.all(ids == expected_ids)
-
-
-
-
-
-
-
 
 
 def test_percentile_normalization_C_H_W():
