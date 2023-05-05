@@ -203,7 +203,7 @@ def origins_from_distance(array):
     peak_list  = peak_local_max(distance, min_distance=5, threshold_abs=std,footprint=np.ones((3, 3)))
 
     # Create a map with True elements at peak locations
-    peak_map = np.zeros_like(base, dtype=bool) ### WHAT IS BASE AND WHAT DOES IT DO??
+    peak_map = np.zeros_like(array, dtype=bool) ### WHAT IS BASE AND WHAT DOES IT DO??
     peak_map[tuple(peak_list.T)] = True
     
     return peak_list, peak_map
