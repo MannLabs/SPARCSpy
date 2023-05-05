@@ -25,10 +25,6 @@ def generate_parser():
     return parser
     
 def main():
-    """
-        :param calibration_points: Calibration coordinates in the form of :math:`(3, 2)`.
-        :type calibration_points: :class:`numpy.array`, optional
-    """
    
     print(f"Viper-stat collecting information. This can take some time...")
     
@@ -48,21 +44,24 @@ def main():
         except:
             print("search directory not a valid path")
         
-    table = scan_directory(args.recursion, search_directory)
-          
+    table = scan_directory(args.recursion, search_directory, num_threads)
+    
+    # check if any projects were found
     if len(table) > 0:
         
         table.sort(key=lambda x: x[0])
         
         for line in table:
             print_project(line)
-        #print(tabulate(table, 
-        #               headers=["Project", "Segmentation", "Cells", "Extraction", "Size"],
-        #               stralign="right"))
     else:
         print("No projects found")
 def print_project(line):
-    
+    """
+    Arguments:
+        line (list): List of Lists with the following items:
+        [project name, segmentation finished, number of cells in segmentation, project size, extractions]
+        extraction is a list of tuples (extraction name , number of cells, size)
+    """
     
     out_line = []
     Fore.RED + 'You can colorize a single line.' + Style.RESET_ALL
@@ -84,7 +83,7 @@ def print_project(line):
 
     
 
-def scan_directory(levels_left, path):
+def scan_directory(levels_left, path, num_threads = 1):
     
     HDF_FILETYPES = ["hdf", "hf", "h5"]
 
@@ -146,7 +145,7 @@ def scan_directory(levels_left, path):
 
             with Pool(max_workers=num_threads) as pool:
                 projects = pool.map(partial(scan_directory, levels_left-1),current_level_directories)
-
+            
             return list(flatten(projects))
 
 def get_dir_size(path):
@@ -177,7 +176,9 @@ def flatten(l):
             if len(el)>0:
                 yield el[0]
         else:
-            yield el
+            # pool.map might return None on subfolders
+            if el is not None:
+                yield el
             
 # https://stackoverflow.com/questions/1094841/get-human-readable-version-of-file-size
 def sizeof_fmt(num, suffix="B"):

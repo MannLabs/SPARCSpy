@@ -38,7 +38,6 @@ from contextlib import redirect_stdout
 
 class MLClusterClassifier:
     
-    
     DEFAULT_LOG_NAME = "processing.log" 
     DEFAULT_DATA_DIR = "data"
     CLEAN_LOG = True
@@ -69,15 +68,11 @@ class MLClusterClassifier:
         self.config = config
         self.intermediate_output = intermediate_output
         
-        
-        
         # Create segmentation directory
         self.directory = path
         if not os.path.isdir(self.directory):
-            
             os.makedirs(self.directory)
         
-            
         # Set up log and clean old log
         if self.CLEAN_LOG:
             log_path = os.path.join(self.directory, self.DEFAULT_LOG_NAME)
@@ -89,7 +84,7 @@ class MLClusterClassifier:
         runs = [int(i) for i in current_level_directories if self.is_Int(i)]
         
         self.current_run = max(runs) +1 if len(runs) > 0 else 0
-        self.run_path = os.path.join(self.directory, str(self.current_run))
+        self.run_path = os.path.join(self.directory, str(self.current_run) + "_" + self.config["screen_label"] ) #to ensure that you can tell by directory name what is being classified
         
         if not os.path.isdir(self.run_path):
             os.makedirs(self.run_path)
@@ -97,7 +92,6 @@ class MLClusterClassifier:
             
         self.log(f"current run: {self.current_run}")
             
-    
     def is_Int(self, s):
         try: 
             int(s)
@@ -134,8 +128,7 @@ class MLClusterClassifier:
                 
                 if self.debug:
                     print(self.get_timestamp() + line)
-        
-        
+          
     def __call__(self, 
                  extraction_dir, 
                  accessory, 
@@ -162,12 +155,37 @@ class MLClusterClassifier:
         # Load model and parameters
         network_dir = self.config["network"]
         checkpoint_path = os.path.join(network_dir,"checkpoints")
-        checkpoints = current_level_files = [ name for name in os.listdir(checkpoint_path) if os.path.isfile(os.path.join(checkpoint_path, name))]
+        self.log(f"Checkpoints being read from path: {checkpoint_path}")
+        checkpoints = [name for name in os.listdir(checkpoint_path) if os.path.isfile(os.path.join(checkpoint_path, name))]
+        checkpoints = [x for x in checkpoints if x.endswith(".ckpt")] #ensure we only have actualy checkpoint files
+        checkpoints.sort()
 
         if len(checkpoints) < 1:
             raise ValueError(f"No model parameters found at: {self.config['network']}")
         
-        latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[0])
+        #ensure that the most recent version is used if more than one is saved
+        if len(checkpoints) > 1:
+            #get max epoch number 
+            epochs = [int(x.split("epoch=")[1].split("-")[0]) for x in checkpoints]
+            if self.config["epoch"] == "max":
+                max_value = max(epochs)
+                max_index = epochs.index(max_value)
+                self.log(f"Maximum epoch number found {max_value}")
+
+                #get checkpoint with the max epoch number
+                latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[max_index])
+            elif isinstance(self.config["epoch"], int):
+                _index = epochs.index(self.config["epoch"])
+                self.log(f"Using epoch number {self.config['epoch']}")
+
+                #get checkpoint with the max epoch number
+                latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[_index])
+
+        else:
+            latest_checkpoint_path = os.path.join(checkpoint_path, checkpoints[0])
+        
+        #add log message to ensure that it is always 100% transparent which classifier is being used
+        self.log(f"Using the following classifier checkpoint: {latest_checkpoint_path}")
         hparam_path = os.path.join(network_dir,"hparams.yaml")
         
         model = MultilabelSupervisedModel.load_from_checkpoint(latest_checkpoint_path, hparams_file=hparam_path)
@@ -176,12 +194,9 @@ class MLClusterClassifier:
         
         self.log(f"model parameters loaded from {self.config['network']}")
         
-        
-        
         # generate project dataset dataloader
         # transforms like noise, random rotations, channel selection are still hardcoded
-        t = transforms.Compose([ChannelSelector([3]),
-                        RandomRotation()])
+        t = transforms.Compose([ChannelSelector([self.config["channel_classification"]])])
                 
         self.log(f"loading {extraction_dir}")
         
@@ -219,16 +234,24 @@ class MLClusterClassifier:
         self.log(out)
             
         # classify samples
-        dataloader = torch.utils.data.DataLoader(dataset,batch_size=400, num_workers=2, shuffle=True)
+        dataloader = torch.utils.data.DataLoader(dataset,batch_size=self.config["batch_size"], num_workers=self.config["dataloader_worker"], shuffle=True)
         
         self.log(f"log transfrom: {self.config['log_transform']}")
         
-        self.inference(dataloader, model.network.encoder_c2)
-        self.inference(dataloader, model.network.forward)
-        
-        
-        
-        
+        #extract which inferences to make from config file
+        encoders = self.config["encoders"]
+        for encoder in encoders:
+            if encoder == "forward":
+                self.inference(dataloader, model.network.forward)
+            if encoder == "encoder_c1":
+                self.inference(dataloader, model.network.encoder_c1)
+            if encoder == "encoder_c2":
+                self.inference(dataloader, model.network.encoder_c2)
+            if encoder == "encoder_c3":
+                self.inference(dataloader, model.network.encoder_c3)
+            if encoder == "encoder_c4":
+                self.inference(dataloader, model.network.encoder_c4)
+
     def inference(self, 
                   dataloader, 
                   model_fun):
@@ -239,15 +262,14 @@ class MLClusterClassifier:
         self.log(f"start processing {len(data_iter)} batches with {model_fun.__name__} based inference")
         with torch.no_grad():
 
-            x, label, class_id = data_iter.next()
+            x, label, class_id = next(data_iter)
             r = model_fun(x.to(self.config['inference_device']))
             result = r.cpu().detach()
 
             for i in range(len(dataloader)-1):
                 if i % 10 == 0:
                     self.log(f"processing batch {i}")
-                
-                x, l, id = data_iter.next()
+                x, l, id = next(data_iter)
 
                 r = model_fun(x.to(self.config['inference_device']))
                 result = torch.cat((result, r.cpu().detach()), 0)
@@ -270,46 +292,52 @@ class MLClusterClassifier:
         result_labels = [f"result_{i}" for i in range(result.shape[1])]
         
         # ===== dimension reduction =====
-        
         if self.config["standard_scale"]:
             result = StandardScaler().fit_transform(result)
 
-        self.log(f"start first pca")
-        d1, d2 = result.shape
-        pca = PCA(n_components=min(d2, self.config["pca_dimensions"]))
-        embedding_pca = pca.fit_transform(result)
-        
-        # save pre dimension reduction pca results
-        pca_labels = [f"hd_pca_{i}" for i in range(embedding_pca.shape[1])]
-        
-        
-        print(result.shape)
-        print(embedding_pca.shape)
-        
-        design_labels = result_labels + pca_labels
-        design = np.concatenate((result, embedding_pca), axis=1)
+        if self.config["pca_dimensions"] == 0:
+            print("skipping dimension_reduction")
+            dataframe = pd.DataFrame(data=result, columns=result_labels)
+            dataframe["label"] = label
+            dataframe["cell_id"] = class_id.astype("int")
 
-        embedding_2_pca = PCA(n_components=2).fit_transform(result)
+        else:
+            print("performing dimensionality reduction")
 
-        #self.log(f"start umap")        
-        #reducer = umap.UMAP(n_neighbors=self.config["umap_neighbours"], min_dist=self.config["umap_min_dist"], n_components=2,metric='cosine')
-        #embedding_umap = reducer.fit_transform(embedding_pca)
+            self.log(f"start first pca")
+            d1, d2 = result.shape
+            pca = PCA(n_components=min(d2, self.config["pca_dimensions"]))
+            embedding_pca = pca.fit_transform(result)
+            
+            # save pre dimension reduction pca results
+            pca_labels = [f"hd_pca_{i}" for i in range(embedding_pca.shape[1])]
         
-        #self.log(f"start tsne")
-        #embedding_tsne = TSNE(n_jobs=self.config["threads"]).fit_transform(embedding_pca)
+            #print(result.shape)
+            #print(embedding_pca.shape)
+            
+            design = np.concatenate((result, embedding_pca), axis=1)
+            design_labels = result_labels + pca_labels
         
-        dataframe = pd.DataFrame(data=design, columns=design_labels)
-        
-        self.log(f"finished processing")
+            dataframe = pd.DataFrame(data=design, columns=design_labels)
+            dataframe["label"] = label
+            dataframe["cell_id"] = class_id.astype("int")
+            
+            embedding_2_pca = PCA(n_components=min(2, d2)).fit_transform(result)
 
-        dataframe["label"] = label
-        dataframe["cell_id"] = class_id.astype("int")
-        dataframe["pca_0"] = embedding_2_pca[:,0]
-        dataframe["pca_1"] = embedding_2_pca[:,1]
-        #dataframe["umap_0"] = embedding_umap[:,0]
-        #dataframe["umap_1"] = embedding_umap[:,1]
-        #dataframe["tsne_0"] = embedding_tsne[:,0]
-        #dataframe["tsne_1"] = embedding_tsne[:,1]
-        
+            #self.log(f"start umap")        
+            #reducer = umap.UMAP(n_neighbors=self.config["umap_neighbours"], min_dist=self.config["umap_min_dist"], n_components=2,metric='cosine')
+            #embedding_umap = reducer.fit_transform(embedding_pca)
+            
+            #self.log(f"start tsne")
+            #embedding_tsne = TSNE(n_jobs=self.config["threads"]).fit_transform(embedding_pca)
+
+            self.log(f"finished processing")
+            dataframe["pca_0"] = embedding_2_pca[:,0]
+            dataframe["pca_1"] = embedding_2_pca[:,1]
+            #dataframe["umap_0"] = embedding_umap[:,0]
+            #dataframe["umap_1"] = embedding_umap[:,1]
+            #dataframe["tsne_0"] = embedding_tsne[:,0]
+            #dataframe["tsne_1"] = embedding_tsne[:,1]
+            
         path = os.path.join(self.run_path,f"dimension_reduction_{model_fun.__name__}.tsv")
         dataframe.to_csv(path)

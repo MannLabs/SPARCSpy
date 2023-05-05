@@ -6,15 +6,32 @@
 Welcome to Viper Core's documentation!
 ======================================
 
+.. contents:: Table of Contents
+
+Welcome to the show
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Command Line Tools:
+   
+   pages/vipercmd
+   
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   :caption: Pipeline:
+   
+   pages/pipeline/introduction
+   pages/pipeline/base
+   pages/pipeline/project
+   pages/pipeline/segmentation
+   pages/pipeline/selection
+   
+.. toctree::
+   :maxdepth: 2
+   :numbered:
+   :caption: Processing:
+   
+   pages/processing/preprocessing
+   
+   
+   

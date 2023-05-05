@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>base &mdash; Viper Core  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="base" href="base.html" />
+    <link rel="prev" title="viper-split" href="../vipercmd.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Viper Core
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html">viper-split</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html#viper-stat">viper-stat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Pipeline:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="base.html">base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project.html">project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">selection</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Processing:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../processing/preprocessing.html">1. Preprocessing</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Viper Core</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/pages/pipeline/introduction.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="base">
+<h1>base<a class="headerlink" href="#base" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vipercore.pipeline.project</span> <span class="kn">import</span> <span class="n">Project</span>
+<span class="kn">from</span> <span class="nn">vipercore.pipeline.workflows</span> <span class="kn">import</span> <span class="n">ShardedWGASegmentation</span>
+<span class="kn">from</span> <span class="nn">vipercore.pipeline.extraction</span> <span class="kn">import</span> <span class="n">HDF5CellExtraction</span>
+<span class="kn">from</span> <span class="nn">vipercore.pipeline.selection</span> <span class="kn">import</span> <span class="n">LMDSelection</span>
+<span class="kn">from</span> <span class="nn">vipercore.processing.utils</span> <span class="kn">import</span> <span class="n">download_testimage</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">location</span> <span class="o">=</span> <span class="n">download_testimage</span><span class="p">(</span><span class="s2">&quot;/mnt/dss_fast/datasets/2021_09_03_hdf5_extraction_developement&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">project_location</span> <span class="o">=</span> <span class="s2">&quot;/Users/georgwallmann/Documents/testdaten/viper_library_test&quot;</span>
+
+<span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="p">(</span><span class="n">project_location</span><span class="p">,</span>
+                    <span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;settings.yaml&quot;</span><span class="p">,</span>
+                    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">segmentation_f</span><span class="o">=</span><span class="n">ShardedWGASegmentation</span><span class="p">,</span>
+                    <span class="n">extraction_f</span><span class="o">=</span><span class="n">HDF5CellExtraction</span><span class="p">,</span>
+                    <span class="n">selection_f</span><span class="o">=</span><span class="n">LMDSelection</span><span class="p">)</span>
+
+<span class="n">project</span><span class="o">.</span><span class="n">load_input_from_file</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+<span class="n">project</span><span class="o">.</span><span class="n">segment</span><span class="p">()</span>
+<span class="n">project</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span>
+
+<span class="n">csv_location</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_location</span><span class="p">,</span> <span class="s2">&quot;segmentation/classes.csv&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_location</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+
+<span class="n">cells_to_select</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dataset1&quot;</span><span class="p">,</span> <span class="s2">&quot;classes&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="s2">&quot;well&quot;</span><span class="p">:</span> <span class="s2">&quot;A1&quot;</span><span class="p">}]</span>
+
+<span class="c1"># calibration marker should be defined as (row, column)</span>
+<span class="n">marker_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">marker_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">3010</span><span class="p">])</span>
+<span class="n">marker_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3010</span><span class="p">,</span><span class="mi">1500</span><span class="p">])</span>
+
+<span class="n">calibration_marker</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">marker_0</span><span class="p">,</span> <span class="n">marker_1</span><span class="p">,</span> <span class="n">marker_2</span><span class="p">])</span>
+
+<span class="n">project</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">cells_to_select</span><span class="p">,</span> <span class="n">calibration_marker</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="nt">name</span><span class="p">:</span> <span class="s">&quot;WGA</span><span class="nv"> </span><span class="s">confluent</span><span class="nv"> </span><span class="s">segmentation&quot;</span>
+<span class="nt">input_channels</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+
+<span class="c1"># Define remapping of channels.</span>
+<span class="c1"># For example use 1, 0, 2 to change the order of the first and the second channel.</span>
+<span class="nt">channel_remap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0,1</span>
+
+<span class="nt">ShardedWGASegmentation</span><span class="p">:</span>
+    <span class="nt">input_channels</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+    <span class="c1"># average number of pixel per shard.</span>
+    <span class="c1"># shards of size 10.000 * 10.000 pixel are recommended which equals a 100,000,000 pixel.</span>
+    <span class="c1"># shard_size: 100000000</span>
+    <span class="c1"># can be adapted to memory and computation needs.</span>
+    <span class="nt">shard_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2250000</span>
+
+    <span class="c1"># number of shards / tiles segmented at the same size.</span>
+    <span class="c1"># should be adapted to the maximum amount allowed by memory.</span>
+    <span class="nt">threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
+
+    <span class="c1"># upper and lower percentile for the normalization by percentiles.</span>
+    <span class="nt">lower_quantile_normalization</span><span class="p">:</span>   <span class="l l-Scalar l-Scalar-Plain">0.001</span>
+    <span class="nt">upper_quantile_normalization</span><span class="p">:</span>   <span class="l l-Scalar l-Scalar-Plain">0.999</span>
+
+    <span class="c1"># median filter size in pixel</span>
+    <span class="nt">median_filter_size</span><span class="p">:</span>   <span class="l l-Scalar l-Scalar-Plain">4</span>
+
+    <span class="c1"># parameters specific to the nucleus segmentation</span>
+    <span class="nt">nucleus_segmentation</span><span class="p">:</span>
+        <span class="c1"># quantile normalization of dapi channel before local tresholding.</span>
+        <span class="c1"># strong normalization (0.05,0.95) can help with nuclear speckles.</span>
+        <span class="nt">lower_quantile_normalization</span><span class="p">:</span>   <span class="l l-Scalar l-Scalar-Plain">0.03</span>
+        <span class="nt">upper_quantile_normalization</span><span class="p">:</span>   <span class="l l-Scalar l-Scalar-Plain">0.92</span>
+
+        <span class="c1"># Size of pixel disk used for median, should be uneven</span>
+        <span class="nt">median_block</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">41</span>
+
+        <span class="c1"># The image can be downsampled before calculating the median which speeds up calculation tremendously.</span>
+        <span class="c1"># If median step is set, only ever nth pixel is considered, similar to image[::median_step, ::median_step]</span>
+        <span class="c1"># Please note, that the median_block can be halved if a median_step of 2 is choosen.</span>
+        <span class="nt">median_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+
+        <span class="c1"># Threshold above local median for nuclear segmentation.</span>
+        <span class="c1"># If threshold or median_block is missing, otsu global tresholding will be used</span>
+        <span class="nt">threshold</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.10</span>
+
+        <span class="c1"># minimum distance between two nucleis in pixel</span>
+        <span class="nt">min_distance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+
+        <span class="c1"># minimum distance between two nucleis in pixel</span>
+        <span class="nt">peak_footprint</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">7</span>
+
+        <span class="c1"># Erosion followed by Dilation to remove speckels, size in pixels, should be uneven</span>
+        <span class="nt">speckle_kernel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+
+        <span class="c1"># final dilation of pixel mask</span>
+        <span class="nt">dilation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+
+        <span class="c1"># minimum nucleus area in pixel</span>
+        <span class="nt">min_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">150</span>
+
+        <span class="c1"># maximum nucleus area in pixel</span>
+        <span class="nt">max_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>
+
+        <span class="c1"># minimum nucleus contact with background</span>
+        <span class="nt">contact_filter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.8</span>
+
+    <span class="c1"># parameters specific to the nucleus segmentation</span>
+    <span class="nt">wga_segmentation</span><span class="p">:</span>
+
+        <span class="nt">lower_quantile_normalization</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2</span>
+        <span class="nt">upper_quantile_normalization</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.98</span>
+
+        <span class="c1"># erosion and dilation are used for speckle removal and shrinking / dilation</span>
+        <span class="c1"># for no change in size choose erosion = dilation, for larger masks, increase the mask erosion</span>
+        <span class="nt">erosion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+        <span class="nt">dilation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+
+        <span class="c1"># Threshold for wga segmentation.</span>
+        <span class="c1"># If threshold is missing, otsu global tresholding will be used</span>
+        <span class="c1">#threshold: 0.15</span>
+
+        <span class="nt">min_clip</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
+        <span class="nt">max_clip</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.9</span>
+
+        <span class="nt">min_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200</span>
+        <span class="nt">max_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4000</span>
+
+    <span class="c1"># chunk size for chunked HDF5 storage. is needed for correct caching and high performance reading. should be left at 50.</span>
+    <span class="nt">chunk_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50</span>
+
+<span class="nt">HDF5CellExtraction</span><span class="p">:</span>
+
+    <span class="nt">compression</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+
+    <span class="nt">threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">80</span> <span class="c1"># threads used in multithreading</span>
+
+    <span class="nt">image_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">128</span> <span class="c1"># image size in pixel</span>
+
+    <span class="nt">cache</span><span class="p">:</span> <span class="s">&quot;/Users/georgwallmann/Documents/testdaten/temp&quot;</span>
+
+    <span class="c1"># Define remapping of channels.</span>
+    <span class="c1"># For example use 1, 0, 2 to change the order of the first and the second channel.</span>
+    <span class="nt">channel_remap</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0,1,2,3</span>
+
+    <span class="nt">hdf5_rdcc_nbytes</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5242880000</span> <span class="c1"># 5gb 1024 * 1024 * 5000</span>
+
+    <span class="nt">hdf5_rdcc_w0</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+
+    <span class="nt">hdf5_rdcc_nslots</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50000</span>
+
+<span class="nt">LMDSelection</span><span class="p">:</span>
+    <span class="nt">processes</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+
+    <span class="c1"># defines the channel used for generating cutting masks</span>
+    <span class="c1"># segmentation.hdf5 =&gt; labels =&gt; segmentation_channel</span>
+    <span class="c1"># When using WGA segmentation:</span>
+    <span class="c1">#    0 corresponds to nuclear masks</span>
+    <span class="c1">#    1 corresponds to cytosolic masks.</span>
+    <span class="nt">segmentation_channel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+
+    <span class="c1"># dilation of the cutting mask in pixel</span>
+    <span class="nt">shape_dilation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+
+    <span class="c1"># number of datapoints which are averaged for smoothing</span>
+    <span class="c1"># the number of datapoints over an distance of n pixel is 2*n</span>
+    <span class="nt">smoothing_filter_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+
+    <span class="c1"># fold reduction of datapoints for compression</span>
+    <span class="nt">poly_compression_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="base.html" class="btn btn-neutral float-right" title="base" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../vipercmd.html" class="btn btn-neutral float-left" title="viper-split" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2021, Georg Wallmann, Sophia Mädler, Niklas Schmacke
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
