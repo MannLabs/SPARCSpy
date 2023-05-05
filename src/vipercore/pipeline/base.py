@@ -5,6 +5,7 @@ import shutil
 
 class Logable(object):
     """object which can create log entries.
+    
     Args:
         debug (bool, default ``False``): When set to ``True`` log entries will be printed to the console. 
         
@@ -59,6 +60,13 @@ class Logable(object):
                 print(self.get_timestamp() + line)
                     
     def get_timestamp(self):
+        """
+        Get the current timestamp in the DEFAULT_FORMAT.
+
+        Returns:
+            str: Formatted timestamp.
+        """
+
         # datetime object containing current date and time
         now = datetime.now()
 
@@ -103,7 +111,9 @@ class ProcessingStep(Logable):
                  intermediate_output=None, 
                  overwrite=None, **kwargs):
     
-        """object which can create log entries.
+        """Call the processing step.
+        
+        object which can create log entries.
         
         Args:
             
@@ -138,7 +148,15 @@ class ProcessingStep(Logable):
  
             
     def register_parameter(self, key, value):
-        
+        """
+        Registers a new parameter by updating the configuration dictionary if the key didn't exist.
+
+        Args:
+            key (str): Name of the parameter.
+
+            value: Value of the parameter.
+        """
+
         if isinstance(key, str):
             config_handle = self.config
             
@@ -153,4 +171,10 @@ class ProcessingStep(Logable):
             config_handle[key] = value
 
     def get_directory(self):
+        """
+        Get the directory for this processing step.
+
+        Returns:
+            str: Directory path.
+        """
         return(self.directory)

@@ -1,4 +1,6 @@
 #### Required Packages #####
+urllib
+tempfile
 numpy
 pandas
 matplotlib
