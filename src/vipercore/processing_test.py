@@ -1,9 +1,6 @@
-from vipercore.processing.preprocessing import percentile_normalization
-from vipercore.processing.preprocessing import percentile_normalization
-from vipercore.processing.segmentation import selected_coords, selected_coords_fast, remove_classes
-
-import numpy as np
+#import general packages for testing
 import pytest
+import numpy as np
 
 #######################################################
 # Unit tests for ../proccessing/segmentation.py
@@ -45,7 +42,7 @@ def test_segment_global_threshold():
     assert labels.shape == image.shape, "Output labels and input image shapes are not equal"
 
     # Check if output has the correct dtype (int)
-    assert labels.dtype == np.int, "Output label dtype is not integer"
+    assert labels.dtype == np.int32, "Output label dtype is not integer"
 
     # Check if values are non-negative
     assert np.all(labels >= 0), "Output labels contain negative values"
@@ -94,12 +91,18 @@ def test_shift_labels():
     expected_shifted_map = np.array([[11,  0,  0],
                                      [ 0, 12,  0],
                                      [ 0,  0, 13]])
-    expected_edge_labels = [11, 13]
+    expected_edge_labels = [1, 3]
 
     shifted_map, edge_labels = shift_labels(input_map, shift)
+    
+    expected_edge_labels_with_shift = np.array(expected_edge_labels) + shift
+
+    shifted_map_with_shift, edge_labels_with_shift = shift_labels(input_map, shift, return_shifted_labels = True)
 
     assert np.array_equal(shifted_map, expected_shifted_map)
+    assert np.array_equal(shifted_map, shifted_map_with_shift)
     assert set(edge_labels) == set(expected_edge_labels)
+    assert set(edge_labels_with_shift) == set(expected_edge_labels_with_shift)
 
     input_map_3d = np.array([[[1, 0, 0],
                               [0, 2, 0],
@@ -114,7 +117,7 @@ def test_shift_labels():
                                         [[ 0, 11,  0],
                                          [12,  0,  0],
                                          [ 0, 13,  0]]])
-    expected_edge_labels = [11,12, 13]
+    expected_edge_labels = [1,2, 3]
 
     shifted_map_3d, edge_labels_3d = shift_labels(input_map_3d, shift)
 
@@ -194,21 +197,21 @@ def test_size_filter():
                       [0, 0, 2]])
     limits = [1, 2]
     result = size_filter(label, limits)
-    expected_result = np.array([[0, 1, 1],
-                                [0, 0, 1],
-                                [0, 0, 0]])
+    expected_result = np.array([[0, 0, 0],
+                                [0, 2, 0],
+                                [0, 0, 2]])
 
     assert np.all(result == expected_result)
 
 def test_class_size():
     mask = np.array([[0, 1, 1],
-                     [0, 2, 1],
-                     [0, 0, 2]])
+                    [0, 2, 1],
+                    [0, 0, 2]])
 
     _, length = _class_size(mask)
-    expected_length = np.array([3, 2])
-    assert np.all(length == expected_length)
-
+    expected_length = np.array([float(np.nan), 3, 2])
+    assert np.all(length[1:] == expected_length[1:]) #only compare [1:] to ignore the nan in the first element
+    assert np.isnan(length[0])
 
 from vipercore.processing.segmentation import _numba_subtract, numba_mask_centroid
 
@@ -237,6 +240,8 @@ def test_numba_mask_centroid():
     assert np.all(points_class == expected_points_class)
     assert np.all(ids == expected_ids)
 
+from vipercore.processing.preprocessing import percentile_normalization
+
 
 def test_percentile_normalization_C_H_W():
     
@@ -257,41 +262,7 @@ def test_percentile_normalization_H_W():
     normalized = percentile_normalization(test_array, 0.05,0.95)
     assert np.max(normalized) == pytest.approx(1)
     assert np.min(normalized) == pytest.approx(0)
-    
-def test_selected_coords_fast():
-    
-    image_size = 20
-    
-    test_array = np.zeros((image_size,image_size))
-    
-    class_1 = np.array([[1,2],[2,3],[3,4],[4,5]])
-    class_2 = np.array([[2,2],[3,3],[4,4],[5,6]])
-    class_3 = np.array([[13,2],[14,3],[15,4],[16,6]])
 
-    
-    test_array[class_1[:,0],class_1[:,1]] = 1
-    test_array[class_2[:,0],class_2[:,1]] = 2
-    test_array[class_3[:,0],class_3[:,1]] = 3
-    
-    center, points_class, coords = selected_coords_fast(test_array, np.array([1,2]))
-    
-    # check center obejct
-    assert len(center) == 2
-    
-    np.testing.assert_array_equal(center[0], np.mean(class_1, axis=0))
-    np.testing.assert_array_equal(center[1], np.mean(class_2, axis=0))
-    
-    # check points per class
-    
-    assert points_class[0] == len(class_1)
-    assert points_class[0] == len(class_1)
-    
-    # check coordinates
-    pred_class_1 = np.array(coords[0])
-    np.testing.assert_array_equal(class_1[class_1[:,0].argsort()], pred_class_1[pred_class_1[:,0].argsort()])
-    
-    pred_class_2 = np.array(coords[1])
-    np.testing.assert_array_equal(class_2[class_2[:,0].argsort()], pred_class_2[pred_class_2[:,0].argsort()])
-    
+
 def test_test():
     assert 1 == 1

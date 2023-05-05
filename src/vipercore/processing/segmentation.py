@@ -1,7 +1,6 @@
 import numpy as np
 from scipy import ndimage
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 
 import numba as nb
 from numba import njit
@@ -16,11 +15,9 @@ from skimage.morphology import dilation as sk_dilation
 from skimage.morphology import binary_erosion, disk
 import skfmm
 
-from hilbertcurve.hilbertcurve import HilbertCurve
-
 from vipercore.processing.utils import plot_image
 
-## Thresholding Functions to binarize input images
+#### Thresholding Functions to binarize input images
 def global_otsu(image):
     """
     Calculate the optimal global threshold for an input grayscale image using Otsu's method.
@@ -326,7 +323,43 @@ def segment_local_threshold(image,
     return labels
 
 
-#Collection of functions to modify, filter or remove labels from segmentation masks
+#### Collection of functions to modify, filter or remove labels from segmentation masks
+
+#helper function to allow numba optimization for subtraction
+@njit
+def _numba_subtract(array1, number):
+    """
+    Subtract a minimum number from all non-zero elements of the input array.
+
+    Parameters
+    ----------
+    array1 : numpy.ndarray
+        The input array.
+    number : int
+        The number to be subtracted from all non-zero elements.
+
+    Returns
+    -------
+    array1 : numpy.ndarray
+        The resulting array after subtracting the number from non-zero elements.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> array1 = np.array([[0, 2, 3], [0, 5, 6], [0, 0, 7]])
+    >>> _numba_subtract(array1, 1)
+    array([[0, 1, 2],
+           [0, 4, 5],
+           [0, 0, 6]])
+    """
+
+    for i in range(array1.shape[0]):     # parallel --> for i in nb.prange(c.shape[0]):
+        for j in range(array1.shape[1]):
+            if array1[i, j] != 0:
+                array1[i, j] = array1[i, j] - number
+
+    return array1
+
 @njit
 def _return_edge_labels(input_map):
     """
@@ -367,7 +400,8 @@ def shift_labels(input_map, shift, return_shifted_labels=False):
     shift : int
         Value to increment the labels by.
     return_shifted_labels : bool, optional
-        If True, return the edge labels after shifting (default is False).
+        If True, return the edge labels after shifting (default is False). 
+        If False will return the edge labels before shifting.
 
     Returns
     -------
@@ -408,7 +442,6 @@ def shift_labels(input_map, shift, return_shifted_labels=False):
         edge_label = [label + shift for label in edge_label]
         
     return shifted_map, list(set(edge_label))
-
 
 @njit(parallel = True)
 def _remove_classes(label_in, to_remove, background=0, reindex=False):
@@ -502,7 +535,6 @@ def remove_classes(label_in, to_remove, background=0, reindex=False):
            [0, 2, 0]])
     """
     return _remove_classes(label_in, to_remove, background=background, reindex=reindex)
-
 
 @njit(parallel=True)
 def contact_filter_lambda(label, background=0):
@@ -616,41 +648,6 @@ def contact_filter(inarr, threshold=1, reindex=False, background=0):
          pass
     
     return label
-
-@njit
-def _numba_subtract(array1, number):
-    """
-    Subtract a minimum number from all non-zero elements of the input array.
-
-    Parameters
-    ----------
-    array1 : numpy.ndarray
-        The input array.
-    number : int
-        The number to be subtracted from all non-zero elements.
-
-    Returns
-    -------
-    array1 : numpy.ndarray
-        The resulting array after subtracting the number from non-zero elements.
-
-    Example
-    -------
-    >>> import numpy as np
-    >>> array1 = np.array([[0, 2, 3], [0, 5, 6], [0, 0, 7]])
-    >>> _numba_subtract(array1, 1)
-    array([[0, 1, 2],
-           [0, 4, 5],
-           [0, 0, 6]])
-    """
-
-    for i in range(array1.shape[0]):     # parallel --> for i in nb.prange(c.shape[0]):
-        for j in range(array1.shape[1]):
-            if array1[i, j] != 0:
-                array1[i, j] = array1[i, j] - number
-
-    return array1
-
 
 @njit
 def _class_size(mask, debug=False, background=0):
@@ -790,6 +787,7 @@ def size_filter(label, limits=[0, 100000], background=0, reindex=False):
     return label
 
 
+#### Function to get centers of cells
 @njit
 def numba_mask_centroid(mask, debug=False, skip_background=True):
     """
@@ -891,271 +889,3 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
             ids[1:] += (min_cell_id - 1 ) #leave the background at 0
 
     return center, points_class, ids.astype("int32")
-
-#old not numba optimized function that can be removed
-# def mask_centroid(mask, class_range=None, debug=False):
-    
-#     if class_range == None:
-#         num_classes = np.max(mask)
-#         class_range = [0,np.max(mask)]
-#     else:
-#         num_classes = class_range[1]-class_range[0]
-#         print(num_classes)
-        
-#     if class_range[1] > np.max(mask):
-#         raise ValueError("upper class range limit exceeds total classes")
-#         return
-
-#     points_class = np.zeros((num_classes,))
-#     center = np.zeros((num_classes,2,))
-    
-#     cl = np.empty(num_classes)
-    
-#     coords = [[] for _ in range(num_classes)]
-
-#     for y in tqdm(range(len(mask)), disable = not debug):
-#         for x in range(len(mask[0])):
-#             class_id = mask[y,x]-1
-            
-#             translated_id = class_id - class_range[0]
-#             if class_id >= class_range[0] and class_id < class_range[1]:
-
-#                 coords[translated_id].append([x,y]) # coords[translated_id].append(np.array([x,y]))
-#                 points_class[translated_id] +=1
-#                 center[translated_id] += np.array([x,y])
-                
-#     # empty classes 
-#     points_class[points_class==0]=1       
-        
-#     x = center[:,0]/points_class
-#     y = center[:,1]/points_class
-    
-#     center = np.stack((y,x)).T
-#     return center, points_class, coords
- 
-
-########
-#below here still needs documentation
-@njit
-
-def _selected_coords_fast(mask, classes, debug=False, background=0):
-    
-    num_classes = np.max(mask)+1
-    
-    coords = []
-    
-    for i in prange(num_classes):
-        coords.append([np.array([0.,0.], dtype="uint32")])
-    
-    rows, cols = mask.shape
-    
-    for row in range(rows):
-        for col in range(cols):
-            return_id = mask[row, col]
-            if return_id != background:
-                coords[return_id].append(np.array([row, col], dtype="uint32")) # coords[translated_id].append(np.array([x,y]))
-    
-    for i, el in enumerate(coords):
-        #print(i, el)
-        if i not in classes:
-            #print(i)
-            coords[i] = [np.array([0.,0.], dtype="uint32")]
-                
-        #return
-    return coords
-             
-def selected_coords_fast(inarr, classes, debug=False):
-    # return with empty lists if no classes are provided
-    if len(classes) == 0:
-        return [],[],[]
-    
-    # calculate all coords in list
-    # due to typing issues in numba, every list and sublist contains np.array([0.,0.], dtype="int32") as first element
-    coords = _selected_coords_fast(inarr.astype("uint32"), nb.typed.List(classes))
-    
-    #print("start removal of zero vectors")
-    # removal of np.array([0.,0.], dtype="int32")
-    coords = [np.array(el[1:]) for el in coords[1:]]
-    
-    #print("start removal of out of class cells")
-    # remove empty elements, not in class list
-    coords_filtered = [np.array(el) for i, el in enumerate(coords) if i+1 in classes]
-    
-    #print("start center calculation")
-    center = [np.mean(el, axis=0) for el in coords_filtered]
-    
-    #print("start length calculation")
-    length = [len(el) for el in coords_filtered]
-    
-    return center, length, coords_filtered
-
-
-# return the first element not present in a list
-def _get_closest(used, choices, world_size):
-    for element in choices:
-        if element not in used:
-            # knn matrix contains -1 if the number of elements is smaller than k
-            if element == -1:
-                return None
-            else:
-                return element
-        
-    return None
-    # all choices have been taken, return closest free index due to local optimality
-    
-def _tps_greedy_solve(data, k=100):
-    samples = len(data)
-    
-    print(f"{samples} nodes left")
-    #recursive abort
-    if samples == 1:
-        return data
-    
-    import umap
-    knn_index, knn_dist, _ = umap.umap_.nearest_neighbors(data, n_neighbors=k, 
-                                       metric='euclidean', metric_kwds={},
-                                       angular=True, random_state=np.random.RandomState(42))
-
-    knn_index = knn_index[:,1:]
-    knn_dist = knn_dist[:,1:]
-
-    # follow greedy knn as long as a nearest neighbour is found in the current tree            
-    nodes = []
-    current_node = 0
-    while current_node is not None:
-        nodes.append(current_node)
-        #print(current_node, knn_index[current_node], next_node)
-        next_node = _get_closest(nodes, knn_index[current_node], samples)
-        
-        current_node = next_node
-
-    # as soon as no nearest neigbour can be found, create a new list of all elements still remeining
-    # nodes: [0, 2, 5], nodes_left: [1, 3, 4, 6, 7, 8, 9]
-    # add the last node assigned as starting point to the new list
-    # nodes: [0, 2], nodes_left: [5, 1, 3, 4, 6, 7, 8, 9]
-
-  
-    nodes_left = list(set(range(samples))-set(nodes))
-    
-
-    # add last node from nodes to nodes_left
-
-    nodes_left = [nodes.pop(-1)] + nodes_left
-    
-
-    node_data_left = data[nodes_left]
-    
-    # join lists
-    
-    return np.concatenate([data[nodes], _tps_greedy_solve(node_data_left, k=k)])
-
-# calculate the index array for a sorted 2d list based on an unsorted list
-@njit()
-def _get_nodes(data, sorted_data):
-    indexed_data = [(i,el) for i, el in enumerate(data)]
-
-    epsilon = 1e-10
-    nodes = []
-
-    print("start sorting")
-    for element in sorted_data:
-
-        for j, tup in enumerate(indexed_data):
-            i, el = tup
-
-            if np.array_equal(el, element):
-                nodes.append(i)
-                indexed_data.pop(j)
-    return nodes
-    
-def tsp_greedy_solve(node_list, k=100, return_sorted=False):
-    """Find an approximation of the closest path through a list of coordinates
-    
-    Args:
-        node_list (np.array): Array of shape `(N, 2)` containing a list of coordinates
-        
-        k (int, default: 100): Number of Nearest Neighbours calculated for each Node.
-        
-        return_sorted: If set to False a list of indices is returned. If set to True the sorted coordinates are returned.
-    
-    """
-    
-    sorted_nodes = _tps_greedy_solve(node_list)
-    
-    if return_sorted:
-        return sorted_nodes
-        
-    else:
-        nodes_order = _get_nodes(node_list, sorted_nodes)
-        return nodes_order
-    
-@njit()
-def assign_vertices(hilbert_points, data_rounded):
-
-    data_rounded = data_rounded.astype(np.int64)
-    hilbert_points = hilbert_points.astype(np.int64)
-
-
-    output_order = np.zeros(len(data_rounded)).astype(np.int64)
-    current_index = 0
-
-    for hilbert_point in hilbert_points:
-
-        for i, data_point in enumerate(data_rounded):
-            if np.array_equal(hilbert_point, data_point):
-                output_order[current_index] = i
-                current_index += 1
-
-    return output_order
-
-def tsp_hilbert_solve(data , p=3):
-
-    p=p; n=2
-    max_n = 2**(p*n)
-    hilbert_curve = HilbertCurve(p, n)
-    distances = list(range(max_n))
-    hilbert_points = hilbert_curve.points_from_distances(distances)
-    hilbert_points = np.array(hilbert_points)
-
-
-
-
-    data_min = np.min(data, axis=0)
-    data_max = np.max(data, axis=0)
-
-
-    hilbert_min = np.min(hilbert_points, axis=0)
-    hilbert_max = np.max(hilbert_points, axis=0)
-
-
-
-    data_scaled = data - data_min
-    data_scaled = data_scaled / (data_max-data_min) * (hilbert_max - hilbert_min)
-
-
-
-
-    data_rounded = np.round(data_scaled).astype(int)
-
-    order = assign_vertices(hilbert_points, data_rounded)
-    
-    return order
-    
-def calc_len(data):
-    """calculate the length of a path based on a list of coordinates
-    
-    Args:
-        data (np.array): Array of shape `(N, 2)` containing a list of coordinates
-       
-    """
-
-    index = np.arange(len(data)).astype(int)
-    
-    not_shifted = data[index[:-1]]
-    shifted = data[index[1:]]
-    
-    diff = not_shifted-shifted
-    sq = np.square(diff)
-    dist = np.sum(np.sqrt(np.sum(sq, axis = 1)))
-    
-    return dist

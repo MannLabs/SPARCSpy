@@ -18,8 +18,6 @@ scikit-fmm
 tabulate
 colorama
 
-hilbertcurve
-
 cellpose
 torch
 pytorch-lightning
