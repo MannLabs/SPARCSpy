@@ -1,3 +1,10 @@
+***************
+Command Line Tools
+****************
+
+SPARCSpy comes equipped with several command line tools for easy handling of SPARCSpy datasets.
+
+
 viper-split
 ====================
 .. argparse::

@@ -3,35 +3,40 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Viper Core's documentation!
-======================================
+SPARCSpy - spatially resolved CRISPR screening in python
+========================================================
 
-.. contents:: Table of Contents
+SPARCSpy is a scalable toolkit to analyse SPARCS datasets. The python implementation efficiently segments individual cells, generates single-cell datasets  and provides tools for the efficient deep learning classification of their phenotypes and subsequent excision using Laser Microdissection.
 
-Welcome to the show
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :caption: Ecosystem:
+
+   pages/ecosystem/
+
+.. toctree::
+   :maxdepth: 2
    :caption: Command Line Tools:
    
    pages/vipercmd
    
 .. toctree::
    :maxdepth: 2
-   :caption: Pipeline:
+   :caption: Analysis Pipeline:
    
    pages/pipeline/introduction
-   pages/pipeline/base
    pages/pipeline/project
    pages/pipeline/segmentation
+   pages/pipeline/extraction
+   pages/pipeline/classification
    pages/pipeline/selection
    
 .. toctree::
-   :maxdepth: 2
-   :numbered:
-   :caption: Processing:
+   :maxdepth: 1
+   :caption:  Module Documentation:
    
-   pages/processing/preprocessing
-   
-   
+   pages/module/processing 
+   pages/module/pipeline
+   pages/module/ml
    

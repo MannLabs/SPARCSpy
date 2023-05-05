@@ -1,29 +1,9 @@
 from vipercore.pipeline.base import ProcessingStep
 import os
-import csv
-from pathlib import Path
 import numpy as np
 import h5py
-from vipercore.processing.segmentation import selected_coords_fast, tsp_greedy_solve, tsp_hilbert_solve, calc_len
-from functools import partial
-from tqdm import tqdm
-import multiprocessing
-from scipy.spatial import cKDTree
-import networkx as nx
-
-
-import scipy
-from scipy import ndimage
-from scipy.signal import convolve2d
-
-import skimage as sk
-from skimage.morphology import dilation as sk_dilation
-from skimage.morphology import binary_erosion, disk
-
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure
-#from lmd.lmd import LMD_object, LMD_shape
 from lmd.lib import SegmentationLoader
+
 
 class LMDSelection(ProcessingStep):
     """Select single cells from a segmented hdf5 file and generate cutting data for the Leica LMD microscope.

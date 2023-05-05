@@ -1,260 +1,182 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPARCSpy - spatially resolved CRISPR screening in python &mdash; Viper Core  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  <title>Welcome to Viper Core’s documentation! &mdash; Viper Core  documentation</title>
-  
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="viper-split" href="pages/vipercmd.html" /> 
+    <link rel="next" title="Installation" href="pages/ecosystem/installation.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="#" class="icon icon-home"> Viper Core
           
-
-          
+          <a href="#" class="icon icon-home">
+            Viper Core
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">SPARCSpy Ecosystem:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pages/ecosystem/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/ecosystem/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/ecosystem/tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pages/vipercmd.html">viper-split</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pages/vipercmd.html#viper-stat">viper-stat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/vipercmd.html#viper-cleanup">viper-cleanup</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Pipeline:</span></p>
+<p class="caption" role="heading"><span class="caption-text">SPARCSpy Analysis Pipeline:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pages/pipeline/introduction.html">base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/base.html">base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/project.html">project</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/segmentation.html">segmentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/selection.html">selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/extraction.html">Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/selection.html">Selection</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Processing:</span></p>
+<p class="caption" role="heading"><span class="caption-text">SPARCSpy Module Documentation:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pages/processing/preprocessing.html">1. Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/module/processing.html">processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/module/pipeline.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/module/ml.html">ml</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="#">Viper Core</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="#">Docs</a> &raquo;</li>
-        
-      <li>Welcome to Viper Core’s documentation!</li>
-    
-    
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">SPARCSpy - spatially resolved CRISPR screening in python</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <section id="welcome-to-viper-core-s-documentation">
-<h1><a class="toc-backref" href="#id1">Welcome to Viper Core’s documentation!</a><a class="headerlink" href="#welcome-to-viper-core-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="contents topic" id="table-of-contents">
-<p class="topic-title">Table of Contents</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="#welcome-to-viper-core-s-documentation" id="id1">Welcome to Viper Core’s documentation!</a></p></li>
+             
+  <section id="sparcspy-spatially-resolved-crispr-screening-in-python">
+<h1>SPARCSpy - spatially resolved CRISPR screening in python<a class="headerlink" href="#sparcspy-spatially-resolved-crispr-screening-in-python" title="Permalink to this heading"></a></h1>
+<p>SPARCSpy is a scalable toolkit to analyse SPARCS datasets. The python implementation efficiently segments individual cells, generates single-cell datasets  and provides tools for the efficient deep learning classification of their phenotypes and subsequent excision using Laser Microdissection.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">SPARCSpy Ecosystem:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pages/ecosystem/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/ecosystem/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/ecosystem/tutorials.html">Tutorials</a></li>
 </ul>
 </div>
-<p>Welcome to the show</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pages/vipercmd.html">viper-split</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pages/vipercmd.html#viper-stat">viper-stat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/vipercmd.html#viper-cleanup">viper-cleanup</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Pipeline:</span></p>
+<p class="caption" role="heading"><span class="caption-text">SPARCSpy Analysis Pipeline:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pages/pipeline/introduction.html">base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/base.html">base</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pages/pipeline/base.html#logable">Logable</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pages/pipeline/base.html#processingstep">ProcessingStep</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/project.html">project</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pages/pipeline/project.html#id1">Project</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/segmentation.html">segmentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pages/pipeline/segmentation.html#id1">Segmentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pages/pipeline/segmentation.html#shardedsegmentation">ShardedSegmentation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/selection.html">selection</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pages/pipeline/selection.html#lmdselection">LMDSelection</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/extraction.html">Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/selection.html">Selection</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Processing:</span></p>
+<p class="caption" role="heading"><span class="caption-text">SPARCSpy Module Documentation:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pages/processing/preprocessing.html">1. Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/module/processing.html">processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/processing.html#module-vipercore.processing.utils">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/processing.html#module-vipercore.processing.preprocessing">preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/processing.html#module-vipercore.processing.segmentation">segmentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pages/module/pipeline.html">pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/pipeline.html#module-vipercore.pipeline.base">base</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/pipeline.html#project">project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/pipeline.html#segmentation">segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/pipeline.html#workflows">workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/pipeline.html#extraction">extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/pipeline.html#classification">classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/pipeline.html#module-vipercore.pipeline.selection">selection</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pages/module/ml.html">ml</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/ml.html#module-vipercore.ml.datasets">datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/ml.html#module-vipercore.ml.metrics">metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/ml.html#module-vipercore.ml.models">models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/ml.html#module-vipercore.ml.plmodels">plmodels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/ml.html#module-vipercore.ml.transforms">transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pages/module/ml.html#module-vipercore.ml.utils">utils</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="pages/vipercmd.html" class="btn btn-neutral float-right" title="viper-split" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pages/ecosystem/installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2021, Georg Wallmann, Sophia Mädler, Niklas Schmacke
-
-    </p>
+    <p>&#169; Copyright 2021, Georg Wallmann, Sophia Mädler, Niklas Schmacke.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

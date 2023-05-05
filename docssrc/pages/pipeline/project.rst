@@ -1,8 +1,5 @@
-project
-##########################
+*******************
+Project Class
+*******************
 
-Project
-====================
-.. automodule:: vipercore.pipeline.project
-    :members:
-
+Information on the Project Class used within SPARCSpy

@@ -1,9 +1,4 @@
-selection
-###########
+Selection
+=========
 
-LMDSelection
-==============
-.. autoclass:: vipercore.pipeline.selection.LMDSelection
-    :members:
-    :show-inheritance:
-    :inherited-members:
+Overview of the selection process

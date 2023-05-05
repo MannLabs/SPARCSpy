@@ -1,211 +1,100 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>viper-split &mdash; Viper Core  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="base" href="pipeline/introduction.html" />
-    <link rel="prev" title="Welcome to Viper Core’s documentation!" href="../index.html" /> 
+    <link rel="prev" title="SPARCSpy Ecosystem" href="ecosystem.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> Viper Core
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            Viper Core
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Ecosystem:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ecosystem.html">SPARCSpy Ecosystem</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">viper-split</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Positional Arguments">Positional Arguments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">viper-split</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#viper-stat">viper-stat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#viper-cleanup">viper-cleanup</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#viper-stat">viper-stat</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Positional Arguments">Positional Arguments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Pipeline:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Analysis Pipeline:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pipeline/introduction.html">base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline/base.html">base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline/project.html">project</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline/segmentation.html">segmentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline/selection.html">selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/project.html">Project Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/segmentation.html">Segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/extraction.html">Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/classification.html">Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/selection.html">Selection</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Processing:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Module Documentation:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="processing/preprocessing.html">1. Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module/processing.html">processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module/pipeline.html">pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module/ml.html">ml</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Viper Core</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
-      <li>viper-split</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">viper-split</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/pages/vipercmd.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <section id="viper-split">
-<h1>viper-split<a class="headerlink" href="#viper-split" title="Permalink to this headline">¶</a></h1>
-<p><p>Manipulate existing single cell hdf5 datasets.</p>
-</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">viper</span><span class="o">-</span><span class="n">split</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUTPUT</span> <span class="n">OUTPUT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">THREADS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span><span class="p">]</span> <span class="n">input_dataset</span>
-</pre></div>
-</div>
-<section id="Positional Arguments">
-<h2>Positional Arguments<a class="headerlink" href="#Positional Arguments" title="Permalink to this headline">¶</a></h2>
-<dl class="option-list">
-<dt><kbd>input_dataset</kbd></dt>
-<dd><p>input dataset which should be split</p>
-</dd>
-</dl>
-</section>
-<section id="Named Arguments">
-<h2>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h2>
-<dl class="option-list">
-<dt><kbd>-o, --output</kbd></dt>
-<dd><p>Output definition &lt;name&gt; &lt;length&gt;. For example -o test.h5 0.9 or or -o test.h5 1000. If the sum of all lengths is &lt;= 1, it is interpretated as fraction. Else its used as absolute value</p>
-</dd>
-<dt><kbd>-r, --random</kbd></dt>
-<dd><p>shuffle single cells randomly</p>
-<p>Default: False</p>
-</dd>
-<dt><kbd>-t, --threads</kbd></dt>
-<dd><p>number of threads</p>
-<p>Default: 4</p>
-</dd>
-<dt><kbd>-c, --compression</kbd></dt>
-<dd><p>use lzf compression</p>
-<p>Default: False</p>
-</dd>
-</dl>
-</section>
+             
+  <p>SPARCSpy comes equipped with several command line tools for easy handling of SPARCSpy datasets.</p>
+<section id="viper-split">
+<h1>viper-split<a class="headerlink" href="#viper-split" title="Permalink to this heading"></a></h1>
 <p>Manipulate existing single cell hdf5 datasets.
 viper-split can be used for splitting, shuffleing and compression / decompression.</p>
 <dl>
@@ -229,35 +118,8 @@ viper-split can be used for splitting, shuffleing and compression / decompressio
 </dl>
 </section>
 <section id="viper-stat">
-<h1>viper-stat<a class="headerlink" href="#viper-stat" title="Permalink to this headline">¶</a></h1>
-<p><p>Scan directory for viper projects.</p>
-</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">viper</span><span class="o">-</span><span class="n">stat</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">THREADS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="n">RECURSION</span><span class="p">]</span> <span class="p">[</span><span class="n">search_directory</span><span class="p">]</span>
-</pre></div>
-</div>
-<section id="Positional Arguments">
-<h2>Positional Arguments<a class="headerlink" href="#Positional Arguments" title="Permalink to this headline">¶</a></h2>
-<dl class="option-list">
-<dt><kbd>search_directory</kbd></dt>
-<dd><p>directory containing viper projects</p>
-</dd>
-</dl>
-</section>
-<section id="Named Arguments">
-<h2>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h2>
-<dl class="option-list">
-<dt><kbd>-t, --threads</kbd></dt>
-<dd><p>number of threads</p>
-<p>Default: 8</p>
-</dd>
-<dt><kbd>-r, --recursion</kbd></dt>
-<dd><p>levels of recursion</p>
-<p>Default: 5</p>
-</dd>
-</dl>
-</section>
-<p>Manipulate existing single cell hdf5 datasets.
-viper-split can be used for splitting, shuffleing and compression / decompression.</p>
+<h1>viper-stat<a class="headerlink" href="#viper-stat" title="Permalink to this heading"></a></h1>
+<p>get information on the status of viper projects.</p>
 <dl>
 <dt>Examples:</dt><dd><p>Show progress in a folder containing multiple datasets</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">viper</span><span class="o">-</span><span class="n">stat</span>
@@ -274,54 +136,124 @@ viper-split can be used for splitting, shuffleing and compression / decompressio
 </dd>
 </dl>
 </section>
+<section id="viper-cleanup">
+<h1>viper-cleanup<a class="headerlink" href="#viper-cleanup" title="Permalink to this heading"></a></h1>
+<p>List intermediate files contained in viper projects that can be deleted to free up disk-space.
+Can be run in dry-run to only list found files before deleteting.</p>
+<dl>
+<dt>Examples:</dt><dd><p>Show found files in a folder containing multiple datasets</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">viper</span><span class="o">-</span><span class="n">cleanup</span> <span class="o">-</span><span class="n">n</span> <span class="kc">True</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>Result:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Searching</span> <span class="k">for</span> <span class="n">intermediate</span> <span class="n">files</span> <span class="n">that</span> <span class="n">can</span> <span class="n">be</span> <span class="n">deleted</span><span class="p">,</span> <span class="n">this</span> <span class="n">may</span> <span class="n">take</span> <span class="n">a</span> <span class="n">moment</span><span class="o">...</span>
+
+<span class="n">ProjectA</span>
+<span class="n">Found</span> <span class="n">the</span> <span class="n">following</span> <span class="n">files</span> <span class="n">to</span> <span class="n">delete</span><span class="p">:</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/input_image.h5&#39;</span><span class="p">,</span> <span class="s1">&#39;42.6GiB&#39;</span><span class="p">)</span>
+
+<span class="n">Found</span> <span class="n">the</span> <span class="n">following</span> <span class="n">directories</span> <span class="n">to</span> <span class="n">delete</span><span class="p">:</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/7&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/6&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/3&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/11&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/19&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/14&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/17&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/5&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/2&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/4&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/1&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/13&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/0&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/16&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/20&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/9&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/12&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/15&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/10&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/8&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/18&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="n">Rerun</span> <span class="k">with</span> <span class="o">-</span><span class="n">n</span> <span class="kc">False</span> <span class="n">to</span> <span class="n">remove</span> <span class="n">these</span> <span class="n">files</span>
+
+<span class="n">ProjectB</span>
+<span class="n">Found</span> <span class="n">the</span> <span class="n">following</span> <span class="n">files</span> <span class="n">to</span> <span class="n">delete</span><span class="p">:</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/input_image.h5&#39;</span><span class="p">,</span> <span class="s1">&#39;42.6GiB&#39;</span><span class="p">)</span>
+
+<span class="n">Found</span> <span class="n">the</span> <span class="n">following</span> <span class="n">directories</span> <span class="n">to</span> <span class="n">delete</span><span class="p">:</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/7&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/6&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/3&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/11&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/19&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/14&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/17&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/5&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/2&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/4&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/1&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/13&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/0&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/16&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/20&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/9&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/12&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/15&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/10&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/8&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="s1">&#39;~/ProjectA/segmentation/tiles/18&#39;</span><span class="p">,</span> <span class="s1">&#39;7.7GiB&#39;</span><span class="p">)</span>
+<span class="n">Rerun</span> <span class="k">with</span> <span class="o">-</span><span class="n">n</span> <span class="kc">False</span> <span class="n">to</span> <span class="n">remove</span> <span class="n">these</span> <span class="n">files</span>
+</pre></div>
+</div>
+<p>Delete intermediate files in folder containing multiple datasets</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">viper</span><span class="o">-</span><span class="n">cleanup</span> <span class="o">-</span><span class="n">n</span> <span class="kc">False</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>Result:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Searching</span> <span class="k">for</span> <span class="n">intermediate</span> <span class="n">files</span> <span class="n">that</span> <span class="n">can</span> <span class="n">be</span> <span class="n">deleted</span><span class="p">,</span> <span class="n">this</span> <span class="n">may</span> <span class="n">take</span> <span class="n">a</span> <span class="n">moment</span><span class="o">...</span>
+
+<span class="n">ProjectA</span>
+<span class="n">Deleting</span> <span class="n">files</span><span class="o">...</span>
+<span class="n">Deleted</span> <span class="n">files</span> <span class="k">with</span> <span class="n">a</span> <span class="n">total</span> <span class="n">storage</span> <span class="n">size</span> <span class="n">of</span> <span class="mf">200.6</span><span class="n">GiB</span>
+
+<span class="n">ProjectB</span>
+<span class="n">Deleting</span> <span class="n">files</span><span class="o">...</span>
+<span class="n">Deleted</span> <span class="n">files</span> <span class="k">with</span> <span class="n">a</span> <span class="n">total</span> <span class="n">storage</span> <span class="n">size</span> <span class="n">of</span> <span class="mf">200.6</span><span class="n">GiB</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="pipeline/introduction.html" class="btn btn-neutral float-right" title="base" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to Viper Core’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ecosystem.html" class="btn btn-neutral float-left" title="SPARCSpy Ecosystem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pipeline/introduction.html" class="btn btn-neutral float-right" title="base" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2021, Georg Wallmann, Sophia Mädler, Niklas Schmacke
-
-    </p>
+    <p>&#169; Copyright 2021, Georg Wallmann, Sophia Mädler, Niklas Schmacke.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

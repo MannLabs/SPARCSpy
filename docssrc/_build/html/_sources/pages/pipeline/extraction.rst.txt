@@ -1,14 +1,5 @@
-base
-########
+*******************
+Extraction
+*******************
 
-Logable
-==============
-.. autoclass:: vipercore.pipeline.base.Logable
-    :members:
-
-ProcessingStep
-==============
-.. autoclass:: vipercore.pipeline.base.ProcessingStep
-    :members:
-    :show-inheritance:
-    :inherited-members:
+overview of the extraction process
