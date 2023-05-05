@@ -6,10 +6,18 @@ pandas
 matplotlib
 tqdm
 h5py
+<<<<<<< HEAD
+=======
+scikit-image
+scikit-learn
+datetime
+scikit-fmm
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce
 pyYaml
 datetime
 numba
 pillow
+<<<<<<< HEAD
 opencv
 scikit-image
 scikit-fmm
@@ -20,3 +28,12 @@ cellpose
 torch
 pytorch-lightning
 torchvision
+=======
+torch
+hilbertcurve
+tqdm
+pytorch_lightning
+umap-learn
+multicore-tsne
+svgelements
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce

@@ -19,7 +19,7 @@ from vipercore.pipeline.base import Logable
 
 class Project(Logable):
     """
-    Project base class used to create a new viper project.
+    Project base class used to create a new SPARCS project.
     
     Args:
         location_path (str): Path to the folder where to project should be created. The folder is created in case the specified folder does not exist.
@@ -104,10 +104,8 @@ class Project(Logable):
         if config_path == "":
             
             # Check if there is already a config file in the dataset folder in case no config file has been specified
-            
             if os.path.isfile(new_config_path):
                 self._load_config_from_file(new_config_path)
-            
             else:
                 warnings.warn(f"You will need to add a config named {self.DEFAULT_CONFIG_NAME} file manually to the dataset")
         
@@ -116,7 +114,6 @@ class Project(Logable):
                 raise ValueError("Your config path is invalid")
                 
             else:       
-                
                 print("modifying config")
                 if os.path.isfile(new_config_path):
                     os.remove(new_config_path) 
@@ -163,10 +160,10 @@ class Project(Logable):
                 
             classification_directory = os.path.join(self.project_location, self.DEFAULT_CLASSIFICATION_DIR_NAME)
             self.classification_f = classification_f(self.config[classification_f.__name__], 
-                                                 classification_directory,
-                                                 debug = self.debug,
-                                                 overwrite = self.overwrite,
-                                                 intermediate_output = self.intermediate_output)
+                                                    classification_directory,
+                                                    debug = self.debug,
+                                                    overwrite = self.overwrite,
+                                                    intermediate_output = self.intermediate_output)
         else:
             self.classification_f = None
             
@@ -214,7 +211,6 @@ class Project(Logable):
 
         Args:
             file_paths (list(str)): List containing paths to each channel like ``["path1/img.tiff", "path2/img.tiff", "path3/img.tiff"]``. Expects a list of file paths with length ``input_channel`` as defined in the config.yml. Input data is NOT copied to the project folder by default. Different segmentation functions especially tiled segmentations might copy the input
-            
             crop (list(tuple), optional): When set it can be used to crop the input image. The first element refers to the first dimension of the image and so on. For example use ``[(0,1000),(0,2000)]`` To crop the image to `1000 px height` and `2000 px width` from the top left corner.
         """
         if self.config == None:

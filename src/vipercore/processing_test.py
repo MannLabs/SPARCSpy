@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #import general packages for testing
 import pytest
 import numpy as np
@@ -256,6 +257,13 @@ def test_percentile_norm():
     norm_img = _percentile_norm(img, 0.1, 0.9)
     assert np.min(norm_img) == pytest.approx(0)
     assert np.max(norm_img) == pytest.approx(1)
+=======
+from vipercore.processing.preprocessing import percentile_normalization
+from vipercore.processing.segmentation import selected_coords, selected_coords_fast
+
+import numpy as np
+import pytest
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce
 
 def test_percentile_normalization_C_H_W():
     
@@ -267,6 +275,10 @@ def test_percentile_normalization_C_H_W():
     assert np.max(normalized) == pytest.approx(1)
     assert np.min(normalized) == pytest.approx(0)
     
+<<<<<<< HEAD
+=======
+
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce
 def test_percentile_normalization_H_W():
     
     test_array = np.random.randint(2, size=(100,100))
@@ -276,6 +288,7 @@ def test_percentile_normalization_H_W():
     normalized = percentile_normalization(test_array, 0.05,0.95)
     assert np.max(normalized) == pytest.approx(1)
     assert np.min(normalized) == pytest.approx(0)
+<<<<<<< HEAD
 
 def test_rolling_window_mean():
     array = np.random.rand(10, 10)
@@ -383,3 +396,81 @@ def test_processing_step_get_directory():
 #general test to check that testing is working
 def test_test():
     assert 1 == 1
+=======
+    
+# test processing.segmentation.selected_coords
+def test_selected_coords():
+    
+    image_size = 20
+    
+    test_array = np.zeros((image_size,image_size))
+    
+    class_1 = np.array([[1,2],[2,3],[3,4],[4,5]])
+    class_2 = np.array([[2,2],[3,3],[4,4],[5,6]])
+    class_3 = np.array([[13,2],[14,3],[15,4],[16,6]])
+
+    
+    test_array[class_1[:,0],class_1[:,1]] = 1
+    test_array[class_2[:,0],class_2[:,1]] = 2
+    test_array[class_3[:,0],class_3[:,1]] = 3
+    
+    center, points_class, coords = selected_coords(test_array, np.array([1,2]))
+    
+    # check center obejct
+    assert len(center) == 2
+    
+    np.testing.assert_array_equal(center[0], np.mean(class_1, axis=0))
+    np.testing.assert_array_equal(center[1], np.mean(class_2, axis=0))
+    
+    # check points per class
+    
+    assert points_class[0] == len(class_1)
+    assert points_class[0] == len(class_1)
+    
+    # check coordinates
+    pred_class_1 = np.array(coords[0])
+    np.testing.assert_array_equal(class_1[class_1[:,0].argsort()], pred_class_1[pred_class_1[:,0].argsort()])
+    
+    pred_class_2 = np.array(coords[1])
+    np.testing.assert_array_equal(class_2[class_2[:,0].argsort()], pred_class_2[pred_class_2[:,0].argsort()])
+    
+    # test processing.segmentation.selected_coords_fast
+    
+def test_selected_coords_fast():
+    
+    image_size = 20
+    
+    test_array = np.zeros((image_size,image_size))
+    
+    class_1 = np.array([[1,2],[2,3],[3,4],[4,5]])
+    class_2 = np.array([[2,2],[3,3],[4,4],[5,6]])
+    class_3 = np.array([[13,2],[14,3],[15,4],[16,6]])
+
+    
+    test_array[class_1[:,0],class_1[:,1]] = 1
+    test_array[class_2[:,0],class_2[:,1]] = 2
+    test_array[class_3[:,0],class_3[:,1]] = 3
+    
+    center, points_class, coords = selected_coords_fast(test_array, np.array([1,2]))
+    
+    # check center obejct
+    assert len(center) == 2
+    
+    np.testing.assert_array_equal(center[0], np.mean(class_1, axis=0))
+    np.testing.assert_array_equal(center[1], np.mean(class_2, axis=0))
+    
+    # check points per class
+    
+    assert points_class[0] == len(class_1)
+    assert points_class[0] == len(class_1)
+    
+    # check coordinates
+    pred_class_1 = np.array(coords[0])
+    np.testing.assert_array_equal(class_1[class_1[:,0].argsort()], pred_class_1[pred_class_1[:,0].argsort()])
+    
+    pred_class_2 = np.array(coords[1])
+    np.testing.assert_array_equal(class_2[class_2[:,0].argsort()], pred_class_2[pred_class_2[:,0].argsort()])
+    
+def test_test():
+    assert 1 == 1
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce

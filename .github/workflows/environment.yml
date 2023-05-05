@@ -1,4 +1,9 @@
 name: base
+<<<<<<< HEAD
+=======
+channels:
+    - conda-forge
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce
 dependencies:
   - numpy
   - matplotlib

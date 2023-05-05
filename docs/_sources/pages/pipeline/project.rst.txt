@@ -3,6 +3,10 @@ project
 
 Project
 ====================
-.. automodule:: vipercore.pipeline.project
+.. automodule:: vipercore.pipeline.Project
     :members:
 
+Timecourse Project
+====================
+.. automodule:: vipercore.pipeline.TimecourseProject
+    :members:

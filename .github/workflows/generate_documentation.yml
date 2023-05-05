@@ -12,17 +12,33 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+<<<<<<< HEAD
     - name: Set up Python 3.10
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
+=======
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce
     - name: Add conda to system path
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin >> $GITHUB_PATH
+<<<<<<< HEAD
     - name: Install Dependencies with Mamba
       run: |
         conda env update -n base --file .github/workflows/environment.yml
     - name: Install Repository Module
       run: |
         pip install ./
+=======
+    - name: Install Mamba
+      run: |
+        conda install --name base -c conda-forge mamba
+    - name: Install Dependencies with Mamba
+      run: |
+        mamba env update -n base --file .github/workflows/environment.yml
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce

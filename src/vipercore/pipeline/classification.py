@@ -304,6 +304,7 @@ class MLClusterClassifier:
         else:
             print("performing dimensionality reduction")
 
+<<<<<<< HEAD
             self.log(f"start first pca")
             d1, d2 = result.shape
             pca = PCA(n_components=min(d2, self.config["pca_dimensions"]))
@@ -311,6 +312,14 @@ class MLClusterClassifier:
             
             # save pre dimension reduction pca results
             pca_labels = [f"hd_pca_{i}" for i in range(embedding_pca.shape[1])]
+=======
+        #self.log(f"start umap")        
+        #reducer = umap.UMAP(n_neighbors=self.config["umap_neighbours"], min_dist=self.config["umap_min_dist"], n_components=2,metric='cosine')
+        #embedding_umap = reducer.fit_transform(embedding_pca)
+        
+        #self.log(f"start tsne")
+        #embedding_tsne = TSNE(n_jobs=self.config["threads"]).fit_transform(embedding_pca)
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce
         
             #print(result.shape)
             #print(embedding_pca.shape)
@@ -324,6 +333,7 @@ class MLClusterClassifier:
             
             embedding_2_pca = PCA(n_components=min(2, d2)).fit_transform(result)
 
+<<<<<<< HEAD
             #self.log(f"start umap")        
             #reducer = umap.UMAP(n_neighbors=self.config["umap_neighbours"], min_dist=self.config["umap_min_dist"], n_components=2,metric='cosine')
             #embedding_umap = reducer.fit_transform(embedding_pca)
@@ -339,5 +349,16 @@ class MLClusterClassifier:
             #dataframe["tsne_0"] = embedding_tsne[:,0]
             #dataframe["tsne_1"] = embedding_tsne[:,1]
             
+=======
+        dataframe["label"] = label
+        dataframe["cell_id"] = class_id.astype("int")
+        dataframe["pca_0"] = embedding_2_pca[:,0]
+        dataframe["pca_1"] = embedding_2_pca[:,1]
+        #dataframe["umap_0"] = embedding_umap[:,0]
+        #dataframe["umap_1"] = embedding_umap[:,1]
+        #dataframe["tsne_0"] = embedding_tsne[:,0]
+        #dataframe["tsne_1"] = embedding_tsne[:,1]
+        
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce
         path = os.path.join(self.run_path,f"dimension_reduction_{model_fun.__name__}.tsv")
         dataframe.to_csv(path)

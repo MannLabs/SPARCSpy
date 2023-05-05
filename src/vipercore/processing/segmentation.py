@@ -880,6 +880,124 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
     y = center[:,1]/points_class
     
     center = np.stack((y,x)).T
+<<<<<<< HEAD
+=======
+    return center, points_class
+
+from numba import prange
+import numba as nb
+
+@njit
+def _selected_coords_fast(mask, classes, debug=False, background=0):
+    
+    num_classes = np.max(mask)+1
+    
+    coords = []
+    
+    for i in prange(num_classes):
+        coords.append([np.array([0.,0.], dtype="uint32")])
+    
+    rows, cols = mask.shape
+    
+    for row in range(rows):
+        if row % 10000 == 0:
+            print(row)
+        for col in range(cols):
+            return_id = mask[row, col]
+            if return_id != background:
+                coords[return_id].append(np.array([row, col], dtype="uint32")) # coords[translated_id].append(np.array([x,y]))
+    
+    for i, el in enumerate(coords):
+        #print(i, el)
+        if i not in classes:
+            #print(i)
+            coords[i] = [np.array([0.,0.], dtype="uint32")]
+                
+        #return
+    return coords
+             
+
+def selected_coords_fast(inarr, classes, debug=False):
+    # return with empty lists if no classes are provided
+    if len(classes) == 0:
+        return [],[],[]
+    
+    # calculate all coords in list
+    # due to typing issues in numba, every list and sublist contains np.array([0.,0.], dtype="int32") as first element
+    coords = _selected_coords_fast(inarr.astype("uint32"), nb.typed.List(classes))
+    
+    print("start removal of zero vectors")
+    # removal of np.array([0.,0.], dtype="int32")
+    coords = [np.array(el[1:]) for el in coords[1:]]
+    
+    print("start removal of out of class cells")
+    # remove empty elements, not in class list
+    coords_filtered = [el for i, el in enumerate(coords) if i+1 in classes]
+    
+    print("start center calculation")
+    center = [np.mean(el, axis=0) for el in coords_filtered]
+    
+    print("start length calculation")
+    length = [len(el) for el in coords_filtered]
+    
+    return center, length, coords
+
+# calculate center, coordinates and number of pixel for a selected set of classes
+def selected_coords(segmentation, classes, debug=False):
+    center, points_class, coords = _selected_coords(segmentation, classes, debug=False)
+    
+    # ccoords array contains [0, 0] as first element.
+    # hack needed to tell numba the datatype
+    # folowing lines are needed for removal
+    out_l = []
+    for elem in coords:
+        if len(elem) > 1:
+            out_l.append(np.array(elem[1:]))
+    
+    coords = out_l
+    return center, points_class, coords
+
+@njit
+def _selected_coords(segmentation, classes, debug=False):
+    num_classes = len(classes)
+    
+    #setup emtpy lists
+    coords = [[(np.array([0.,0.], dtype="int64"))]]
+    
+    
+    
+    for i in range(num_classes):
+        coords.append([(np.array([0.,0.], dtype="int64"))])
+
+    
+    points_class = np.zeros((num_classes))
+    center = np.zeros((num_classes,2,))
+    
+    y_size, x_size = segmentation.shape
+    
+    for y in range(y_size):
+        for x in range(x_size):
+            
+            class_id = segmentation[y,x]
+            
+            if class_id in classes:
+                
+                return_id = np.argwhere(classes==class_id)[0][0]
+                
+                
+                coords[return_id].append(np.array([y,x], dtype="int64")) # coords[translated_id].append(np.array([x,y]))
+                points_class[return_id] +=1
+                center[return_id] += np.array([x,y])
+                
+                
+    x = center[:,0]/points_class
+    y = center[:,1]/points_class
+    center = np.stack((y,x)).T
+    
+    return center, points_class, coords
+
+def mask_centroid(mask, class_range=None, debug=False):
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce
     
     if skip_background:
         if min_cell_id != 1:
@@ -888,4 +1006,63 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
         if min_cell_id != 1:
             ids[1:] += (min_cell_id - 1 ) #leave the background at 0
 
+<<<<<<< HEAD
     return center, points_class, ids.astype("int32")
+=======
+        self.poly = edges[indices]
+        
+        # Useful for debuging
+        """
+        print(self.poly.shape)
+        fig = plt.figure(frameon=False)
+        fig.set_size_inches(10,10)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+
+        ax.imshow(bounds)
+        ax.plot(edges[:,1]*2,edges[:,0]*2)
+        ax.plot(self.poly[:,1]*2,self.poly[:,0]*2)
+        """
+        
+        return self
+    
+    def get_poly(self):
+        return self.poly+self.offset
+    
+        
+    def sort_edges(self, edges):
+        """
+        greedy sorts the vertices of a graph.
+        
+        """
+
+        it = len(edges)
+        new = []
+        new.append(edges[0])
+
+        edges = np.delete(edges,0,0)
+
+        for i in range(1,it):
+
+            old = np.array(new[i-1])
+
+
+            dist = np.linalg.norm(edges-old,axis=1)
+
+            min_index = np.argmin(dist)
+            new.append(edges[min_index])
+            edges = np.delete(edges,min_index,0)
+        
+        return(np.array(new))
+    
+    def plot(self, axis,  flip=True, **kwargs):
+        """
+        Args
+            flip (bool, True): Shapes are still in the (row, col) format and need to bee flipped if plotted with a (x, y) coordinate system.
+        """
+        if flip:
+            axis.plot(self.poly[:,1]+self.offset[1],self.poly[:,0]+self.offset[0], **kwargs)
+        else:
+            axis.plot(self.poly[:,0]+self.offset[0],self.poly[:,1]+self.offset[1], **kwargs)
+>>>>>>> d31b3aef27c355920fe2b41a6499f8cc983761ce
