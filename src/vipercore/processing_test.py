@@ -240,8 +240,17 @@ def test_numba_mask_centroid():
     assert np.all(points_class == expected_points_class)
     assert np.all(ids == expected_ids)
 
-from vipercore.processing.preprocessing import percentile_normalization
+#######################################################
+# Unit tests for ../proccessing/preprocessing.py
+#######################################################
 
+from vipercore.processing.preprocessing import _percentile_norm, percentile_normalization, rolling_window_mean, origins_from_distance, MinMax
+
+def test_percentile_norm():
+    img = np.random.rand(4, 4)
+    norm_img = _percentile_norm(img, 0.1, 0.9)
+    assert np.min(norm_img) == pytest.approx(0)
+    assert np.max(norm_img) == pytest.approx(1)
 
 def test_percentile_normalization_C_H_W():
     
@@ -263,6 +272,18 @@ def test_percentile_normalization_H_W():
     assert np.max(normalized) == pytest.approx(1)
     assert np.min(normalized) == pytest.approx(0)
 
+
+def test_rolling_window_mean():
+    array = np.random.rand(10, 10)
+    rolling_array = rolling_window_mean(array, size=5, scaling=False)
+    assert np.all(array.shape == rolling_array.shape)
+
+
+def test_MinMax():
+    array = np.random.rand(10, 10)
+    normalized_array = MinMax(array)
+    assert np.min(normalized_array) == 0
+    assert np.max(normalized_array) == 1
 
 def test_test():
     assert 1 == 1

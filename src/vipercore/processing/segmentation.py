@@ -727,8 +727,8 @@ def _class_size(mask, debug=False, background=0):
     mean_arr = np.divide(mean_sum, length)
 
     #set background index to np.NaN
-    length[background][0] = np.NaN
-    mean_arr[background] = np.NaN
+    length[background][0] = np.nan
+    mean_arr[background] = np.nan
 
     return mean_arr, length.flatten()
 
