@@ -1,6 +1,9 @@
 #import general packages for testing
 import pytest
 import numpy as np
+import os
+
+
 
 #######################################################
 # Unit tests for ../proccessing/segmentation.py
@@ -186,8 +189,6 @@ def test_contact_filter():
     assert np.all(result == expected_result)
 
 
-from vipercore.processing.segmentation import numba_mask_centroid
-
 
 from vipercore.processing.segmentation import _class_size, size_filter
 
@@ -212,6 +213,8 @@ def test_class_size():
     expected_length = np.array([float(np.nan), 3, 2])
     assert np.all(length[1:] == expected_length[1:]) #only compare [1:] to ignore the nan in the first element
     assert np.isnan(length[0])
+
+
 
 from vipercore.processing.segmentation import _numba_subtract, numba_mask_centroid
 
@@ -239,6 +242,8 @@ def test_numba_mask_centroid():
     assert np.allclose(centers, expected_centers, atol=1e-6)
     assert np.all(points_class == expected_points_class)
     assert np.all(ids == expected_ids)
+
+
 
 #######################################################
 # Unit tests for ../proccessing/preprocessing.py
@@ -272,12 +277,10 @@ def test_percentile_normalization_H_W():
     assert np.max(normalized) == pytest.approx(1)
     assert np.min(normalized) == pytest.approx(0)
 
-
 def test_rolling_window_mean():
     array = np.random.rand(10, 10)
     rolling_array = rolling_window_mean(array, size=5, scaling=False)
     assert np.all(array.shape == rolling_array.shape)
-
 
 def test_MinMax():
     array = np.random.rand(10, 10)
@@ -285,5 +288,46 @@ def test_MinMax():
     assert np.min(normalized_array) == 0
     assert np.max(normalized_array) == 1
 
+
+#######################################################
+# Unit tests for ../proccessing/utils.py
+#######################################################
+
+from vipercore.processing.utils import plot_image, visualize_class, download_testimage, flatten
+
+def test_flatten():
+    nested_list = [[1, 2, 3], [4, 5], [6, 7, 8, 9]]
+    expected_output = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    assert flatten(nested_list) == expected_output
+
+def test_download_testimage(tmpdir):
+    folder = tmpdir.mkdir("test_images")
+    downloaded_images = download_testimage(folder)
+    assert len(downloaded_images) == 2
+    for img_path in downloaded_images:
+        assert os.path.isfile(img_path)
+
+def test_visualize_class():
+    class_ids = [1, 2]
+    seg_map = np.array([[0, 1, 0], [1, 2, 1], [2, 0, 1]])
+    background = np.random.random((3, 3)) * 255
+    # Since this function does not return anything, we just check if it produces any exceptions
+    try:
+        visualize_class(class_ids, seg_map, background)
+    except Exception as e:
+        pytest.fail(f"visualize_class raised exception: {str(e)}")
+
+def test_plot_image(tmpdir):
+    array = np.random.rand(10, 10)
+    save_name = tmpdir.join("test_plot_image")
+
+    # Since this function does not return anything, we just check if it produces any exceptions
+    try:
+        plot_image(array, size=(5, 5), save_name=save_name)
+    except Exception as e:
+        pytest.fail(f"plot_image raised exception: {str(e)}")
+    assert os.path.isfile(str(save_name) + ".png")
+
+#general test to check that testing is working
 def test_test():
     assert 1 == 1
