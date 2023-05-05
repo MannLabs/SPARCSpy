@@ -937,6 +937,7 @@ def numba_mask_centroid(mask, debug=False, skip_background=True):
 ########
 #below here still needs documentation
 @njit
+
 def _selected_coords_fast(mask, classes, debug=False, background=0):
     
     num_classes = np.max(mask)+1
@@ -988,64 +989,6 @@ def selected_coords_fast(inarr, classes, debug=False):
     
     return center, length, coords_filtered
 
-
-
-
-@njit
-def _selected_coords(segmentation, classes, debug=False):
-    num_classes = len(classes)
-    
-    #setup emtpy lists
-    coords = [[(np.array([0.,0.], dtype="int64"))]]
-    
-    
-    
-    for i in range(num_classes):
-        coords.append([(np.array([0.,0.], dtype="int64"))])
-
-    
-    points_class = np.zeros((num_classes))
-    center = np.zeros((num_classes,2,))
-    
-    y_size, x_size = segmentation.shape
-    
-    for y in range(y_size):
-        for x in range(x_size):
-            
-            class_id = segmentation[y,x]
-            
-            if class_id in classes:
-                
-                return_id = np.argwhere(classes==class_id)[0][0]
-                
-                
-                coords[return_id].append(np.array([y,x], dtype="int64")) # coords[translated_id].append(np.array([x,y]))
-                points_class[return_id] +=1
-                center[return_id] += np.array([x,y])
-                
-                
-    x = center[:,0]/points_class
-    y = center[:,1]/points_class
-    center = np.stack((y,x)).T
-    
-    return center, points_class, coords
-
-# calculate center, coordinates and number of pixel for a selected set of classes
-def selected_coords(segmentation, classes, debug=False):
-    center, points_class, coords = _selected_coords(segmentation, classes, debug=False)
-    
-    # ccoords array contains [0, 0] as first element.
-    # hack needed to tell numba the datatype
-    # folowing lines are needed for removal
-    out_l = []
-    for elem in coords:
-        if len(elem) > 1:
-            out_l.append(np.array(elem[1:]))
-    
-    coords = out_l
-    return center, points_class, coords
-
- 
 
 # return the first element not present in a list
 def _get_closest(used, choices, world_size):
