@@ -3,6 +3,8 @@ urllib
 tempfile
 numpy
 pandas
+tabulate
+colorama
 matplotlib
 tqdm
 h5py

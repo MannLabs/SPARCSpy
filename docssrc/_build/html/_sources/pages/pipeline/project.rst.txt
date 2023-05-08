@@ -1,5 +1,7 @@
-*******************
-Project Class
-*******************
+Importing Imaging Data and using the SPARCS project class
+=========================================================
 
-Information on the Project Class used within SPARCSpy
+SPARCSpy 
+
+SPARCSpy can work with a variety of different imaging data. To import data into SPARCSpy
+the imaging data needs to follow

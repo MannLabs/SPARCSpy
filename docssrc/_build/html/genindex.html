@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; Viper Core  documentation</title>
+  <title>Index &mdash; SPARCSpy  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -29,7 +29,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            Viper Core
+            SPARCSpy
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -39,30 +39,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Ecosystem:</span></p>
-<ul>
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="pages/ecosystem.html">SPARCSpy Ecosystem</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pages/vipercmd.html">viper-split</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/vipercmd.html#viper-stat">viper-stat</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/vipercmd.html#viper-cleanup">viper-cleanup</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Analysis Pipeline:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/introduction.html">base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/project.html">Project Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/segmentation.html">Segmentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/extraction.html">Extraction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/classification.html">Classification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/pipeline/selection.html">Selection</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Module Documentation:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pages/module/processing.html">processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/module/pipeline.html">pipeline</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/module/ml.html">ml</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/vipercmd.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/pipeline.html">Analysis Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/module.html">Module Documentation</a></li>
 </ul>
 
         </div>
@@ -71,7 +52,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Viper Core</a>
+          <a href="index.html">SPARCSpy</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -116,16 +97,16 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AEModel">AEModel (class in vipercore.ml.plmodels)</a>
-</li>
-      <li><a href="pages/module/ml.html#vipercore.ml.metrics.auc">auc() (in module vipercore.ml.metrics)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.add_hdf_to_index">add_hdf_to_index() (vipercore.ml.datasets.HDF5SingleCellDataset method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AutoEncoderModel">AutoEncoderModel (class in vipercore.ml.plmodels)</a>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.adjust_segmentation_indexes">adjust_segmentation_indexes() (vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.adjust_segmentation_indexes">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
 </li>
-      <li><a href="pages/module/ml.html#vipercore.ml.models.AutophagyVGG">AutophagyVGG (class in vipercore.ml.models)</a>
-</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -140,26 +121,38 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.call_as_shard">call_as_shard() (vipercore.pipeline.segmentation.Segmentation method)</a>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier.call">call() (vipercore.pipeline.classification.MLClusterClassifier method)</a>
+</li>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.call_as_shard">call_as_shard() (vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
 
       <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.call_as_shard">(vipercore.pipeline.segmentation.Segmentation method)</a>
+</li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.call_as_shard">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
 </li>
-      </ul></li>
-      <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.classify">classify() (vipercore.pipeline.project.Project method)</a>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.call_as_shard">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
 </li>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AEModel.configure_optimizers">configure_optimizers() (vipercore.ml.plmodels.AEModel method)</a>
+      </ul></li>
+      <li><a href="pages/module/ml.html#vipercore.ml.transforms.ChannelReducer">ChannelReducer (class in vipercore.ml.transforms)</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.transforms.ChannelSelector">ChannelSelector (class in vipercore.ml.transforms)</a>
+</li>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.classify">classify() (vipercore.pipeline.project.Project method)</a>
 
       <ul>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AutoEncoderModel.configure_optimizers">(vipercore.ml.plmodels.AutoEncoderModel method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.GeneralModel.configure_optimizers">(vipercore.ml.plmodels.GeneralModel method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.configure_optimizers">(vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.classify">(vipercore.pipeline.project.TimecourseProject method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/module/ml.html#vipercore.ml.utils.combine_datasets_balanced">combine_datasets_balanced() (in module vipercore.ml.utils)</a>
+</li>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier.config">config (vipercore.pipeline.classification.MLClusterClassifier attribute)</a>
+</li>
+      <li><a href="pages/module/ml.html#id1">configure_optimizers() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>, <a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.configure_optimizers">[1]</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.confusion_plot">confusion_plot() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
+</li>
       <li><a href="pages/module/processing.html#vipercore.processing.segmentation.contact_filter">contact_filter() (in module vipercore.processing.segmentation)</a>
 </li>
       <li><a href="pages/module/processing.html#vipercore.processing.segmentation.contact_filter_lambda">contact_filter_lambda() (in module vipercore.processing.segmentation)</a>
@@ -180,14 +173,26 @@
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.workflows.DAPISegmentationCellpose">DAPISegmentationCellpose (class in vipercore.pipeline.workflows)</a>
 </li>
-      <li><a href="pages/module/ml.html#vipercore.ml.models.GolgiVAE.decode">decode() (vipercore.ml.models.GolgiVAE method)</a>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier.debug">debug (vipercore.pipeline.classification.MLClusterClassifier attribute)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.DEFAULT_CLASSIFICATION_DIR_NAME">DEFAULT_CLASSIFICATION_DIR_NAME (vipercore.pipeline.project.Project attribute)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.DEFAULT_CLASSIFICATION_DIR_NAME">(vipercore.pipeline.project.TimecourseProject attribute)</a>
 </li>
+      </ul></li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.DEFAULT_CONFIG_NAME">DEFAULT_CONFIG_NAME (vipercore.pipeline.project.Project attribute)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.DEFAULT_CONFIG_NAME">(vipercore.pipeline.project.TimecourseProject attribute)</a>
 </li>
+      </ul></li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.DEFAULT_EXTRACTION_DIR_NAME">DEFAULT_EXTRACTION_DIR_NAME (vipercore.pipeline.project.Project attribute)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.DEFAULT_EXTRACTION_DIR_NAME">(vipercore.pipeline.project.TimecourseProject attribute)</a>
 </li>
+      </ul></li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.DEFAULT_FILTER_FILE">DEFAULT_FILTER_FILE (vipercore.pipeline.segmentation.Segmentation attribute)</a>
 
       <ul>
@@ -196,10 +201,14 @@
       </ul></li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.base.Logable.DEFAULT_FORMAT">DEFAULT_FORMAT (vipercore.pipeline.base.Logable attribute)</a>
 </li>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.DEFAULT_INPUT_IMAGE_NAME">DEFAULT_INPUT_IMAGE_NAME (vipercore.pipeline.project.TimecourseProject attribute)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.DEFAULT_INPUT_IMAGE_NAME">(vipercore.pipeline.segmentation.ShardedSegmentation attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.DEFAULT_INPUT_IMAGE_NAME">DEFAULT_INPUT_IMAGE_NAME (vipercore.pipeline.segmentation.ShardedSegmentation attribute)</a>
-</li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.base.Logable.DEFAULT_LOG_NAME">DEFAULT_LOG_NAME (vipercore.pipeline.base.Logable attribute)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.DEFAULT_OUTPUT_FILE">DEFAULT_OUTPUT_FILE (vipercore.pipeline.segmentation.Segmentation attribute)</a>
@@ -209,10 +218,22 @@
 </li>
       </ul></li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.DEFAULT_SEGMENTATION_DIR_NAME">DEFAULT_SEGMENTATION_DIR_NAME (vipercore.pipeline.project.Project attribute)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.DEFAULT_SEGMENTATION_DIR_NAME">(vipercore.pipeline.project.TimecourseProject attribute)</a>
 </li>
+      </ul></li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.DEFAULT_SELECTION_DIR_NAME">DEFAULT_SELECTION_DIR_NAME (vipercore.pipeline.project.Project attribute)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.DEFAULT_SELECTION_DIR_NAME">(vipercore.pipeline.project.TimecourseProject attribute)</a>
 </li>
+      </ul></li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.DEFAULT_SHARD_FOLDER">DEFAULT_SHARD_FOLDER (vipercore.pipeline.segmentation.ShardedSegmentation attribute)</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.dir_labels">dir_labels (vipercore.ml.datasets.HDF5SingleCellDataset attribute)</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.dir_list">dir_list (vipercore.ml.datasets.HDF5SingleCellDataset attribute)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.base.Logable.directory">directory (vipercore.pipeline.base.Logable attribute)</a>
 </li>
@@ -223,10 +244,6 @@
 
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.models.GolgiVAE.encode">encode() (vipercore.ml.models.GolgiVAE method)</a>
-</li>
-  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.extract">extract() (vipercore.pipeline.project.Project method)</a>
 
@@ -242,22 +259,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/module/processing.html#vipercore.processing.utils.flatten">flatten() (in module vipercore.processing.utils)</a>
 </li>
-      <li><a href="pages/module/ml.html#vipercore.ml.models.AutophagyVGG.forward">forward() (vipercore.ml.models.AutophagyVGG method)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/module/ml.html#vipercore.ml.models.VGGBase.forward">forward() (vipercore.ml.models.VGGBase method)</a>
 
       <ul>
-        <li><a href="pages/module/ml.html#vipercore.ml.models.GolgiCAE.forward">(vipercore.ml.models.GolgiCAE method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.models.GolgiVAE.forward">(vipercore.ml.models.GolgiVAE method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.models.GolgiVGG.forward">(vipercore.ml.models.GolgiVGG method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AEModel.forward">(vipercore.ml.plmodels.AEModel method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AutoEncoderModel.forward">(vipercore.ml.plmodels.AutoEncoderModel method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.GeneralModel.forward">(vipercore.ml.plmodels.GeneralModel method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.forward">(vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
+        <li><a href="pages/module/ml.html#id0">(vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>, <a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.forward">[1]</a>
 </li>
       </ul></li>
   </ul></td>
@@ -266,14 +273,24 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.GeneralModel">GeneralModel (class in vipercore.ml.plmodels)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.transforms.GaussianBlur">GaussianBlur (class in vipercore.ml.transforms)</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.transforms.GaussianNoise">GaussianNoise (class in vipercore.ml.transforms)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.base.ProcessingStep.get_directory">get_directory() (vipercore.pipeline.base.ProcessingStep method)</a>
 
       <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.HDF5CellExtraction.get_directory">(vipercore.pipeline.extraction.HDF5CellExtraction method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.TimecourseHDF5CellExtraction.get_directory">(vipercore.pipeline.extraction.TimecourseHDF5CellExtraction method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.get_directory">(vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
+</li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.get_directory">(vipercore.pipeline.segmentation.Segmentation method)</a>
 </li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.get_directory">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.get_directory">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
 </li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.selection.LMDSelection.get_directory">(vipercore.pipeline.selection.LMDSelection method)</a>
 </li>
@@ -283,22 +300,32 @@
       <ul>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.base.ProcessingStep.get_timestamp">(vipercore.pipeline.base.ProcessingStep method)</a>
 </li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier.get_timestamp">(vipercore.pipeline.classification.MLClusterClassifier method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.HDF5CellExtraction.get_timestamp">(vipercore.pipeline.extraction.HDF5CellExtraction method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.TimecourseHDF5CellExtraction.get_timestamp">(vipercore.pipeline.extraction.TimecourseHDF5CellExtraction method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.get_timestamp">(vipercore.pipeline.project.Project method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.get_timestamp">(vipercore.pipeline.project.TimecourseProject method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.get_timestamp">(vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
+</li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.get_timestamp">(vipercore.pipeline.segmentation.Segmentation method)</a>
 </li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.get_timestamp">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.get_timestamp">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
 </li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.selection.LMDSelection.get_timestamp">(vipercore.pipeline.selection.LMDSelection method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.getitem">getitem() (vipercore.ml.datasets.HDF5SingleCellDataset method)</a>
+</li>
       <li><a href="pages/module/processing.html#vipercore.processing.segmentation.global_otsu">global_otsu() (in module vipercore.processing.segmentation)</a>
-</li>
-      <li><a href="pages/module/ml.html#vipercore.ml.models.GolgiCAE">GolgiCAE (class in vipercore.ml.models)</a>
-</li>
-      <li><a href="pages/module/ml.html#vipercore.ml.models.GolgiVAE">GolgiVAE (class in vipercore.ml.models)</a>
-</li>
-      <li><a href="pages/module/ml.html#vipercore.ml.models.GolgiVGG">GolgiVGG (class in vipercore.ml.models)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -320,17 +347,25 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.identifier">identifier (vipercore.pipeline.segmentation.Segmentation attribute)</a>
 </li>
-      <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.imread">imread() (in module vipercore.pipeline.project)</a>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier.inference">inference() (vipercore.pipeline.classification.MLClusterClassifier method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.initialize_as_shard">initialize_as_shard() (vipercore.pipeline.segmentation.Segmentation method)</a>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.initialize_as_shard">initialize_as_shard() (vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
 
       <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.initialize_as_shard">(vipercore.pipeline.segmentation.Segmentation method)</a>
+</li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.initialize_as_shard">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
 </li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.initialize_as_shard">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
+</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.input_path">input_path (vipercore.pipeline.segmentation.Segmentation attribute)</a>
+</li>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier.intermediate_output">intermediate_output (vipercore.pipeline.classification.MLClusterClassifier attribute)</a>
+</li>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier.is_Int">is_Int() (vipercore.pipeline.classification.MLClusterClassifier method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -338,6 +373,8 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.len">len() (vipercore.ml.datasets.HDF5SingleCellDataset method)</a>
+</li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.selection.LMDSelection">LMDSelection (class in vipercore.pipeline.selection)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.load_input_from_array">load_input_from_array() (vipercore.pipeline.project.Project method)</a>
@@ -347,15 +384,23 @@
 </li>
       </ul></li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.load_input_from_file">load_input_from_file() (vipercore.pipeline.project.Project method)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.load_input_from_file">(vipercore.pipeline.project.TimecourseProject method)</a>
 </li>
+      </ul></li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.load_input_from_files">load_input_from_files() (vipercore.pipeline.project.TimecourseProject method)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.load_input_from_files_and_merge">load_input_from_files_and_merge() (vipercore.pipeline.project.TimecourseProject method)</a>
 </li>
-      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.load_maps_from_disk">load_maps_from_disk() (vipercore.pipeline.segmentation.Segmentation method)</a>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.load_maps_from_disk">load_maps_from_disk() (vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
 
       <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.load_maps_from_disk">(vipercore.pipeline.segmentation.Segmentation method)</a>
+</li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.load_maps_from_disk">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.load_maps_from_disk">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -365,16 +410,28 @@
       <ul>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.base.ProcessingStep.log">(vipercore.pipeline.base.ProcessingStep method)</a>
 </li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier.log">(vipercore.pipeline.classification.MLClusterClassifier method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.HDF5CellExtraction.log">(vipercore.pipeline.extraction.HDF5CellExtraction method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.TimecourseHDF5CellExtraction.log">(vipercore.pipeline.extraction.TimecourseHDF5CellExtraction method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.log">(vipercore.pipeline.project.Project method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.log">(vipercore.pipeline.project.TimecourseProject method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.log">(vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
+</li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.log">(vipercore.pipeline.segmentation.Segmentation method)</a>
 </li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.log">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.log">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
 </li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.selection.LMDSelection.log">(vipercore.pipeline.selection.LMDSelection method)</a>
 </li>
       </ul></li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.base.Logable">Logable (class in vipercore.pipeline.base)</a>
-</li>
-      <li><a href="pages/module/ml.html#vipercore.ml.models.GolgiVAE.loss_function">loss_function() (vipercore.ml.models.GolgiVAE method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -382,6 +439,12 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/module/ml.html#vipercore.ml.models.VGGBase.make_layers">make_layers() (vipercore.ml.models.VGGBase method)</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.models.VGGBase.make_layers_MLP">make_layers_MLP() (vipercore.ml.models.VGGBase method)</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.max_level">max_level (vipercore.ml.datasets.HDF5SingleCellDataset attribute)</a>
+</li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.workflows.CytosolCellposeTimecourseSegmentation.method">method (vipercore.pipeline.workflows.CytosolCellposeTimecourseSegmentation attribute)</a>
 
       <ul>
@@ -408,6 +471,10 @@
       </ul></li>
       <li><a href="pages/module/processing.html#vipercore.processing.preprocessing.MinMax">MinMax() (in module vipercore.processing.preprocessing)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier">MLClusterClassifier (class in vipercore.pipeline.classification)</a>
+</li>
       <li>
     module
 
@@ -416,17 +483,9 @@
 </li>
         <li><a href="pages/module/ml.html#module-vipercore.ml.metrics">vipercore.ml.metrics</a>
 </li>
-        <li><a href="pages/module/ml.html#module-vipercore.ml.models">vipercore.ml.models</a>
-</li>
-        <li><a href="pages/module/ml.html#module-vipercore.ml.plmodels">vipercore.ml.plmodels</a>
-</li>
         <li><a href="pages/module/ml.html#module-vipercore.ml.transforms">vipercore.ml.transforms</a>
 </li>
         <li><a href="pages/module/ml.html#module-vipercore.ml.utils">vipercore.ml.utils</a>
-</li>
-        <li><a href="pages/module/pipeline.html#module-vipercore.pipeline.extraction">vipercore.pipeline.extraction</a>
-</li>
-        <li><a href="pages/module/pipeline.html#module-vipercore.pipeline.project">vipercore.pipeline.project</a>
 </li>
         <li><a href="pages/module/pipeline.html#module-vipercore.pipeline.workflows">vipercore.pipeline.workflows</a>
 </li>
@@ -437,13 +496,13 @@
         <li><a href="pages/module/processing.html#module-vipercore.processing.utils">vipercore.processing.utils</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel">MultilabelSupervisedModel (class in vipercore.ml.plmodels)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.workflows.MultithreadedCytosolCellposeTimecourseSegmentation">MultithreadedCytosolCellposeTimecourseSegmentation (class in vipercore.pipeline.workflows)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.workflows.MultithreadedCytosolCellposeTimecourseSegmentation.CytosolSegmentationCellpose_Timecourse">MultithreadedCytosolCellposeTimecourseSegmentation.CytosolSegmentationCellpose_Timecourse (class in vipercore.pipeline.workflows)</a>
+</li>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation">MultithreadedSegmentation (class in vipercore.pipeline.segmentation)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.workflows.MultithreadedWGATimecourseSegmentation">MultithreadedWGATimecourseSegmentation (class in vipercore.pipeline.workflows)</a>
 </li>
@@ -455,7 +514,7 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.datasets.NPYSingleCellDataset">NPYSingleCellDataset (class in vipercore.ml.datasets)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.network">network (vipercore.ml.plmodels.MultilabelSupervisedModel attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -467,51 +526,21 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AEModel.on_train_epoch_end">on_train_epoch_end() (vipercore.ml.plmodels.AEModel method)</a>
-
-      <ul>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AutoEncoderModel.on_train_epoch_end">(vipercore.ml.plmodels.AutoEncoderModel method)</a>
+      <li><a href="pages/module/ml.html#id2">on_train_epoch_end() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>, <a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_epoch_end">[1]</a>
 </li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.GeneralModel.on_train_epoch_end">(vipercore.ml.plmodels.GeneralModel method)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_epoch_start">on_train_epoch_start() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
 </li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_epoch_end">(vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_start">on_train_start() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
 </li>
-      </ul></li>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AEModel.on_train_epoch_start">on_train_epoch_start() (vipercore.ml.plmodels.AEModel method)</a>
-
-      <ul>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AutoEncoderModel.on_train_epoch_start">(vipercore.ml.plmodels.AutoEncoderModel method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.GeneralModel.on_train_epoch_start">(vipercore.ml.plmodels.GeneralModel method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_epoch_start">(vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.GeneralModel.on_train_start">on_train_start() (vipercore.ml.plmodels.GeneralModel method)</a>
-
-      <ul>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.on_train_start">(vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
+      <li><a href="pages/module/ml.html#id3">on_validation_epoch_end() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>, <a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.on_validation_epoch_end">[1]</a>
 </li>
-      </ul></li>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.GeneralModel.on_validation_epoch_end">on_validation_epoch_end() (vipercore.ml.plmodels.GeneralModel method)</a>
-
-      <ul>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.on_validation_epoch_end">(vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.on_validation_epoch_start">on_validation_epoch_start() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
 </li>
-      </ul></li>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AEModel.on_validation_epoch_start">on_validation_epoch_start() (vipercore.ml.plmodels.AEModel method)</a>
-
-      <ul>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AutoEncoderModel.on_validation_epoch_start">(vipercore.ml.plmodels.AutoEncoderModel method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.GeneralModel.on_validation_epoch_start">(vipercore.ml.plmodels.GeneralModel method)</a>
-</li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.on_validation_epoch_start">(vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
-</li>
-      </ul></li>
       <li><a href="pages/module/processing.html#vipercore.processing.preprocessing.origins_from_distance">origins_from_distance() (in module vipercore.processing.preprocessing)</a>
+</li>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier.overwrite">overwrite (vipercore.pipeline.classification.MLClusterClassifier attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -519,13 +548,13 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.classification.MLClusterClassifier.path">path (vipercore.pipeline.classification.MLClusterClassifier attribute)</a>
+</li>
       <li><a href="pages/module/processing.html#vipercore.processing.preprocessing.percentile_normalization">percentile_normalization() (in module vipercore.processing.preprocessing)</a>
 </li>
       <li><a href="pages/module/processing.html#vipercore.processing.utils.plot_image">plot_image() (in module vipercore.processing.utils)</a>
 </li>
       <li><a href="pages/module/ml.html#vipercore.ml.metrics.precision">precision() (in module vipercore.ml.metrics)</a>
-</li>
-      <li><a href="pages/module/ml.html#vipercore.ml.metrics.precision_top_n">precision_top_n() (in module vipercore.ml.metrics)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -543,16 +572,24 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.metrics.recall">recall() (in module vipercore.ml.metrics)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.transforms.RandomRotation">RandomRotation (class in vipercore.ml.transforms)</a>
 </li>
-      <li><a href="pages/module/ml.html#vipercore.ml.metrics.recall_top_n">recall_top_n() (in module vipercore.ml.metrics)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.metrics.recall">recall() (in module vipercore.ml.metrics)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.base.ProcessingStep.register_parameter">register_parameter() (vipercore.pipeline.base.ProcessingStep method)</a>
 
       <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.HDF5CellExtraction.register_parameter">(vipercore.pipeline.extraction.HDF5CellExtraction method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.TimecourseHDF5CellExtraction.register_parameter">(vipercore.pipeline.extraction.TimecourseHDF5CellExtraction method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.register_parameter">(vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
+</li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.register_parameter">(vipercore.pipeline.segmentation.Segmentation method)</a>
 </li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.register_parameter">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.register_parameter">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
 </li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.selection.LMDSelection.register_parameter">(vipercore.pipeline.selection.LMDSelection method)</a>
 </li>
@@ -561,11 +598,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/module/processing.html#vipercore.processing.segmentation.remove_classes">remove_classes() (in module vipercore.processing.segmentation)</a>
 </li>
-      <li><a href="pages/module/ml.html#vipercore.ml.models.GolgiVAE.reparameterize">reparameterize() (vipercore.ml.models.GolgiVAE method)</a>
-</li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.resolve_sharding">resolve_sharding() (vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
 </li>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.return_fake_id">return_fake_id (vipercore.ml.datasets.HDF5SingleCellDataset attribute)</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.return_id">return_id (vipercore.ml.datasets.HDF5SingleCellDataset attribute)</a>
+</li>
       <li><a href="pages/module/processing.html#vipercore.processing.preprocessing.rolling_window_mean">rolling_window_mean() (in module vipercore.processing.preprocessing)</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.root_dir">root_dir (vipercore.ml.datasets.HDF5SingleCellDataset attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -574,33 +615,51 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.HDF5CellExtraction.save_index_to_remove">save_index_to_remove (vipercore.pipeline.extraction.HDF5CellExtraction attribute)</a>
-</li>
-      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.save_map">save_map() (vipercore.pipeline.segmentation.Segmentation method)</a>
 
       <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.TimecourseHDF5CellExtraction.save_index_to_remove">(vipercore.pipeline.extraction.TimecourseHDF5CellExtraction attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.save_map">save_map() (vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.save_map">(vipercore.pipeline.segmentation.Segmentation method)</a>
+</li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.save_map">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
 </li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.save_map">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
+</li>
       </ul></li>
-      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.save_segmentation">save_segmentation() (vipercore.pipeline.segmentation.Segmentation method)</a>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.save_segmentation">save_segmentation() (vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
 
       <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.save_segmentation">(vipercore.pipeline.segmentation.Segmentation method)</a>
+</li>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.save_segmentation">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
 </li>
-      </ul></li>
-      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.save_segmentation_zarr">save_segmentation_zarr() (vipercore.pipeline.segmentation.Segmentation method)</a>
-
-      <ul>
-        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.save_segmentation_zarr">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.save_segmentation">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
 </li>
       </ul></li>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.MultithreadedSegmentation.save_segmentation_zarr">save_segmentation_zarr() (vipercore.pipeline.segmentation.MultithreadedSegmentation method)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation.save_segmentation_zarr">(vipercore.pipeline.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.ShardedSegmentation.save_segmentation_zarr">(vipercore.pipeline.segmentation.ShardedSegmentation method)</a>
+</li>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation.save_segmentation_zarr">(vipercore.pipeline.segmentation.TimecourseSegmentation method)</a>
+</li>
+      </ul></li>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.scan_directory">scan_directory() (vipercore.ml.datasets.HDF5SingleCellDataset method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.segment">segment() (vipercore.pipeline.project.Project method)</a>
 
       <ul>
         <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.segment">(vipercore.pipeline.project.TimecourseProject method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/module/processing.html#vipercore.processing.segmentation.segment_global_threshold">segment_global_threshold() (in module vipercore.processing.segmentation)</a>
 </li>
       <li><a href="pages/module/processing.html#vipercore.processing.segmentation.segment_local_threshold">segment_local_threshold() (in module vipercore.processing.segmentation)</a>
@@ -608,6 +667,12 @@
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.Segmentation">Segmentation (class in vipercore.pipeline.segmentation)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.Project.select">select() (vipercore.pipeline.project.Project method)</a>
+
+      <ul>
+        <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject.select">(vipercore.pipeline.project.TimecourseProject method)</a>
+</li>
+      </ul></li>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.select_channel">select_channel (vipercore.ml.datasets.HDF5SingleCellDataset attribute)</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.workflows.ShardedDAPISegmentation">ShardedDAPISegmentation (class in vipercore.pipeline.workflows)</a>
 </li>
@@ -621,46 +686,50 @@
 </li>
       <li><a href="pages/module/processing.html#vipercore.processing.segmentation.size_filter">size_filter() (in module vipercore.processing.segmentation)</a>
 </li>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.stats">stats() (vipercore.ml.datasets.HDF5SingleCellDataset method)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.test_epoch_end">test_epoch_end() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
+      <li><a href="pages/module/ml.html#id9">test_epoch_end() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>, <a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.test_epoch_end">[1]</a>
 </li>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.test_step">test_step() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.test_metrics">test_metrics (vipercore.ml.plmodels.MultilabelSupervisedModel attribute)</a>
+</li>
+      <li><a href="pages/module/ml.html#id8">test_step() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>, <a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.test_step">[1]</a>
 </li>
       <li><a href="pages/module/pipeline.html#vipercore.pipeline.extraction.TimecourseHDF5CellExtraction">TimecourseHDF5CellExtraction (class in vipercore.pipeline.extraction)</a>
 </li>
-      <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject">TimecourseProject (class in vipercore.pipeline.project)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AEModel.training_step">training_step() (vipercore.ml.plmodels.AEModel method)</a>
-
-      <ul>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AutoEncoderModel.training_step">(vipercore.ml.plmodels.AutoEncoderModel method)</a>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.project.TimecourseProject">TimecourseProject (class in vipercore.pipeline.project)</a>
 </li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.GeneralModel.training_step">(vipercore.ml.plmodels.GeneralModel method)</a>
+      <li><a href="pages/module/pipeline.html#vipercore.pipeline.segmentation.TimecourseSegmentation">TimecourseSegmentation (class in vipercore.pipeline.segmentation)</a>
 </li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.training_step">(vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.train_metrics">train_metrics (vipercore.ml.plmodels.MultilabelSupervisedModel attribute)</a>
 </li>
-      </ul></li>
+      <li><a href="pages/module/ml.html#id4">training_step() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>, <a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.training_step">[1]</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.datasets.HDF5SingleCellDataset.transform">transform (vipercore.ml.datasets.HDF5SingleCellDataset attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.AutoEncoderModel.validation_step">validation_step() (vipercore.ml.plmodels.AutoEncoderModel method)</a>
-
-      <ul>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.GeneralModel.validation_step">(vipercore.ml.plmodels.GeneralModel method)</a>
+      <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.val_metrics">val_metrics (vipercore.ml.plmodels.MultilabelSupervisedModel attribute)</a>
 </li>
-        <li><a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.validation_step">(vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>
+      <li><a href="pages/module/ml.html#id7">validation_step() (vipercore.ml.plmodels.MultilabelSupervisedModel method)</a>, <a href="pages/module/ml.html#vipercore.ml.plmodels.MultilabelSupervisedModel.validation_step">[1]</a>
 </li>
-      </ul></li>
+      <li><a href="pages/module/ml.html#vipercore.ml.models.VGG1">VGG1 (class in vipercore.ml.models)</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.models.VGG2">VGG2 (class in vipercore.ml.models)</a>
+</li>
+      <li><a href="pages/module/ml.html#vipercore.ml.models.VGGBase">VGGBase (class in vipercore.ml.models)</a>
+</li>
       <li>
     vipercore.ml.datasets
 
@@ -676,47 +745,19 @@
 </li>
       </ul></li>
       <li>
-    vipercore.ml.models
-
-      <ul>
-        <li><a href="pages/module/ml.html#module-vipercore.ml.models">module</a>
-</li>
-      </ul></li>
-      <li>
-    vipercore.ml.plmodels
-
-      <ul>
-        <li><a href="pages/module/ml.html#module-vipercore.ml.plmodels">module</a>
-</li>
-      </ul></li>
-      <li>
     vipercore.ml.transforms
 
       <ul>
         <li><a href="pages/module/ml.html#module-vipercore.ml.transforms">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     vipercore.ml.utils
 
       <ul>
         <li><a href="pages/module/ml.html#module-vipercore.ml.utils">module</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    vipercore.pipeline.extraction
-
-      <ul>
-        <li><a href="pages/module/pipeline.html#module-vipercore.pipeline.extraction">module</a>
-</li>
-      </ul></li>
-      <li>
-    vipercore.pipeline.project
-
-      <ul>
-        <li><a href="pages/module/pipeline.html#module-vipercore.pipeline.project">module</a>
 </li>
       </ul></li>
       <li>
@@ -777,7 +818,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Georg Wallmann, Sophia Mädler, Niklas Schmacke.</p>
+    <p>&#169; Copyright 2023, Georg Wallmann, Sophia Mädler, Niklas Schmacke.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

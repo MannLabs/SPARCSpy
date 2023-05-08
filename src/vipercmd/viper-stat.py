@@ -55,6 +55,7 @@ def main():
             print_project(line)
     else:
         print("No projects found")
+
 def print_project(line):
     """
     Arguments:
@@ -82,7 +83,6 @@ def print_project(line):
         print(Fore.BLUE +pad + str(extract[0]).rjust(15)+str(extract[1]).rjust(15)+str(extract[2]).rjust(15)+ Style.RESET_ALL)
 
     
-
 def scan_directory(levels_left, path, num_threads = 1):
     
     HDF_FILETYPES = ["hdf", "hf", "h5"]

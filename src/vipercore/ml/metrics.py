@@ -1,7 +1,22 @@
 import torch
+
 def precision(predictions, labels, pos_label=0):
     """
-    precision for predictiong class pos_label
+    Calculate precision for predicting class `pos_label`.
+ 
+    Parameters
+    ----------
+    predictions : torch.Tensor
+        Model predictions.
+    labels : torch.Tensor
+        Ground truth labels.
+    pos_label : int, optional, default = 0
+        The positive label for which to calculate precision.
+
+    Returns
+    -------
+    precision : float
+        Precision for predicting class `pos_label`.
     """
     
     _, max_indices = torch.max(predictions,1)
@@ -21,7 +36,21 @@ def precision(predictions, labels, pos_label=0):
 
 def recall(predictions, labels, pos_label=0):
     """
-    recall for predictiong class pos_label
+    Calculate recall for predicting class `pos_label`.
+ 
+    Parameters
+    ----------
+    predictions : torch.Tensor
+        Model predictions.
+    labels : torch.Tensor
+        Ground truth labels.
+    pos_label : int, optional, default = 0
+        The positive label for which to calculate precision.
+
+    Returns
+    -------
+    recall : float
+        Recall for predicting class `pos_label`.
     """
     
     _, max_indices = torch.max(predictions,1)
@@ -36,19 +65,3 @@ def recall(predictions, labels, pos_label=0):
     recall = correct/len(masked)
     
     return recall
-
-    
-def precision_top_n(predictions, labels, pos_label=0, top_n=0.01):
-    """
-    precision for the top_n percentage (0.01 = 1%) predictions
-    """
-    
-def recall_top_n(predictions, labels, pos_label=0, top_n=0.01):
-    """
-    recall for the top_n percentage (0.01 = 1%) predictions
-    """
-    
-def auc(predictions, labels):
-    """
-    area under curve of the receiver operator characteristic
-    """

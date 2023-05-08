@@ -1,9 +1,11 @@
-***************
+*******************
 Command Line Tools
-****************
+*******************
 
 SPARCSpy comes equipped with several command line tools for easy handling of SPARCSpy datasets.
 
+.. toctree::
+   :maxdepth: 2
 
 viper-split
 ====================

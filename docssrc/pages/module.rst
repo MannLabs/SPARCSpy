@@ -1,13 +1,12 @@
-************
 Module Documentation
-*************
+=====================
 
 Documentation for all functions included in the SPARCSpy module.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 4
    :caption:  Module Documentation:
    
-   pages/module/processing 
-   pages/module/pipeline
-   pages/module/ml
+   module/processing 
+   module/pipeline
+   module/ml

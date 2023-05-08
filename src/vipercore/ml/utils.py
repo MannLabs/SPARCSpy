@@ -4,6 +4,32 @@ import torch
 from math import floor
 
 def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, val_per_class, test_per_class,):
+    """
+    Combine multiple datasets to create a single balanced dataset with a specified number of samples per class for train, validation, and test set.
+    A balanced dataset means that from each label source an equal number of data instances are used.
+
+    Parameters
+    ----------
+    list_of_datasets : list of torch.utils.data.Dataset
+        List of datasets to be combined.
+    class_labels : list of str or int
+        List of class labels present in the datasets.
+    train_per_class : int
+        Number of samples per class in the train set.
+    val_per_class : int
+        Number of samples per class in the validation set.
+    test_per_class : int
+        Number of samples per class in the test set.
+
+    Returns
+    -------
+    train : torch.utils.data.Dataset
+        Combined train dataset with balanced samples per class.
+    val : torch.utils.data.Dataset
+        Combined validation dataset with balanced samples per class.
+    test : torch.utils.data.Dataset
+        Combined test dataset with balanced samples per class.
+    """
     
     elements = [len(el) for el in list_of_datasets]
     rows = np.arange(len(list_of_datasets))
@@ -14,6 +40,7 @@ def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, v
     normalized = mat / cells_per_class
     dataset_fraction = np.sum(normalized,axis=1)
     
+    # Initialize empty lists to store the combined train, validation, and test datasets
     train_dataset = []
     test_dataset = []
     val_dataset = []
@@ -34,6 +61,7 @@ def combine_datasets_balanced(list_of_datasets, class_labels, train_per_class, v
         test_dataset.append(test)
         val_dataset.append(val)
     
+    # Convert the combined datasets into torch.utils.data.Dataset objects
     train_dataset = torch.utils.data.ConcatDataset(train_dataset)
     test_dataset = torch.utils.data.ConcatDataset(test_dataset)
     val_dataset = torch.utils.data.ConcatDataset(val_dataset)

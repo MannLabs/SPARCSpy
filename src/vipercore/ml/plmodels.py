@@ -1,35 +1,89 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.ticker as ticker
+
+import gc   
+import sys
+
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 import torchmetrics
-import matplotlib.pyplot as plt
-import PIL
-import numpy as np
-import matplotlib.ticker as ticker
 
-
-from vipercore.ml.models import GolgiVGG, GolgiCAE, AutophagyVGG
-
-import gc
-    
-import sys
-sys.path.append("/home/default/projects/opticalScreening/viper/machine_learning")
+from vipercore.ml.models import VGG1, VGG2, CAEBase, _VGG1, _VGG2
 
 class MultilabelSupervisedModel(pl.LightningModule):
+    """
+    A pytorch lightning network module to use a multi-label supervised Model. 
 
-    def __init__(self, type = "AutophagyVGG", **kwargs):
+    Parameters
+    ----------
+    type : str, optional, default = "VGG2"
+        Network architecture to used in model. Architectures are defined in sparcspy.ml.models
+        Valid options: "VGG1", "VGG2", "VGG1_old", "VGG2_old".
+    kwargs : dict
+        Additional parameters passed to the model.
+
+    Attributes
+    ----------
+    network : torch.nn.Module
+        The selected network architecture.
+    train_metrics : torchmetrics.MetricCollection
+        MetricCollection for evaluating model on training data.
+    val_metrics : torchmetrics.MetricCollection
+        MetricCollection for evaluating model on validation data.
+    test_metrics : torchmetrics.MetricCollection
+        MetricCollection for evaluating model on test data.
+    
+    Methods
+    -------
+    forward(x)
+        perform forward pass of model.
+    configure_optimizers()
+        Optimization function
+    on_train_epoch_end()
+        Callback function after each training epoch
+    on_validation_epoch_end()
+        Callback function after each validation epoch
+    confusion_plot(matrix)
+        Generate confusion matrix plot
+    training_step(batch, batch_idx)
+        Perform a single training step
+    validation_step(batch, batch_idx)
+        Perform a single validation step
+    test_step(batch, batch_idx)
+        Perform a single test step
+    test_epoch_end(outputs)
+        Callback function after testing epochs
+    """
+
+    def __init__(self, type = "VGG2", **kwargs):
         super().__init__()
         
         
         self.save_hyperparameters()
         
-        if type == "AutophagyVGG":
-            self.network = AutophagyVGG(in_channels=self.hparams["num_in_channels"],
+        if type == "VGG1":
+            self.network = VGG1(in_channels=self.hparams["num_in_channels"],
                                     cfg = "B",
                                     dimensions=128,
                                     num_classes=self.hparams["num_classes"])
-        elif type == "GolgiVGG":
-            self.network = GolgiVGG(in_channels=self.hparams["num_in_channels"],
+        elif type == "VGG2":
+            self.network = VGG2(in_channels=self.hparams["num_in_channels"],
+                                    cfg = "B",
+                                    dimensions=128,
+                                    num_classes=self.hparams["num_classes"])
+        
+        ## add deprecated type for backward compatability
+        elif type == "VGG1_old":
+            self.network = _VGG1(in_channels=self.hparams["num_in_channels"],
+                                    cfg = "B",
+                                    dimensions=128,
+                                    num_classes=self.hparams["num_classes"])
+        
+        ## add deprecated type for backward compatability
+        elif type == "VGG2_old":
+            self.network = _VGG2(in_channels=self.hparams["num_in_channels"],
                                     cfg = "B",
                                     dimensions=128,
                                     num_classes=self.hparams["num_classes"])
@@ -72,7 +126,7 @@ class MultilabelSupervisedModel(pl.LightningModule):
         pass
         
     def on_validation_epoch_start(self):
-         pass
+        pass
         
     def confusion_plot(self, matrix):
         
@@ -197,7 +251,10 @@ class MultilabelSupervisedModel(pl.LightningModule):
         logs["log"] = logs
         logs["progress_bar"] = logs
         return logs
-        
+
+
+# implemented models for future use currently not applied to SPARCSpy
+
 class GeneralModel(pl.LightningModule):
 
     def __init__(self, model, hparams):
@@ -298,7 +355,7 @@ class AutoEncoderModel(pl.LightningModule):
         print(self.hparams)
         self.save_hyperparameters()
 
-        self.network = GolgiCAE(encoder_cfg = self.hparams["encoder_cfg"],
+        self.network = CAEBase(encoder_cfg = self.hparams["encoder_cfg"],
                 decoder_cfg = self.hparams["decoder_cfg"],
                 in_channels = self.hparams["num_in_channels"],
                 out_channels = self.hparams["num_out_channels"])

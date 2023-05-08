@@ -1,42 +1,56 @@
 from datetime import datetime
 import os
 import numpy as np
-import matplotlib.pyplot as plt
-import skfmm
-import csv
-from functools import partial
-from multiprocessing import Pool
-import h5py
+
 import torch
 
-from skimage.filters import gaussian, median
-from skimage.morphology import binary_erosion, disk, dilation
-from skimage.segmentation import watershed
-from skimage.color import label2rgb
+from vipercore.ml.datasets import HDF5SingleCellDataset
+from vipercore.ml.transforms import ChannelSelector
+from vipercore.ml.plmodels import MultilabelSupervisedModel
 
-from scipy.ndimage import binary_fill_holes
+from torchvision import transforms
 
-from vipercore.processing.utils import plot_image
-
-from vipercore.ml.datasets import NPYSingleCellDataset, HDF5SingleCellDataset
-from vipercore.ml.transforms import RandomRotation, GaussianNoise, ChannelReducer, ChannelSelector
-from vipercore.ml.plmodels import GeneralModel, MultilabelSupervisedModel
-
-from torchvision import transforms, utils
-
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-from MulticoreTSNE import MulticoreTSNE as TSNE
 import pandas as pd
-import umap
-from sklearn.preprocessing import StandardScaler
 
-import json
-import _pickle as cPickle
 import io
 from contextlib import redirect_stdout
 
 class MLClusterClassifier:
+
+    """
+    Class for classifying single cells using a pre-trained machine learning model.
+    This class takes a pre-trained model and uses it to classify single_cells,
+    using the model’s forward function or encoder function, depending on the
+    user’s choice. The classification results are saved to a TSV file.
+    
+    Attributes
+    ----------
+    config : dict
+        Dictionary containing configuration settings and parameters for the class.
+    path : str
+        Path to the folder where the classification results will be saved.
+        The folder will be created if it does not exist.
+    debug : bool, optional, default=False
+        Flag for outputting debug information and map images.
+    overwrite : bool, optional, default=False
+        Flag for recalculating all images (not yet implemented).
+    intermediate_output : bool, optional, default=True
+        Flag for enabling intermediate output.
+    
+    Methods
+    -------
+    is_Int(s)
+        Checks if the input string s is an integer. Returns True if it is, False otherwise.
+    get_timestamp()
+        Returns the current date and time as a formatted string.
+    log(message)
+        Writes a message to a log file and prints it to the console if debug is True.
+    call(extraction_dir, accessory, size=0, project_dataloader=HDF5SingleCellDataset, accessory_dataloader=HDF5SingleCellDataset)
+        Classify single cells using the pre-trained model and save the results in a TSV file.
+    inference(dataloader, model_fun)
+        Performs inference using the dataloader and specified model function, and saves the results in a TSV file.
+    
+    """
     
     DEFAULT_LOG_NAME = "processing.log" 
     DEFAULT_DATA_DIR = "data"
@@ -49,20 +63,23 @@ class MLClusterClassifier:
                  overwrite=False,
                  intermediate_output = True):
         
-        """class can be initiated to create a WGA extraction workfow
+        """ Class is initiated to classify extracted single cells.
 
-        :param config: Configuration for the extraction passed over from the :class:`pipeline.Dataset`
-        :type config: dict
+        Parameters
+        ----------
+        config : dict
+            Configuration for the extraction passed over from the :class:`pipeline.Dataset`.
 
-        :param string: Directiory for the extraction log and results. is created if not existing yet
-        :type config: string
-        
-        :param debug: Flag used to output debug information and map images
-        :type debug: bool, default False
-        
-        :param overwrite: Flag used to recalculate all images, not yet implemented
-        :type overwrite: bool, default False
+        output_directory : str
+            Directory for the extraction log and results. Will be created if not existing yet.
+
+        debug : bool, optional, default=False
+            Flag used to output debug information and map images.
+
+        overwrite : bool, optional, default=False
+            Flag used to recalculate all images, not yet implemented.
         """
+
         self.debug = debug
         self.overwrite = overwrite
         self.config = config
@@ -188,7 +205,7 @@ class MLClusterClassifier:
         self.log(f"Using the following classifier checkpoint: {latest_checkpoint_path}")
         hparam_path = os.path.join(network_dir,"hparams.yaml")
         
-        model = MultilabelSupervisedModel.load_from_checkpoint(latest_checkpoint_path, hparams_file=hparam_path)
+        model = MultilabelSupervisedModel.load_from_checkpoint(latest_checkpoint_path, hparams_file=hparam_path, type = self.config["classifier_architecture"])
         model.eval()
         model.to(self.config['inference_device'])
         
@@ -243,20 +260,14 @@ class MLClusterClassifier:
         for encoder in encoders:
             if encoder == "forward":
                 self.inference(dataloader, model.network.forward)
-            if encoder == "encoder_c1":
-                self.inference(dataloader, model.network.encoder_c1)
-            if encoder == "encoder_c2":
-                self.inference(dataloader, model.network.encoder_c2)
-            if encoder == "encoder_c3":
-                self.inference(dataloader, model.network.encoder_c3)
-            if encoder == "encoder_c4":
-                self.inference(dataloader, model.network.encoder_c4)
+            if encoder == "encoder":
+                self.inference(dataloader, model.network.encoder)
 
     def inference(self, 
                   dataloader, 
                   model_fun):
         # 1. performs inference for a dataloader and a given network call
-        # 2. performs a dimension reduction on the data
+        # 2. saves the results to file
         
         data_iter = iter(dataloader)        
         self.log(f"start processing {len(data_iter)} batches with {model_fun.__name__} based inference")
@@ -277,9 +288,6 @@ class MLClusterClassifier:
                 class_id = torch.cat((class_id, id), 0)
 
         result = result.detach().numpy()
-        
-        #if self.config["exp_transform"]:
-        #    result = np.exp(result)
             
         if self.config["log_transform"]:
             sigma = 1e-9
@@ -291,53 +299,11 @@ class MLClusterClassifier:
         # save inferred activations / predictions
         result_labels = [f"result_{i}" for i in range(result.shape[1])]
         
-        # ===== dimension reduction =====
-        if self.config["standard_scale"]:
-            result = StandardScaler().fit_transform(result)
+        dataframe = pd.DataFrame(data=result, columns=result_labels)
+        dataframe["label"] = label
+        dataframe["cell_id"] = class_id.astype("int")
 
-        if self.config["pca_dimensions"] == 0:
-            print("skipping dimension_reduction")
-            dataframe = pd.DataFrame(data=result, columns=result_labels)
-            dataframe["label"] = label
-            dataframe["cell_id"] = class_id.astype("int")
+        self.log(f"finished processing")
 
-        else:
-            print("performing dimensionality reduction")
-
-            self.log(f"start first pca")
-            d1, d2 = result.shape
-            pca = PCA(n_components=min(d2, self.config["pca_dimensions"]))
-            embedding_pca = pca.fit_transform(result)
-            
-            # save pre dimension reduction pca results
-            pca_labels = [f"hd_pca_{i}" for i in range(embedding_pca.shape[1])]
-        
-            #print(result.shape)
-            #print(embedding_pca.shape)
-            
-            design = np.concatenate((result, embedding_pca), axis=1)
-            design_labels = result_labels + pca_labels
-        
-            dataframe = pd.DataFrame(data=design, columns=design_labels)
-            dataframe["label"] = label
-            dataframe["cell_id"] = class_id.astype("int")
-            
-            embedding_2_pca = PCA(n_components=min(2, d2)).fit_transform(result)
-
-            #self.log(f"start umap")        
-            #reducer = umap.UMAP(n_neighbors=self.config["umap_neighbours"], min_dist=self.config["umap_min_dist"], n_components=2,metric='cosine')
-            #embedding_umap = reducer.fit_transform(embedding_pca)
-            
-            #self.log(f"start tsne")
-            #embedding_tsne = TSNE(n_jobs=self.config["threads"]).fit_transform(embedding_pca)
-
-            self.log(f"finished processing")
-            dataframe["pca_0"] = embedding_2_pca[:,0]
-            dataframe["pca_1"] = embedding_2_pca[:,1]
-            #dataframe["umap_0"] = embedding_umap[:,0]
-            #dataframe["umap_1"] = embedding_umap[:,1]
-            #dataframe["tsne_0"] = embedding_tsne[:,0]
-            #dataframe["tsne_1"] = embedding_tsne[:,1]
-            
         path = os.path.join(self.run_path,f"dimension_reduction_{model_fun.__name__}.tsv")
         dataframe.to_csv(path)

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>viper-split &mdash; Viper Core  documentation</title>
+  <title>Command Line Tools &mdash; SPARCSpy  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="base" href="pipeline/introduction.html" />
-    <link rel="prev" title="SPARCSpy Ecosystem" href="ecosystem.html" /> 
+    <link rel="next" title="Analysis Pipeline" href="pipeline.html" />
+    <link rel="prev" title="Tutorials" href="ecosystem/tutorials.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -32,7 +32,7 @@
           
           
           <a href="../index.html" class="icon icon-home">
-            Viper Core
+            SPARCSpy
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -42,30 +42,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Ecosystem:</span></p>
-<ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="ecosystem.html">SPARCSpy Ecosystem</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#viper-split">viper-split</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#viper-stat">viper-stat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#viper-cleanup">viper-cleanup</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">viper-split</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#viper-stat">viper-stat</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#viper-cleanup">viper-cleanup</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Analysis Pipeline:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pipeline/introduction.html">base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline/project.html">Project Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline/segmentation.html">Segmentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline/extraction.html">Extraction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline/classification.html">Classification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline/selection.html">Selection</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Module Documentation:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="module/processing.html">processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module/pipeline.html">pipeline</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module/ml.html">ml</a></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Analysis Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module.html">Module Documentation</a></li>
 </ul>
 
         </div>
@@ -74,7 +60,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Viper Core</a>
+          <a href="../index.html">SPARCSpy</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -82,7 +68,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">viper-split</li>
+      <li class="breadcrumb-item active">Command Line Tools</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/pages/vipercmd.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -92,9 +78,46 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <p>SPARCSpy comes equipped with several command line tools for easy handling of SPARCSpy datasets.</p>
+  <section id="command-line-tools">
+<h1>Command Line Tools<a class="headerlink" href="#command-line-tools" title="Permalink to this heading"></a></h1>
+<p>SPARCSpy comes equipped with several command line tools for easy handling of SPARCSpy datasets.</p>
+<div class="toctree-wrapper compound">
+</div>
 <section id="viper-split">
-<h1>viper-split<a class="headerlink" href="#viper-split" title="Permalink to this heading"></a></h1>
+<h2>viper-split<a class="headerlink" href="#viper-split" title="Permalink to this heading"></a></h2>
+<p><p>Manipulate existing single cell hdf5 datasets.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">viper</span><span class="o">-</span><span class="n">split</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUTPUT</span> <span class="n">OUTPUT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">THREADS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span><span class="p">]</span> <span class="n">input_dataset</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h3>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h3>
+<dl class="option-list">
+<dt><kbd>input_dataset</kbd></dt>
+<dd><p>input dataset which should be split</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h3>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h3>
+<dl class="option-list">
+<dt><kbd>-o, --output</kbd></dt>
+<dd><p>Output definition &lt;name&gt; &lt;length&gt;. For example -o test.h5 0.9 or or -o test.h5 1000. If the sum of all lengths is &lt;= 1, it is interpretated as fraction. Else its used as absolute value</p>
+</dd>
+<dt><kbd>-r, --random</kbd></dt>
+<dd><p>shuffle single cells randomly</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>-t, --threads</kbd></dt>
+<dd><p>number of threads</p>
+<p>Default: 4</p>
+</dd>
+<dt><kbd>-c, --compression</kbd></dt>
+<dd><p>use lzf compression</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
 <p>Manipulate existing single cell hdf5 datasets.
 viper-split can be used for splitting, shuffleing and compression / decompression.</p>
 <dl>
@@ -118,7 +141,33 @@ viper-split can be used for splitting, shuffleing and compression / decompressio
 </dl>
 </section>
 <section id="viper-stat">
-<h1>viper-stat<a class="headerlink" href="#viper-stat" title="Permalink to this heading"></a></h1>
+<h2>viper-stat<a class="headerlink" href="#viper-stat" title="Permalink to this heading"></a></h2>
+<p><p>Scan directory for viper projects.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">viper</span><span class="o">-</span><span class="n">stat</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">THREADS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="n">RECURSION</span><span class="p">]</span> <span class="p">[</span><span class="n">search_directory</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h3>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h3>
+<dl class="option-list">
+<dt><kbd>search_directory</kbd></dt>
+<dd><p>directory containing viper projects</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h3>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h3>
+<dl class="option-list">
+<dt><kbd>-t, --threads</kbd></dt>
+<dd><p>number of threads</p>
+<p>Default: 8</p>
+</dd>
+<dt><kbd>-r, --recursion</kbd></dt>
+<dd><p>levels of recursion</p>
+<p>Default: 5</p>
+</dd>
+</dl>
+</section>
 <p>get information on the status of viper projects.</p>
 <dl>
 <dt>Examples:</dt><dd><p>Show progress in a folder containing multiple datasets</p>
@@ -137,7 +186,33 @@ viper-split can be used for splitting, shuffleing and compression / decompressio
 </dl>
 </section>
 <section id="viper-cleanup">
-<h1>viper-cleanup<a class="headerlink" href="#viper-cleanup" title="Permalink to this heading"></a></h1>
+<h2>viper-cleanup<a class="headerlink" href="#viper-cleanup" title="Permalink to this heading"></a></h2>
+<p><p>Scan directory for viper projects.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">viper</span><span class="o">-</span><span class="n">cleanup</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span> <span class="n">THREADS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="n">RECURSION</span><span class="p">]</span> <span class="p">[</span><span class="n">search_directory</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h3>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h3>
+<dl class="option-list">
+<dt><kbd>search_directory</kbd></dt>
+<dd><p>directory containing viper projects</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h3>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h3>
+<dl class="option-list">
+<dt><kbd>-t, --threads</kbd></dt>
+<dd><p>number of threads</p>
+<p>Default: 8</p>
+</dd>
+<dt><kbd>-r, --recursion</kbd></dt>
+<dd><p>levels of recursion</p>
+<p>Default: 5</p>
+</dd>
+</dl>
+</section>
 <p>List intermediate files contained in viper projects that can be deleted to free up disk-space.
 Can be run in dry-run to only list found files before deleteting.</p>
 <dl>
@@ -224,19 +299,20 @@ Can be run in dry-run to only list found files before deleteting.</p>
 </dd>
 </dl>
 </section>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="ecosystem.html" class="btn btn-neutral float-left" title="SPARCSpy Ecosystem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="pipeline/introduction.html" class="btn btn-neutral float-right" title="base" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ecosystem/tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pipeline.html" class="btn btn-neutral float-right" title="Analysis Pipeline" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Georg Wallmann, Sophia Mädler, Niklas Schmacke.</p>
+    <p>&#169; Copyright 2023, Georg Wallmann, Sophia Mädler, Niklas Schmacke.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

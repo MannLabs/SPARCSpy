@@ -19,34 +19,42 @@ from vipercore.pipeline.base import Logable
 
 class Project(Logable):
     """
-    Project base class used to create a new viper project.
-    
-    Args:
-        location_path (str): Path to the folder where to project should be created. The folder is created in case the specified folder does not exist.
-        
-        config_path (str, optional, default ""): Path pointing to a valid configuration file. The file will be copied to the project directory and renamed to the name specified in ``DEFAULT_CLASSIFICATION_DIR_NAME``. If no config is specified, the existing config in the project directory will be used, if possible. See the section configuration to find out more about the config file. 
-        
-        intermediate_output (bool, default ``False``): When set to True intermediate outputs will be saved where applicable.
-            
-        debug (bool, default ``False``): When set to True debug outputs will be printed where applicable. 
-            
-        overwrite (bool, default ``False``): When set to True, the processing step directory will be completely deleted and newly created when called.
-            
-        segmentation_f (Class, default ``None``): Class containing segmentation workflow.
-            
-        extraction_f (Class, default ``None``): Class containing extraction workflow.
-            
-        classification_f (Class, default ``None``): Class containing classification workflow.
-            
-        selection_f (Class, default ``None``): Class containing selection workflow.
-            
-    Attributes:
-        DEFAULT_CONFIG_NAME (str, default "config.yml"): Default config name which is used for the config file in the project directory. This name needs to be used when no config is supplied and the config is manually created in the project folder.
-        DEFAULT_SEGMENTATION_DIR_NAME (str, default "segmentation"): Default foldername for the segmentation process.
-        DEFAULT_EXTRACTION_DIR_NAME (str, default "extraction"): Default foldername for the extraction process.
-        DEFAULT_CLASSIFICATION_DIR_NAME (str, default "selection"): Default foldername for the classification process.
-        DEFAULT_SELECTION_DIR_NAME (str, default "classification"): Default foldername for the selection process.
-    
+    Project base class used to create a SPARCSpy project.
+
+    Parameters
+    ----------
+    location_path : str
+        Path to the folder where to project should be created. The folder is created in case the specified folder does not exist.
+    config_path : str, optional, default ""
+        Path pointing to a valid configuration file. The file will be copied to the project directory and renamed to the name specified in ``DEFAULT_CLASSIFICATION_DIR_NAME``. If no config is specified, the existing config in the project directory will be used, if possible. See the section configuration to find out more about the config file.
+    intermediate_output : bool, default False
+        When set to True intermediate outputs will be saved where applicable.
+    debug : bool, default False
+        When set to True debug outputs will be printed where applicable.
+    overwrite : bool, default False
+        When set to True, the processing step directory will be completely deleted and newly created when called.
+    segmentation_f : Class, default None
+        Class containing segmentation workflow.
+    extraction_f : Class, default None
+        Class containing extraction workflow.
+    classification_f : Class, default None
+        Class containing classification workflow.
+    selection_f : Class, default None
+        Class containing selection workflow.
+
+    Attributes
+    ----------
+    DEFAULT_CONFIG_NAME : str, default "config.yml"
+        Default config name which is used for the config file in the project directory. This name needs to be used when no config is supplied and the config is manually created in the project folder.
+    DEFAULT_SEGMENTATION_DIR_NAME : str, default "segmentation"
+        Default foldername for the segmentation process.
+    DEFAULT_EXTRACTION_DIR_NAME : str, default "extraction"
+        Default foldername for the extraction process.
+    DEFAULT_CLASSIFICATION_DIR_NAME : str, default "selection"
+        Default foldername for the classification process.
+    DEFAULT_SELECTION_DIR_NAME : str, default "classification"
+        Default foldername for the selection process.
+         
     """
 
     DEFAULT_CONFIG_NAME = "config.yml"
@@ -192,11 +200,16 @@ class Project(Logable):
             self.log(char_list)
             
             self.remap = [int(el.strip()) for el in char_list]
-            
-          
+             
     def _load_config_from_file(self, file_path):
         """
         loads config from file and writes it to self.config
+
+        Parameters
+        ----------
+        file_path : str
+            Path to the config.yml file that should be loaded.
+        
         """
         self.log(f"Loading config from {file_path}")
         if not os.path.isfile(file_path):
@@ -210,19 +223,31 @@ class Project(Logable):
                 
                 
     def load_input_from_file(self, file_paths, crop=[(0,-1),(0,-1)]):
-        """load input image from a number of files.
+        """
+        Load input image from a number of files.
 
-        Args:
-            file_paths (list(str)): List containing paths to each channel like ``["path1/img.tiff", "path2/img.tiff", "path3/img.tiff"]``. Expects a list of file paths with length ``input_channel`` as defined in the config.yml. Input data is NOT copied to the project folder by default. Different segmentation functions especially tiled segmentations might copy the input
-            
-            crop (list(tuple), optional): When set it can be used to crop the input image. The first element refers to the first dimension of the image and so on. For example use ``[(0,1000),(0,2000)]`` To crop the image to `1000 px height` and `2000 px width` from the top left corner.
+        Parameters
+        ----------
+        file_paths : list(str)
+            List containing paths to each channel like
+            [“path1/img.tiff”, “path2/img.tiff”, “path3/img.tiff”].
+            Expects a list of file paths with length “input_channel” as
+            defined in the config.yml. Input data is NOT copied to the
+            project folder by default. Different segmentation functions
+            especially tiled segmentations might copy the input.
+
+        crop : list(tuple), optional
+            When set, it can be used to crop the input image. The first
+            element refers to the first dimension of the image and so on.
+            For example use “[(0,1000),(0,2000)]” to crop the image to
+            1000 px height and 2000 px width from the top left corner.
+
         """
         if self.config == None:
             raise ValueError("Dataset has no config file loaded")
             
-        # 
-        # remap can be used to shuffle the order, for example [1, 0, 2] to invert the first two channels
-        #         
+        # remap can be used to shuffle the order, for example [1, 0, 2] to invert the first two channels     
+        # default order that is expected: Nucleus channel, cell membrane channel, other channels 
         
         if not len(file_paths) == self.config["input_channels"]:
             raise ValueError("Expected {} image paths, only received {}".format(self.config["input_channels"], len(file_paths)))
@@ -245,12 +270,19 @@ class Project(Logable):
         
         
     def load_input_from_array(self, array, remap = None):
-        """load input image from a number of files.
+        """
+        Load input image from an already loaded numpy array.
 
-        Args:
-            array (numpy.ndarray): Numpy array of shape ``[channels, height, width]`` .
-            
-            remap (list(int), optional): Define remapping of channels. For example use ``[1, 0, 2]`` to change the order of the first and the second channel. 
+        Parameters
+        ----------
+        array : numpy.ndarray
+            Numpy array of shape “[channels, height, width]”.
+
+        remap : list(int), optional
+            Define remapping of channels. For example use “[1, 0, 2]”
+            to change the order of the first and the second channel.
+            The expected order is Nucleus Channel, Cellmembrane Channel
+            followed by other channels.
 
         """
         # input data is not copied to the project folder
@@ -269,14 +301,8 @@ class Project(Logable):
                 *args, 
                 **kwargs):
         
-        """segment project with the defined segmentation under segmentation_f.
-        
-        Args:
-            intermediate_output (bool, optional): Can be set when calling to override the project wide flag.
-
-            debug (bool, optional):Can be set when calling to override the project wide flag.
-
-            overwrite (bool, optional): Can be set when calling to override the project wide flag.
+        """
+        Segment project with the selected segmentation method.
         """
         
         if self.segmentation_f == None:
@@ -290,14 +316,8 @@ class Project(Logable):
     def extract(self, 
                 *args, 
                 **kwargs):
-        """extract single cells with the defined extraction at extraction_f.
-        
-        Args:
-            intermediate_output (bool, optional): Can be set when calling to override the project wide flag.
-
-            debug (bool, optional):Can be set when calling to override the project wide flag.
-
-            overwrite (bool, optional): Can be set when calling to override the project wide flag.
+        """
+        Extract single cells with the defined extraction method.
         """
         
         if self.extraction_f == None:
@@ -310,14 +330,8 @@ class Project(Logable):
     def classify(self, 
                 *args, 
                 **kwargs):
-        """classify single cells with the defined classification at classification_f.
-        
-        Args:
-            intermediate_output (bool, optional): Can be set when calling to override the project wide flag.
-
-            debug (bool, optional):Can be set when calling to override the project wide flag.
-
-            overwrite (bool, optional): Can be set when calling to override the project wide flag.
+        """
+        Classify extracted single cells with the defined classification method.
         """
             
         input_extraction = self.extraction_f.get_output_path()
@@ -330,18 +344,12 @@ class Project(Logable):
     def select(self, 
                 *args, 
                 **kwargs):
-        """classify single cells with the defined classification at classification_f.
-        
-        Args:
-            intermediate_output (bool, optional): Can be set when calling to override the project wide flag.
-
-            debug (bool, optional):Can be set when calling to override the project wide flag.
-
-            overwrite (bool, optional): Can be set when calling to override the project wide flag.
+        """
+        Select specified classes using the defined selection method.
         """
                  
         if self.selection_f == None:
-            raise ValueError("No classification method defined")
+            raise ValueError("No selection method defined")
             pass
             
         input_selection = self.segmentation_f.get_output()
@@ -354,6 +362,47 @@ class Project(Logable):
         self.classify()
 
 class TimecourseProject(Project):
+    """
+    Timecourse Project used to create a SPARCSpy project for datasets that have multiple timepoints 
+    over the same field of view (add additional dimension in comparision to base SPARCSpy project).
+
+    Parameters
+    ----------
+    location_path : str
+        Path to the folder where to project should be created. The folder is created in case the specified folder does not exist.
+    config_path : str, optional, default ""
+        Path pointing to a valid configuration file. The file will be copied to the project directory and renamed to the name specified in ``DEFAULT_CLASSIFICATION_DIR_NAME``. If no config is specified, the existing config in the project directory will be used, if possible. See the section configuration to find out more about the config file.
+    intermediate_output : bool, default False
+        When set to True intermediate outputs will be saved where applicable.
+    debug : bool, default False
+        When set to True debug outputs will be printed where applicable.
+    overwrite : bool, default False
+        When set to True, the processing step directory will be completely deleted and newly created when called.
+    segmentation_f : Class, default None
+        Class containing segmentation workflow.
+    extraction_f : Class, default None
+        Class containing extraction workflow.
+    classification_f : Class, default None
+        Class containing classification workflow.
+    selection_f : Class, default None
+        Class containing selection workflow.
+
+    Attributes
+    ----------
+    DEFAULT_CONFIG_NAME : str, default "config.yml"
+        Default config name which is used for the config file in the project directory. This name needs to be used when no config is supplied and the config is manually created in the project folder.
+    DEFAULT_INPUT_IMAGE_NAME: str, default "input_segmentation.h5"
+        Default file name for loading the input image.
+    DEFAULT_SEGMENTATION_DIR_NAME : str, default "segmentation"
+        Default foldername for the segmentation process.
+    DEFAULT_EXTRACTION_DIR_NAME : str, default "extraction"
+        Default foldername for the extraction process.
+    DEFAULT_CLASSIFICATION_DIR_NAME : str, default "selection"
+        Default foldername for the classification process.
+    DEFAULT_SELECTION_DIR_NAME : str, default "classification"
+        Default foldername for the selection process.
+    """
+       
     DEFAULT_INPUT_IMAGE_NAME = "input_segmentation.h5"
     
     def __init__(self, *args, **kwargs):
@@ -692,17 +741,9 @@ class TimecourseProject(Project):
                 *args, 
                 **kwargs):
         
-        """segment project with the defined segmentation under segmentation_f.
-        
-        Args:
-            intermediate_output (bool, optional): Can be set when calling to override the project wide flag.
-
-            debug (bool, optional):Can be set when calling to override the project wide flag.
-
-            overwrite (bool, optional): Can be set when calling to override the project wide flag.
         """
-
-        #add possibility to delete only segmentation while preserving input_images already written to hdf5
+        segment timecourse project with the defined segmentation method.
+        """
 
         if overwrite == True:
 
@@ -733,14 +774,8 @@ class TimecourseProject(Project):
     def extract(self, 
                 *args, 
                 **kwargs):
-        """extract single cells with the defined extraction at extraction_f.
-        
-        Args:
-            intermediate_output (bool, optional): Can be set when calling to override the project wide flag.
-
-            debug (bool, optional):Can be set when calling to override the project wide flag.
-
-            overwrite (bool, optional): Can be set when calling to override the project wide flag.
+        """
+        extract single cells from a timecourse project with the defined extraction method.
         """
         
         if self.extraction_f == None:

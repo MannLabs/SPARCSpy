@@ -18,8 +18,21 @@ ProcessingStep
 
 project
 #######
-.. automodule:: vipercore.pipeline.project
+
+Project 
+=========
+.. autoclass:: vipercore.pipeline.project.Project
     :members:
+    :show-inheritance:
+    :inherited-members:
+
+
+TimecourseProject 
+=================
+.. autoclass:: vipercore.pipeline.project.TimecourseProject
+    :members:
+    :show-inheritance:
+    :inherited-members:
 
 
 segmentation
@@ -41,23 +54,47 @@ ShardedSegmentation
 
 TimecourseSegmentation
 ======================
+.. autoclass:: vipercore.pipeline.segmentation.TimecourseSegmentation
+    :members:
+    :show-inheritance:
+    :inherited-members:
 
 MultithreadedTimecourseSegmentation
 ===================================
+.. autoclass:: vipercore.pipeline.segmentation.MultithreadedSegmentation
+    :members:
+    :show-inheritance:
+    :inherited-members:
 
 workflows
-###########
+##########
 .. automodule:: vipercore.pipeline.workflows
     :members:
 
 extraction
 ###########
-.. automodule:: vipercore.pipeline.extraction
+
+HDF5CellExtraction
+===================
+.. autoclass:: vipercore.pipeline.extraction.HDF5CellExtraction
     :members:
+    :show-inheritance:
+    :inherited-members:
+
+TimecourseHDF5CellExtraction
+============================
+.. autoclass:: vipercore.pipeline.extraction.TimecourseHDF5CellExtraction
+    :members:
+    :show-inheritance:
+    :inherited-members:
+
 
 classification
 ##############
-.. automodule:: vipercore.pipeline.classification
+
+MLClusterClassifier
+===================
+.. autoclass:: vipercore.pipeline.classification.MLClusterClassifier
     :members:
 
 selection

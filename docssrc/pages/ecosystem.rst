@@ -7,6 +7,6 @@ This section will give you an overview of the SPARCSpy Ecosystem and make you fa
    :maxdepth: 2
    :caption: Ecosystem:
 
-   pages/ecosystem/installation
-   pages/ecosystem/getting_started
-   pages/ecosystem/tutorials
+   ecosystem/installation
+   ecosystem/getting_started
+   ecosystem/tutorials

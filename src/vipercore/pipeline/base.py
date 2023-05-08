@@ -14,7 +14,7 @@ class Logable(object):
         
         DEFAULT_LOG_NAME (str, default ``processing.log``): Default log file name.
         
-        DEFAULT_FORMAT (str): Date and time format used for logging. See `datetime.strftime <https://docs.python.org/3/library/datetime.html#datetime.date.strftime`_.
+        DEFAULT_FORMAT (str): Date and time format used for logging. See `datetime.strftime <https://docs.python.org/3/library/datetime.html#datetime.date.strftime>`_.
     """
     
     DEFAULT_LOG_NAME = "processing.log"

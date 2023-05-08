@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>processing &mdash; Viper Core  documentation</title>
+  <title>processing &mdash; SPARCSpy  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="pipeline" href="pipeline.html" />
-    <link rel="prev" title="Selection" href="../pipeline/selection.html" /> 
+    <link rel="prev" title="Module Documentation" href="../module.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -32,7 +32,7 @@
           
           
           <a href="../../index.html" class="icon icon-home">
-            Viper Core
+            SPARCSpy
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -42,58 +42,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Ecosystem:</span></p>
-<ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../ecosystem.html">SPARCSpy Ecosystem</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Command Line Tools:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html">viper-split</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html#viper-stat">viper-stat</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html#viper-cleanup">viper-cleanup</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Analysis Pipeline:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../pipeline/introduction.html">base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipeline/project.html">Project Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipeline/segmentation.html">Segmentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipeline/extraction.html">Extraction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipeline/classification.html">Classification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipeline/selection.html">Selection</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Module Documentation:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">processing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-vipercore.processing.utils">utils</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.utils.download_testimage"><code class="docutils literal notranslate"><span class="pre">download_testimage()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.utils.flatten"><code class="docutils literal notranslate"><span class="pre">flatten()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.utils.plot_image"><code class="docutils literal notranslate"><span class="pre">plot_image()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.utils.visualize_class"><code class="docutils literal notranslate"><span class="pre">visualize_class()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vipercmd.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline.html">Analysis Pipeline</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../module.html">Module Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html">pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ml.html">ml</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#module-vipercore.processing.preprocessing">preprocessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.preprocessing.MinMax"><code class="docutils literal notranslate"><span class="pre">MinMax()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.preprocessing.origins_from_distance"><code class="docutils literal notranslate"><span class="pre">origins_from_distance()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.preprocessing.percentile_normalization"><code class="docutils literal notranslate"><span class="pre">percentile_normalization()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.preprocessing.rolling_window_mean"><code class="docutils literal notranslate"><span class="pre">rolling_window_mean()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#module-vipercore.processing.segmentation">segmentation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.segmentation.contact_filter"><code class="docutils literal notranslate"><span class="pre">contact_filter()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.segmentation.contact_filter_lambda"><code class="docutils literal notranslate"><span class="pre">contact_filter_lambda()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.segmentation.global_otsu"><code class="docutils literal notranslate"><span class="pre">global_otsu()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.segmentation.numba_mask_centroid"><code class="docutils literal notranslate"><span class="pre">numba_mask_centroid()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.segmentation.remove_classes"><code class="docutils literal notranslate"><span class="pre">remove_classes()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.segmentation.segment_global_threshold"><code class="docutils literal notranslate"><span class="pre">segment_global_threshold()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.segmentation.segment_local_threshold"><code class="docutils literal notranslate"><span class="pre">segment_local_threshold()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.segmentation.shift_labels"><code class="docutils literal notranslate"><span class="pre">shift_labels()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vipercore.processing.segmentation.size_filter"><code class="docutils literal notranslate"><span class="pre">size_filter()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline.html">pipeline</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ml.html">ml</a></li>
 </ul>
 
         </div>
@@ -102,7 +60,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">Viper Core</a>
+          <a href="../../index.html">SPARCSpy</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -110,6 +68,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../module.html">Module Documentation</a></li>
       <li class="breadcrumb-item active">processing</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/pages/module/processing.rst.txt" rel="nofollow"> View page source</a>
@@ -124,57 +83,6 @@
 <h1>processing<a class="headerlink" href="#processing" title="Permalink to this heading"></a></h1>
 <section id="module-vipercore.processing.utils">
 <span id="utils"></span><h2>utils<a class="headerlink" href="#module-vipercore.processing.utils" title="Permalink to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.processing.utils.download_testimage">
-<span class="sig-prename descclassname"><span class="pre">vipercore.processing.utils.</span></span><span class="sig-name descname"><span class="pre">download_testimage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.utils.download_testimage" title="Permalink to this definition"></a></dt>
-<dd><p>Download a set of test images to a provided folder path.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>folder</strong> (<em>string</em>) – The path of the folder where the test images will be saved.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>returns</strong> – A list containing the local file paths of the downloaded images.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="s2">&quot;test_images&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">downloaded_images</span> <span class="o">=</span> <span class="n">download_testimage</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
-<span class="go">Successfully downloaded testimage_dapi.tiff from https://zenodo.org/record/5701474/files/testimage_dapi.tiff?download=1</span>
-<span class="go">Successfully downloaded testimage_wga.tiff from https://zenodo.org/record/5701474/files/testimage_wga.tiff?download=1</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">downloaded_images</span><span class="p">)</span>
-<span class="go">[&#39;test_images/testimage_dapi.tiff&#39;, &#39;test_images/testimage_wga.tiff&#39;]</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.processing.utils.flatten">
-<span class="sig-prename descclassname"><span class="pre">vipercore.processing.utils.</span></span><span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.utils.flatten" title="Permalink to this definition"></a></dt>
-<dd><p>Flatten a list of lists into a single list.</p>
-<p>This function takes in a list of lists (nested lists) and returns a single list
-containing all the elements from the input lists.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>l</strong> (<em>list</em><em> of </em><em>lists</em>) – A list containing one or more lists as its elements.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>flattened_list</strong> – A single list containing all elements from the input lists.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nested_list</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">flatten</span><span class="p">(</span><span class="n">nested_list</span><span class="p">)</span>
-<span class="go">[1, 2, 3, 4, 5, 6, 7, 8, 9]</span>
-</pre></div>
-</div>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="vipercore.processing.utils.plot_image">
 <span class="sig-prename descclassname"><span class="pre">vipercore.processing.utils.</span></span><span class="sig-name descname"><span class="pre">plot_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'magma'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.utils.plot_image" title="Permalink to this definition"></a></dt>
@@ -232,62 +140,60 @@ that of <cite>seg_map</cite>.</p></li>
 </div>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="vipercore.processing.utils.download_testimage">
+<span class="sig-prename descclassname"><span class="pre">vipercore.processing.utils.</span></span><span class="sig-name descname"><span class="pre">download_testimage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.utils.download_testimage" title="Permalink to this definition"></a></dt>
+<dd><p>Download a set of test images to a provided folder path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>folder</strong> (<em>string</em>) – The path of the folder where the test images will be saved.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>returns</strong> – A list containing the local file paths of the downloaded images.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="s2">&quot;test_images&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">downloaded_images</span> <span class="o">=</span> <span class="n">download_testimage</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+<span class="go">Successfully downloaded testimage_dapi.tiff from https://zenodo.org/record/5701474/files/testimage_dapi.tiff?download=1</span>
+<span class="go">Successfully downloaded testimage_wga.tiff from https://zenodo.org/record/5701474/files/testimage_wga.tiff?download=1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">downloaded_images</span><span class="p">)</span>
+<span class="go">[&#39;test_images/testimage_dapi.tiff&#39;, &#39;test_images/testimage_wga.tiff&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vipercore.processing.utils.flatten">
+<span class="sig-prename descclassname"><span class="pre">vipercore.processing.utils.</span></span><span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.utils.flatten" title="Permalink to this definition"></a></dt>
+<dd><p>Flatten a list of lists into a single list.</p>
+<p>This function takes in a list of lists (nested lists) and returns a single list
+containing all the elements from the input lists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>l</strong> (<em>list</em><em> of </em><em>lists</em>) – A list containing one or more lists as its elements.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>flattened_list</strong> – A single list containing all elements from the input lists.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nested_list</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flatten</span><span class="p">(</span><span class="n">nested_list</span><span class="p">)</span>
+<span class="go">[1, 2, 3, 4, 5, 6, 7, 8, 9]</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 <section id="module-vipercore.processing.preprocessing">
 <span id="preprocessing"></span><h2>preprocessing<a class="headerlink" href="#module-vipercore.processing.preprocessing" title="Permalink to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.processing.preprocessing.MinMax">
-<span class="sig-prename descclassname"><span class="pre">vipercore.processing.preprocessing.</span></span><span class="sig-name descname"><span class="pre">MinMax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inarr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.preprocessing.MinMax" title="Permalink to this definition"></a></dt>
-<dd><p>Perform Min-Max normalization on the input array.
-The function scales the input array values to the range [0, 1] using Min-Max
-normalization. If the range of the input array (i.e., max - min) is zero,
-the original array is returned unchanged.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inarr</strong> (<em>np.array</em>) – Input numpy array to be normalized.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Min-Max normalized numpy array.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.array</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">normalized_array</span> <span class="o">=</span> <span class="n">MinMax</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.processing.preprocessing.origins_from_distance">
-<span class="sig-prename descclassname"><span class="pre">vipercore.processing.preprocessing.</span></span><span class="sig-name descname"><span class="pre">origins_from_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.preprocessing.origins_from_distance" title="Permalink to this definition"></a></dt>
-<dd><p>Compute a list of local peaks (origins) in the input array.
-The function applies a Gaussian filter to the input array, creates a binary
-mask using a threshold based on the standard deviation of the filtered data, and
-performs a distance transform on the mask. It finds the local peaks of the
-distance-transformed image with a minimum distance between the peaks,
-and returns the coordinates and a map of the peaks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>array</strong> (<em>np.array</em>) – Input 2D numpy array to be processed.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>peak_list</strong> (<em>np.array</em>) – List of peak coordinates, shape (num_peaks, 2).</p></li>
-<li><p><strong>peak_map</strong> (<em>np.array</em>) – Binary map of peaks, same shape as input array.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">peak_list</span><span class="p">,</span> <span class="n">peak_map</span> <span class="o">=</span> <span class="n">origins_from_distance</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="vipercore.processing.preprocessing.percentile_normalization">
 <span class="sig-prename descclassname"><span class="pre">vipercore.processing.preprocessing.</span></span><span class="sig-name descname"><span class="pre">percentile_normalization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.999</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.preprocessing.percentile_normalization" title="Permalink to this definition"></a></dt>
@@ -347,76 +253,62 @@ Function is numba optimized.</p>
 </div>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="vipercore.processing.preprocessing.origins_from_distance">
+<span class="sig-prename descclassname"><span class="pre">vipercore.processing.preprocessing.</span></span><span class="sig-name descname"><span class="pre">origins_from_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.preprocessing.origins_from_distance" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a list of local peaks (origins) in the input array.
+The function applies a Gaussian filter to the input array, creates a binary
+mask using a threshold based on the standard deviation of the filtered data, and
+performs a distance transform on the mask. It finds the local peaks of the
+distance-transformed image with a minimum distance between the peaks,
+and returns the coordinates and a map of the peaks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>array</strong> (<em>np.array</em>) – Input 2D numpy array to be processed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>peak_list</strong> (<em>np.array</em>) – List of peak coordinates, shape (num_peaks, 2).</p></li>
+<li><p><strong>peak_map</strong> (<em>np.array</em>) – Binary map of peaks, same shape as input array.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">peak_list</span><span class="p">,</span> <span class="n">peak_map</span> <span class="o">=</span> <span class="n">origins_from_distance</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vipercore.processing.preprocessing.MinMax">
+<span class="sig-prename descclassname"><span class="pre">vipercore.processing.preprocessing.</span></span><span class="sig-name descname"><span class="pre">MinMax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inarr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.preprocessing.MinMax" title="Permalink to this definition"></a></dt>
+<dd><p>Perform Min-Max normalization on the input array.
+The function scales the input array values to the range [0, 1] using Min-Max
+normalization. If the range of the input array (i.e., max - min) is zero,
+the original array is returned unchanged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inarr</strong> (<em>np.array</em>) – Input numpy array to be normalized.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Min-Max normalized numpy array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalized_array</span> <span class="o">=</span> <span class="n">MinMax</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 <section id="module-vipercore.processing.segmentation">
 <span id="segmentation"></span><h2>segmentation<a class="headerlink" href="#module-vipercore.processing.segmentation" title="Permalink to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.processing.segmentation.contact_filter">
-<span class="sig-prename descclassname"><span class="pre">vipercore.processing.segmentation.</span></span><span class="sig-name descname"><span class="pre">contact_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inarr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.segmentation.contact_filter" title="Permalink to this definition"></a></dt>
-<dd><p>Filter the input labeled array based on its contact with background pixels.</p>
-<p>This function filters an input labeled array by removing classes with a background
-contact proportion less than the given threshold.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>inarr</strong> (<em>numpy.ndarray</em>) – Input labeled array.</p></li>
-<li><p><strong>threshold</strong> (<em>int</em><em>, </em><em>optional</em>) – Specifies the minimum background contact proportion for class retention (default is 1).</p></li>
-<li><p><strong>reindex</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, reindexes the remaining classes after removal (default is False).</p></li>
-<li><p><strong>background</strong> (<em>int</em><em>, </em><em>optional</em>) – Value used to represent the background class (default is 0).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>label</strong> – Filtered labeled array.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.ndarray</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">inarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-<span class="go">                  [0, 2, 1],</span>
-<span class="go">                  [0, 0, 2]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">contact_filter</span><span class="p">(</span><span class="n">inarr</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="go">array([[0, 1, 1],</span>
-<span class="go">       [0, 0, 1],</span>
-<span class="go">       [0, 0, 0]])</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.processing.segmentation.contact_filter_lambda">
-<span class="sig-prename descclassname"><span class="pre">vipercore.processing.segmentation.</span></span><span class="sig-name descname"><span class="pre">contact_filter_lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.segmentation.contact_filter_lambda" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate the contact proportion of classes in the labeled array.</p>
-<p>This function calculates the surrounding background and non-background elements
-for each class in the label array and returns the proportion of background elements
-to total surrounding elements for each class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>label</strong> (<em>numpy.ndarray</em>) – Input labeled array.</p></li>
-<li><p><strong>background</strong> (<em>int</em><em>, </em><em>optional</em>) – Value used to represent the background class (default is 0).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>pop</strong> – Array containing the contact proportion for each class.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.ndarray</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-<span class="go">                  [0, 2, 1],</span>
-<span class="go">                  [0, 0, 2]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">contact_filter_lambda</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
-<span class="go">array([1.        , 1.,  0.6 ])</span>
-</pre></div>
-</div>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="vipercore.processing.segmentation.global_otsu">
 <span class="sig-prename descclassname"><span class="pre">vipercore.processing.segmentation.</span></span><span class="sig-name descname"><span class="pre">global_otsu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.segmentation.global_otsu" title="Permalink to this definition"></a></dt>
@@ -439,74 +331,6 @@ to total surrounding elements for each class.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">image</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">coins</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">threshold</span> <span class="o">=</span> <span class="n">global_otsu</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.processing.segmentation.numba_mask_centroid">
-<span class="sig-prename descclassname"><span class="pre">vipercore.processing.segmentation.</span></span><span class="sig-name descname"><span class="pre">numba_mask_centroid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.segmentation.numba_mask_centroid" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate the centroids of classes in a given mask.</p>
-<p>This function calculates the centroids of each class in the mask and returns an array
-with the (y, x) coordinates of the centroids, the number of pixels associated with
-each class, and the id number of each class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mask</strong> (<em>numpy.ndarray</em>) – Input mask containing classes.</p></li>
-<li><p><strong>debug</strong> (<em>bool</em><em>, </em><em>optional</em>) – Debug flag (default is False).</p></li>
-<li><p><strong>skip_background</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, skip background class (default is True).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>center</strong> (<em>numpy.ndarray</em>) – Array containing the (y, x) coordinates of the centroids of each class.</p></li>
-<li><p><strong>points_class</strong> (<em>numpy.ndarray</em>) – Array containing the number of pixels associated with each class.</p></li>
-<li><p><strong>ids</strong> (<em>numpy.ndarray</em>) – Array containing the id number of each class.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">numba_mask_centroid</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-<span class="go">(array([[0.33333333, 1.66666667],</span>
-<span class="go">        [1.5       , 1.5       ]]),</span>
-<span class="go">array([3, 2], dtype=uint32),</span>
-<span class="go">array([1, 2], dtype=int32))</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="vipercore.processing.segmentation.remove_classes">
-<span class="sig-prename descclassname"><span class="pre">vipercore.processing.segmentation.</span></span><span class="sig-name descname"><span class="pre">remove_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_remove</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.segmentation.remove_classes" title="Permalink to this definition"></a></dt>
-<dd><p>Wrapper function for the numba optimized _remove_classes function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>label_in</strong> (<em>numpy.ndarray</em>) – Input labeled array.</p></li>
-<li><p><strong>to_remove</strong> (<em>list</em><em> or </em><em>array-like</em>) – List of label classes to remove.</p></li>
-<li><p><strong>background</strong> (<em>int</em><em>, </em><em>optional</em>) – Value used to represent the background class (default is 0).</p></li>
-<li><p><strong>reindex</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, reindex the remaining classes after removal (default is False).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>label</strong> – Labeled array with specified classes removed or reindexed.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.ndarray</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">label_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">remove_classes</span><span class="p">(</span><span class="n">label_in</span><span class="p">,</span> <span class="n">to_remove</span><span class="p">)</span>
-<span class="go">array([[0, 2, 0],</span>
-<span class="go">       [0, 0, 2],</span>
-<span class="go">       [0, 2, 0]])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -629,6 +453,105 @@ If False will return the edge labels before shifting.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="vipercore.processing.segmentation.remove_classes">
+<span class="sig-prename descclassname"><span class="pre">vipercore.processing.segmentation.</span></span><span class="sig-name descname"><span class="pre">remove_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_remove</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.segmentation.remove_classes" title="Permalink to this definition"></a></dt>
+<dd><p>Wrapper function for the numba optimized _remove_classes function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label_in</strong> (<em>numpy.ndarray</em>) – Input labeled array.</p></li>
+<li><p><strong>to_remove</strong> (<em>list</em><em> or </em><em>array-like</em>) – List of label classes to remove.</p></li>
+<li><p><strong>background</strong> (<em>int</em><em>, </em><em>optional</em>) – Value used to represent the background class (default is 0).</p></li>
+<li><p><strong>reindex</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, reindex the remaining classes after removal (default is False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>label</strong> – Labeled array with specified classes removed or reindexed.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">remove_classes</span><span class="p">(</span><span class="n">label_in</span><span class="p">,</span> <span class="n">to_remove</span><span class="p">)</span>
+<span class="go">array([[0, 2, 0],</span>
+<span class="go">       [0, 0, 2],</span>
+<span class="go">       [0, 2, 0]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vipercore.processing.segmentation.contact_filter_lambda">
+<span class="sig-prename descclassname"><span class="pre">vipercore.processing.segmentation.</span></span><span class="sig-name descname"><span class="pre">contact_filter_lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.segmentation.contact_filter_lambda" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the contact proportion of classes in the labeled array.</p>
+<p>This function calculates the surrounding background and non-background elements
+for each class in the label array and returns the proportion of background elements
+to total surrounding elements for each class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>numpy.ndarray</em>) – Input labeled array.</p></li>
+<li><p><strong>background</strong> (<em>int</em><em>, </em><em>optional</em>) – Value used to represent the background class (default is 0).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>pop</strong> – Array containing the contact proportion for each class.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="go">                  [0, 2, 1],</span>
+<span class="go">                  [0, 0, 2]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contact_filter_lambda</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+<span class="go">array([1.        , 1.,  0.6 ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vipercore.processing.segmentation.contact_filter">
+<span class="sig-prename descclassname"><span class="pre">vipercore.processing.segmentation.</span></span><span class="sig-name descname"><span class="pre">contact_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inarr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.segmentation.contact_filter" title="Permalink to this definition"></a></dt>
+<dd><p>Filter the input labeled array based on its contact with background pixels.</p>
+<p>This function filters an input labeled array by removing classes with a background
+contact proportion less than the given threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inarr</strong> (<em>numpy.ndarray</em>) – Input labeled array.</p></li>
+<li><p><strong>threshold</strong> (<em>int</em><em>, </em><em>optional</em>) – Specifies the minimum background contact proportion for class retention (default is 1).</p></li>
+<li><p><strong>reindex</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, reindexes the remaining classes after removal (default is False).</p></li>
+<li><p><strong>background</strong> (<em>int</em><em>, </em><em>optional</em>) – Value used to represent the background class (default is 0).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>label</strong> – Filtered labeled array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="go">                  [0, 2, 1],</span>
+<span class="go">                  [0, 0, 2]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contact_filter</span><span class="p">(</span><span class="n">inarr</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="go">array([[0, 1, 1],</span>
+<span class="go">       [0, 0, 1],</span>
+<span class="go">       [0, 0, 0]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="vipercore.processing.segmentation.size_filter">
 <span class="sig-prename descclassname"><span class="pre">vipercore.processing.segmentation.</span></span><span class="sig-name descname"><span class="pre">size_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">100000]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.segmentation.size_filter" title="Permalink to this definition"></a></dt>
 <dd><p>Filter classes in a labeled array based on their size (number of pixels).</p>
@@ -665,6 +588,42 @@ it can reindex the remaining classes.</p>
 </div>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="vipercore.processing.segmentation.numba_mask_centroid">
+<span class="sig-prename descclassname"><span class="pre">vipercore.processing.segmentation.</span></span><span class="sig-name descname"><span class="pre">numba_mask_centroid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vipercore.processing.segmentation.numba_mask_centroid" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the centroids of classes in a given mask.</p>
+<p>This function calculates the centroids of each class in the mask and returns an array
+with the (y, x) coordinates of the centroids, the number of pixels associated with
+each class, and the id number of each class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mask</strong> (<em>numpy.ndarray</em>) – Input mask containing classes.</p></li>
+<li><p><strong>debug</strong> (<em>bool</em><em>, </em><em>optional</em>) – Debug flag (default is False).</p></li>
+<li><p><strong>skip_background</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, skip background class (default is True).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>center</strong> (<em>numpy.ndarray</em>) – Array containing the (y, x) coordinates of the centroids of each class.</p></li>
+<li><p><strong>points_class</strong> (<em>numpy.ndarray</em>) – Array containing the number of pixels associated with each class.</p></li>
+<li><p><strong>ids</strong> (<em>numpy.ndarray</em>) – Array containing the id number of each class.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numba_mask_centroid</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+<span class="go">(array([[0.33333333, 1.66666667],</span>
+<span class="go">        [1.5       , 1.5       ]]),</span>
+<span class="go">array([3, 2], dtype=uint32),</span>
+<span class="go">array([1, 2], dtype=int32))</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 </section>
 
@@ -672,14 +631,14 @@ it can reindex the remaining classes.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../pipeline/selection.html" class="btn btn-neutral float-left" title="Selection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../module.html" class="btn btn-neutral float-left" title="Module Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="pipeline.html" class="btn btn-neutral float-right" title="pipeline" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Georg Wallmann, Sophia Mädler, Niklas Schmacke.</p>
+    <p>&#169; Copyright 2023, Georg Wallmann, Sophia Mädler, Niklas Schmacke.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

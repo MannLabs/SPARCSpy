@@ -11,32 +11,9 @@ SPARCSpy is a scalable toolkit to analyse SPARCS datasets. The python implementa
 
 .. toctree::
    :maxdepth: 2
-   :caption: Ecosystem:
 
-   pages/ecosystem/
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Command Line Tools:
-   
+   pages/ecosystem/ 
    pages/vipercmd
-   
-.. toctree::
-   :maxdepth: 2
-   :caption: Analysis Pipeline:
-   
-   pages/pipeline/introduction
-   pages/pipeline/project
-   pages/pipeline/segmentation
-   pages/pipeline/extraction
-   pages/pipeline/classification
-   pages/pipeline/selection
-   
-.. toctree::
-   :maxdepth: 1
-   :caption:  Module Documentation:
-   
-   pages/module/processing 
-   pages/module/pipeline
-   pages/module/ml
+   pages/pipeline
+   pages/module
    

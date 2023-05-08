@@ -11,6 +11,15 @@ import random
 from multiprocessing import Pool
 
 def _generate_parser():
+    """
+    Generate an argument parser for command line input.
+    
+    Returns
+    -------
+    parser : argparse.ArgumentParser
+        The instantiated parser with defined arguments.
+
+    """
     # instantiate the parser
     parser = argparse.ArgumentParser(description='Manipulate existing single cell hdf5 datasets.')
     
@@ -27,15 +36,98 @@ def _generate_parser():
     
     return parser
     
+def _write_new_list(param):
+    """
+    Write the new list of single cell data to the HDF5 file.
+    
+    Parameters
+    ----------
+    param : tuple
+        Contains the name of the output file, the length of the section to process,
+        and the section of the mapping to be processed.
+        
+    """
+    name, length, section = param
+    
+    input_hdf = h5py.File(input_name, 'r')
+    input_index = input_hdf.get('single_cell_index')
+    input_data = input_hdf.get('single_cell_data')
+    
+    num_channels = input_data.shape[1]
+    image_size = input_data.shape[2]
+    
+    output_hdf = h5py.File(name, 'w')
+    output_hdf.create_dataset('single_cell_index', (length,2) ,dtype="uint32")
+    output_hdf.create_dataset('single_cell_data', (length,
+                                               num_channels,
+                                               image_size,
+                                               image_size),
+                                               chunks=(1,1,image_size,image_size),
+                                               dtype="float16",
+                                               compression=compression_type)
+    
+    output_index = output_hdf.get('single_cell_index')
+    output_data = output_hdf.get('single_cell_data')
+    
+    
+    for i, index in enumerate(mapping[section]):
+        ix = input_index[index]
+        
+        #reindex index element
+        ix[0] = i
+        
+        
+        output_index[i] = ix
+        
+        
+        data = input_data[index]
+        output_data[i] = data
+  
+        
+        if i % 10000 == 0:
+            print(f"{name}: {i} samples written")
+        
+    output_hdf.close()    
+    input_hdf.close()
+
+def _sizeof_fmt(num, suffix="B"):
+    """
+    Convert the size of the input number to a formatted string with appropriate unit.
+    
+    Parameters
+    ----------
+    num : float
+        The size of the input number.
+        
+    suffix : str
+        The unit suffix for the size (default is "B").
+
+    Returns
+    -------
+    str
+        A formatted string with the appropriate unit for the input size.
+
+    """
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}Yi{suffix}"
+
 def _main():
+
+    """
+    Main function to manipulate existing single cell hdf5 datasets.
+    sparcs-split can be used for splitting, shuffling and compression / decompression of hdf5 datasets.
+    
+    Parameters
+    ----------
+    calibration_points : :class:`numpy.array`, optional
+        Calibration coordinates in the form of :math:`(3, 2)`.
     
     """
-        :param calibration_points: Calibration coordinates in the form of :math:`(3, 2)`.
-        :type calibration_points: :class:`numpy.array`, optional
-    """
     
-    
-    parser = generate_parser()
+    parser = _generate_parser()
     args = parser.parse_args()
     
     
@@ -49,7 +141,6 @@ def _main():
     index_handle = input_hdf.get('single_cell_index')
     data_handle = input_hdf.get('single_cell_data')
 
-    
     num_datasets = index_handle.shape[0]
     
     global mapping 
@@ -95,57 +186,6 @@ def _main():
         x = pool.map(_write_new_list,slices)
     
     input_hdf.close()
-    
-def _write_new_list(param):
-    name, length, section = param
-    
-    input_hdf = h5py.File(input_name, 'r')
-    input_index = input_hdf.get('single_cell_index')
-    input_data = input_hdf.get('single_cell_data')
-    
-    num_channels = input_data.shape[1]
-    image_size = input_data.shape[2]
-    
-    output_hdf = h5py.File(name, 'w')
-    output_hdf.create_dataset('single_cell_index', (length,2) ,dtype="uint32")
-    output_hdf.create_dataset('single_cell_data', (length,
-                                               num_channels,
-                                               image_size,
-                                               image_size),
-                                               chunks=(1,1,image_size,image_size),
-                                               dtype="float16",
-                                               compression=compression_type)
-    
-    output_index = output_hdf.get('single_cell_index')
-    output_data = output_hdf.get('single_cell_data')
-    
-    
-    for i, index in enumerate(mapping[section]):
-        ix = input_index[index]
-        
-        #reindex index element
-        ix[0] = i
-        
-        
-        output_index[i] = ix
-        
-        
-        data = input_data[index]
-        output_data[i] = data
-  
-        
-        if i % 10000 == 0:
-            print(f"{name}: {i} samples written")
-        
-    output_hdf.close()    
-    input_hdf.close()
-
-def _sizeof_fmt(num, suffix="B"):
-    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
-        if abs(num) < 1024.0:
-            return f"{num:3.1f}{unit}{suffix}"
-        num /= 1024.0
-    return f"{num:.1f}Yi{suffix}"
 
 if __name__ == "__main__":
 

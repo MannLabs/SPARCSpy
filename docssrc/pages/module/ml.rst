@@ -2,6 +2,9 @@
 ml
 *******************
 
+.. toctree::
+   :maxdepth: 3
+
 datasets
 ########
 
@@ -17,15 +20,26 @@ metrics
 models
 ########
 
-.. automodule:: vipercore.ml.models
+.. autoclass:: vipercore.ml.models.VGGBase
     :members:
-   
+    :show-inheritance:
+
+.. autoclass:: vipercore.ml.models.VGG1
+    :members:
+    :show-inheritance:
+
+.. autoclass:: vipercore.ml.models.VGG2
+    :members:
+    :show-inheritance:
+
 
 plmodels
 ########
 
-.. automodule:: vipercore.ml.plmodels
+
+.. autoclass:: vipercore.ml.plmodels.MultilabelSupervisedModel
     :members:
+    :show-inheritance: False
 
 
 transforms
