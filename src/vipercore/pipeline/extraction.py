@@ -12,7 +12,6 @@ from itertools import compress
 
 from skimage.filters import gaussian
 from skimage.morphology import disk, dilation
-
 from scipy.ndimage import binary_fill_holes
 
 from vipercore.processing.segmentation import numba_mask_centroid, _return_edge_labels
@@ -28,7 +27,10 @@ import _pickle as cPickle
 from matplotlib.pyplot import imshow, figure
 
 class HDF5CellExtraction(ProcessingStep):
-
+    """
+    A class to extracts single cell images from a segmented SPARCSpy project and save the 
+    results to an HDF5 file.
+    """
     DEFAULT_LOG_NAME = "processing.log" 
     DEFAULT_DATA_FILE = "single_cells.h5"
     DEFAULT_SEGMENTATION_DIR = "segmentation"
@@ -61,21 +63,7 @@ class HDF5CellExtraction(ProcessingStep):
 
         self.save_index_to_remove = []
         
-        """class can be initiated to create a WGA extraction workfow
-
-        :param config: Configuration for the extraction passed over from the :class:`pipeline.Dataset`
-        :type config: dict
-
-        :param string: Directiory for the extraction log and results. is created if not existing yet
-        :type config: string
-        
-        :param debug: Flag used to output debug information and map images
-        :type debug: bool, default False
-        
-        :param overwrite: Flag used to recalculate all images, not yet implemented
-        :type overwrite: bool, default False
-        """
-                     
+                  
     def get_compression_type(self):
         self.compression_type = "lzf" if self.config["compression"] else None
         return(self.compression_type)
@@ -355,6 +343,54 @@ class HDF5CellExtraction(ProcessingStep):
                 self.save_index_to_remove.append(save_index)
 
     def process(self, input_segmentation_path, filtered_classes_path):
+        """
+        Process function to run the extraction method.
+
+        Parameters
+        ----------
+        input_segmentation_path: str
+            Path of the segmentation hdf5 file. IF this class is used as part of a project processing workflow this argument will be provided automatically.
+        filtered_classes_path: str
+            Path of the filtered classes resulting from segementation. If this class is used as part of a project processing workflow this argument will be provided automatically.
+
+        
+        Important:
+        
+            If this class is used as part of a project processing workflow, all of the arguments will be provided by the ``Project`` class based on the previous segmentation. 
+            The Project class will automaticly provide the most recent segmentation forward together with the supplied parameters. 
+
+        Example:
+
+            .. code-block:: python
+
+                #after project is initialized and input data has been loaded and segmented
+                project.extract()
+
+        Note:
+        
+            The following parameters are required in the config file when running this method:
+            
+            .. code-block:: yaml
+
+                HDF5CellExtraction:
+
+                    compression: True
+                    
+                    #threads used in multithreading
+                    threads: 80 
+
+                    # image size in pixel
+                    image_size: 128 
+                    
+                    # directory where intermediate results should be saved
+                    cache: "/mnt/temp/cache"
+
+                    #specs to define how hdf5 data should be chunked and saved
+                    hdf5_rdcc_nbytes: 5242880000 # 5gb 1024 * 1024 * 5000 
+                    hdf5_rdcc_w0: 1
+                    hdf5_rdcc_nslots: 50000
+    
+        """
         # is called with the path to the segmented image
         
         self.get_channel_info() # needs to be called here after the segmentation is completed
@@ -459,6 +495,14 @@ class HDF5CellExtraction(ProcessingStep):
         self.log("Finished cleaning up cache")
 
 class TimecourseHDF5CellExtraction(HDF5CellExtraction):
+    """
+    A class to extracts single cell images from a segmented SPARCSpy Timecourse project and save the 
+    results to an HDF5 file.
+
+    Functionality is the same as the HDF5CellExtraction except that the class is able to deal with an additional dimension(t)
+    in the input data.
+    """
+
     DEFAULT_LOG_NAME = "processing.log" 
     DEFAULT_DATA_FILE = "single_cells.h5"
     DEFAULT_SEGMENTATION_DIR = "segmentation"
@@ -625,7 +669,56 @@ class TimecourseHDF5CellExtraction(HDF5CellExtraction):
                 self.log(f"index it should be: {_tmp_single_cell_index[index][2]}")
     
     def process(self, input_segmentation_path, filtered_classes_path):
-    # is called with the path to the segmented image
+        
+        """
+        Process function to run the extraction method. 
+
+        Parameters
+        ----------
+        input_segmentation_path: str
+            Path of the segmentation hdf5 file. IF this class is used as part of a project processing workflow this argument will be provided automatically.
+        filtered_classes_path: str
+            Path of the filtered classes resulting from segementation. If this class is used as part of a project processing workflow this argument will be provided automatically.
+
+        
+        Important:
+        
+            If this class is used as part of a project processing workflow, all of the arguments will be provided by the ``Project`` class based on the previous segmentation. 
+            The Project class will automaticly provide the most recent segmentation forward together with the supplied parameters. 
+
+        Example:
+
+            .. code-block:: python
+            
+                #after project is initialized and input data has been loaded and segmented
+                project.extract()
+
+        Note:
+        
+            The following parameters are required in the config file when running this method:
+            
+            .. code-block:: yaml
+
+                HDF5CellExtraction:
+
+                    compression: True
+                    
+                    #threads used in multithreading
+                    threads: 80 
+
+                    # image size in pixel
+                    image_size: 128 
+                    
+                    # directory where intermediate results should be saved
+                    cache: "/mnt/temp/cache"
+
+                    #specs to define how hdf5 data should be chunked and saved
+                    hdf5_rdcc_nbytes: 5242880000 # 5gb 1024 * 1024 * 5000 
+                    hdf5_rdcc_w0: 1
+                    hdf5_rdcc_nslots: 50000
+    
+        """
+        # is called with the path to the segmented image
         
         self.get_labelling()
         self.get_channel_info()

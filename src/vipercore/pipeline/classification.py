@@ -22,34 +22,6 @@ class MLClusterClassifier:
     This class takes a pre-trained model and uses it to classify single_cells,
     using the model’s forward function or encoder function, depending on the
     user’s choice. The classification results are saved to a TSV file.
-    
-    Attributes
-    ----------
-    config : dict
-        Dictionary containing configuration settings and parameters for the class.
-    path : str
-        Path to the folder where the classification results will be saved.
-        The folder will be created if it does not exist.
-    debug : bool, optional, default=False
-        Flag for outputting debug information and map images.
-    overwrite : bool, optional, default=False
-        Flag for recalculating all images (not yet implemented).
-    intermediate_output : bool, optional, default=True
-        Flag for enabling intermediate output.
-    
-    Methods
-    -------
-    is_Int(s)
-        Checks if the input string s is an integer. Returns True if it is, False otherwise.
-    get_timestamp()
-        Returns the current date and time as a formatted string.
-    log(message)
-        Writes a message to a log file and prints it to the console if debug is True.
-    call(extraction_dir, accessory, size=0, project_dataloader=HDF5SingleCellDataset, accessory_dataloader=HDF5SingleCellDataset)
-        Classify single cells using the pre-trained model and save the results in a TSV file.
-    inference(dataloader, model_fun)
-        Performs inference using the dataloader and specified model function, and saves the results in a TSV file.
-    
     """
     
     DEFAULT_LOG_NAME = "processing.log" 
@@ -117,6 +89,8 @@ class MLClusterClassifier:
             return False
                 
     def get_timestamp(self):
+        #Returns the current date and time as a formatted string.
+
         # datetime object containing current date and time
         now = datetime.now()
 
@@ -124,7 +98,9 @@ class MLClusterClassifier:
         return "[" + dt_string + "] "
     
     def log(self, message):
-        
+
+        #Writes a message to a log file and prints it to the console if debug is True.
+
         log_path = os.path.join(self.run_path, self.DEFAULT_LOG_NAME)
         
         if isinstance(message, str):
@@ -152,11 +128,87 @@ class MLClusterClassifier:
                  size=0, 
                  project_dataloader=HDF5SingleCellDataset, 
                  accessory_dataloader=HDF5SingleCellDataset):
+        """ 
+        Function called to perform classification on the provided HDF5 dataset.
+
+        Parameters
+        ----------
+            extraction_dir : str
+                directory containing the extracted HDF5 files from the project. If this class is used as part of a project processing workflow this argument will be provided automatically.
+            accessory : list
+                list containing accessory datasets on which inference should be performed in addition to the cells contained within the current project
+            size : int, default = 0
+                How many cells should be selected for inference. Default is 0, then all cells are  selected.
+
+        Returns
+        -------
+            Writes results to tsv files located in the project directory.
+
+        Important:
+        
+            If this class is used as part of a project processing workflow, the first argument will be provided by the ``Project`` 
+            class based on the previous segmentation. Therefore, only the second and third argument need to be provided. The Project 
+            class will automaticly provide the most recent segmentation forward together with the supplied parameters.
+    
+                    
+                    
+        Example:
+            
+            .. code-block:: python
+
+                # define acceossory dataset: additional hdf5 datasets that you want to perform an inference on
+                # leave empty if you only want to infere on all extracted cells in the current project
+                
+                accessory = ([], [], [])
+                project.classify(accessory = accessory)
+
+
+        Note:
+            
+            The following parameters are required in the config file:
+            
+            .. code-block:: yaml
+            
+                MLClusterClassifier:
+                    # channel number on which the classification should be performed
+                    channel_classification: 4
+                    
+                    #number of threads to use for dataloader
+                    threads: 24 
+                    dataloader_worker: 24
+
+                    #batch size to pass to GPU
+                    batch_size: 900
+
+                    #path to pytorch checkpoint that should be used for inference
+                    network: "path/to/model/"
+                    
+                    #classifier architecture implemented in SPARCSpy
+                    # choose one of VGG1, VGG2, VGG1_old, VGG2_old
+                    classifier_architecture: "VGG2_old"
+
+                    #if more than one checkpoint is provided in the network directory which checkpoint should be chosen
+                    # should either be "max" or a numeric value indicating the epoch number
+                    epoch: "max"
+
+                    #name of the classifier used for saving the classification results to a directory
+                    screen_label: "Autophagy_15h_classifier1"
+                    
+                    # list of which inference methods shoudl be performed
+                    # available: "forward" and "encoder"
+                    # if "forward": images are passed through all layers of the modela nd the final inference results are written to file
+                    # if "encoder": activations at the end of the CNN is written to file
+                    encoders: ["forward", "encoder"]
+                    
+                    # on which device inference should be performed
+                    # for speed should be "cuda"
+                    inference_device: "cuda"
+        """
         
         # is called with the path to the segmented image
         # Size: number of datapoints of the project dataset considered
         # ===== Dataloaders =====
-        # should be either GolgiNetDataset for single .npy files or HDF5SingleCellDataset for .h5 datasets
+        # should be HDF5SingleCellDataset for .h5 datasets
         # project_dataloader: dataloader for the project dataset
         # accessory_dataloader: dataloader for the accesssory datasets
         
