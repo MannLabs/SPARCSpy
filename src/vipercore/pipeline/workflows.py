@@ -5,6 +5,7 @@ from vipercore.processing.segmentation import segment_local_threshold, segment_g
 
 import os
 import numpy as np
+import torch
 import matplotlib.pyplot as plt
 import skfmm
 
@@ -500,7 +501,10 @@ class DAPISegmentationCellpose(BaseSegmentation):
         input_image = input_image.astype('int')
 
         #check if GPU is available
-        use_GPU = False
+        if torch.cuda.is_available():
+            use_GPU = True
+        else:
+            use_GPU = False
         # use_GPU = core.use_gpu() currently no realy acceleration through using GPU as we can't load batches, so force run on CPU
 
         #load correct segmentation model
